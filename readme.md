@@ -4,11 +4,15 @@
 
 ### Group Members
 
-Tommi Askola
-Aarni Halinen
-Lassi Mölsä
-Noah Nettey
-Ilkka Oksanen
+* Tommi Askola
+
+* Aarni Halinen
+
+* Lassi Mölsä
+
+* Noah Nettey
+
+* Ilkka Oksanen
 
 ## Description
 
