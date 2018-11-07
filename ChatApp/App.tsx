@@ -1,6 +1,6 @@
 // Import the screens
-import Main from './src/components/Main';
-import Chat from './src/components/Chat';
+import Main from './components/Main';
+import Chat from './components/Chat';
 // Import React Navigation
 import { createStackNavigator } from 'react-navigation'
 
