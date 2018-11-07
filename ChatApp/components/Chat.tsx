@@ -1,14 +1,23 @@
 // @flow
-import React from 'react';
+import React from 'react'
+import { Component } from 'react';
+
 import { GiftedChat } from 'react-native-gifted-chat'; // 0.3.0
 
 import Fire from '../Fire';
 
-// type Props = {
-//   name?: string,
-// };
+type Props = {
+  name?: string,
+};
 
-class Chat extends React.Component {
+export interface ChatProps {
+  navigation: any;
+}
+export interface ChatState {
+
+}
+
+class Chat extends React.Component<ChatProps, ChatState> {
 
   static navigationOptions = ({ navigation }) => ({
     title: (navigation.state.params || {}).name || 'Chat!',

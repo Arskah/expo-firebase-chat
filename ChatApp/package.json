@@ -9,12 +9,17 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@types/react": "^16.4.18",
+    "@types/react-native": "^0.57.7",
     "expo": "^31.0.4",
     "firebase": "^5.5.7",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
     "react-native-gifted-chat": "^0.4.3",
-    "react-navigation": "^2.18.2"
+    "react-native-typescript-transformer": "^1.2.10",
+    "react-navigation": "^2.18.2",
+    "ts-jest": "^23.10.4",
+    "typescript": "^3.1.6"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0"
