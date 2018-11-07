@@ -1,0 +1,27 @@
+Interface
+-----------
+
+
+chat_create(name) -> ???
+chat_add(chat_id, user_id) -> ???
+chat_send(chat_id, message) -> ??? reference images with some funky syntax
+chat_leave(chat_id) -> ???
+chat_images(chat_id, sort?) -> retrieve list of images on given chat
+
+image_get_raw(image_url, resolution) -> get image with given resolution
+image_get(image_url) -> same as above but with settings mandated resolution
+image_upload(chat_id, image_path??) -> upload image to firebase -> get image url
+
+user_create(???) -> params are the mandatory info, not sure yet
+user_login(username, passwd) -> true on success + false on fail
+user_search(search_term) -> results
+
+settings_get(key) -> value
+settings_set(key, value) -> value
+
+profile_picture_set(???) -> ???
+
+SETTINGS_KEYS
+-------------
+DISPLAY_NAME
+RESOLUTION
