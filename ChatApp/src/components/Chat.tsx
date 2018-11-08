@@ -6,12 +6,9 @@ import { GiftedChat } from 'react-native-gifted-chat'; // 0.3.0
 
 import Fire from '../Fire';
 
-type Props = {
-  name?: string,
-};
-
 export interface ChatProps {
   navigation: any;
+  name?: string,
 }
 export interface ChatState {
 

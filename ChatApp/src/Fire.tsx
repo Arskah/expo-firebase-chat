@@ -1,14 +1,5 @@
 import * as firebase from 'firebase';
 
-// var app = firebase.initializeApp({
-//   apiKey: 'AIzaSyDLgW8QG1qO8O5WZLC1U8WaqCr5-CvEVmo',
-//   authDomain: 'chatter-b85d7.firebaseapp.com',
-//   databaseURL: 'https://chatter-b85d7.firebaseio.com',
-//   projectId: 'chatter-b85d7',
-//   storageBucket: '',
-//   messagingSenderId: '861166145757',
-// });
-
 class Fire {
   constructor() {
     this.init();
