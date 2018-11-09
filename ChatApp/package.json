@@ -1,7 +1,14 @@
 {
   "name": "mcc-chatapp-project",
-  "main": "node_modules/expo/AppEntry.js",
+  "version": "0.0.0",
+  "description": "Chat with React Native using Expo and TypeScript",
+  "author": {
+    "email": "aarni.halinen@aalto.fi",
+    "name": "Aarni Halinen"
+  },
   "private": true,
+  "license": "MIT",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
     "eject": "expo eject",
@@ -9,6 +16,7 @@
     "ios": "expo ios",
     "test": "jest",
     "lint": "tslint src/**/*.ts",
+    "validate": "npm run lint --scripts-prepend-node-path && tsc --noEmit",
     "tsc": "tsc",
     "clean": "rimraf dist",
     "build": "npm run clean && npm run tsc --",
@@ -22,24 +30,28 @@
   },
   "dependencies": {
     "expo": "^31.0.4",
-    "firebase": "^5.5.7",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
-    "react-native-gifted-chat": "^0.4.3",
+    "react-native-router-flux": "^4.0.5",
     "react-native-typescript-transformer": "^1.2.10",
-    "react-navigation": "^2.18.2"
+    "react-navigation": "2.18.2",
+    "tslib": "1.9.3",
+    "firebase": "^5.5.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-0",
     "@expo/samples": "^2.1.1",
     "@types/expo": "^30.0.0",
+    "@types/expo__vector-icons": "6.2.3",
+    "@types/fbemitter": "2.0.32",
     "@types/react": "^16.4.18",
     "@types/react-dom": "^16.0.9",
     "@types/react-native": "^0.57.7",
     "@types/react-navigation": "^2.13.1",
     "@types/react-test-renderer": "^16.0.3",
-    "babel-preset-expo": "^5.0.0",
-    "jest-expo": "^31.0.0",
-    "ts-jest": "^23.10.4",
+    "tslint": "^5.11.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "tslint-react": "^3.6.0",
     "typescript": "^3.1.6"
   }
 }
