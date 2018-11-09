@@ -22,9 +22,11 @@ import { SvgScreen } from './SvgScreen'
 import { SystemFontsScreen } from './constants/SystemFontsScreen'
 import { VectorIconsScreen } from './VectorIconsScreen'
 
+import LoginScreen from './screens/LoginScreen'
+
 export default createStackNavigator({
   // tslint:disable:object-literal-sort-keys
-  Main: { screen: MainScreen },
+  Main: { screen: LoginScreen },
 
   Accelerometer: { screen: AccelerometerScreen },
   Amplitude: { screen: AmplitudeScreen },
