@@ -1,6 +1,7 @@
 import * as React from "react";
 import Layout from '../constants/Layout';
-import {Text, StyleSheet} from 'react-native';
+import {TextInput, StyleSheet} from 'react-native';
+import Colors from "../constants/Colors";
 
 export interface LoginPasswordProps {}
 export interface LoginPasswordState {}
@@ -8,9 +9,7 @@ export interface LoginPasswordState {}
 class LoginPassword extends React.Component<LoginPasswordProps, LoginPasswordState> {
   render() {
     return (
-      <Text style={styles.loginPassword }>
-        Login Password
-      </Text>
+      <TextInput secureTextEntry={true} placeholder={"Password"} style={styles.loginPassword}/>
     );
   }
 }
@@ -20,7 +19,9 @@ const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   loginPassword: {
-    flex: 1,
+    fontSize: 20,
+    color: Colors.white,
+    backgroundColor: 'transparent',
   },
 });
 
