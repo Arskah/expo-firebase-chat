@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Layout from '../../constants/Layout';
+import Layout from '../constants/Layout';
 import {StyleSheet, View, Text} from 'react-native';
 
 export default class SignupSection extends Component {

@@ -26,7 +26,8 @@
     "watchAndRunIOS": "concurrently \"npm run watch\" \"npm run ios\"",
     "buildRunIOS": "npm run build && npm run watchAndRunIOS ",
     "watchAndStart": "concurrently \"npm run watch\" \"npm run start\"",
-    "buildAndStart": "npm run build && npm run watchAndStart "
+    "buildAndStart": "npm run build && npm run watchAndStart ",
+    "plop": "plop"
   },
   "dependencies": {
     "expo": "^31.0.4",
@@ -49,6 +50,7 @@
     "@types/react-native": "^0.57.7",
     "@types/react-navigation": "^2.13.1",
     "@types/react-test-renderer": "^16.0.3",
+    "plop": "^2.1.0",
     "tslint": "^5.11.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",

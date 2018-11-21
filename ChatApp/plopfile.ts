@@ -23,22 +23,22 @@ module.exports = function(plop) {
     actions: [
       {
         type: "add",
-        path: "src/components/{{ properCase name }}/{{ properCase name }}.tsx",
+        path: "src/components/{{ properCase name }}.tsx",
         templateFile: "plop-templates/component.tsx",
         abortOnFail: true
       },
-      {
-        type: "add",
-        path: "src/components/{{ properCase name }}/{{ properCase name }}.scss",
-        templateFile: "plop-templates/component.scss",
-        abortOnFail: true
-      },
-      {
-        type: "add",
-        path: "src/components/{{ properCase name }}/index.ts",
-        templateFile: "plop-templates/index.ts",
-        abortOnFail: true
-      }
+      // {
+      //   type: "add",
+      //   path: "src/components/{{ properCase name }}/{{ properCase name }}.scss",
+      //   templateFile: "plop-templates/component.scss",
+      //   abortOnFail: true
+      // },
+      // {
+      //   type: "add",
+      //   path: "src/components/{{ properCase name }}/index.ts",
+      //   templateFile: "plop-templates/index.ts",
+      //   abortOnFail: true
+      // }
     ]
   });
   plop.setGenerator("New page", {
