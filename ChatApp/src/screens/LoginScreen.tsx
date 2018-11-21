@@ -1,16 +1,18 @@
 import React, {Component} from 'react';
 // import Logo from '../components/Login/Logo';
-// import FormLogin from '../components/Login/FormLogin';
+import LoginUsername from '../components/LoginUsername';
+import LoginPassword from '../components/LoginPassword';
 import Wallpaper from '../components/Wallpaper';
-// import ButtonLogin from '../components/Login/ButtonLogin';
+// import ButtonLogin from '../components/LoginButton';
 import SignupSection from '../components/SignupSection';
 
 export default class LoginScreen extends Component {
   render() {
     return (
       <Wallpaper>
-			  {/* <Logo /> */}
-			  {/* <FormLogin /> */}
+        {/* <Logo /> */}
+        <LoginUsername />
+        <LoginPassword />
 			  {/* <ButtonLogin /> */}
         <SignupSection />
       </Wallpaper>
