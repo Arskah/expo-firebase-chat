@@ -23,14 +23,15 @@ import { SystemFontsScreen } from './constants/SystemFontsScreen'
 import { VectorIconsScreen } from './VectorIconsScreen'
 
 import LoginScreen from './screens/LoginScreen'
+import SettingsScreen from './screens/SettingsScreen';
 
 export default createStackNavigator({
   // tslint:disable:object-literal-sort-keys
-  Main: { screen: LoginScreen },
+  Main: { screen: MainScreen },
 
-  Accelerometer: { screen: AccelerometerScreen },
-  Amplitude: { screen: AmplitudeScreen },
-  Asset: { screen: AssetScreen },
+  Login: { screen: LoginScreen },
+  Settings: { screen: SettingsScreen },
+  /*Asset: { screen: AssetScreen },
   Audio: { screen: AudioScreen },
   BlurView1: { screen: BlurView1Screen },
   BlurView2: { screen: BlurView2Screen },
@@ -47,5 +48,5 @@ export default createStackNavigator({
   Platform: { screen: PlatformScreen },
   Svg: { screen: SvgScreen },
   SystemFonts: { screen: SystemFontsScreen },
-  VectorIcons: { screen: VectorIconsScreen }
+  VectorIcons: { screen: VectorIconsScreen }*/
 })

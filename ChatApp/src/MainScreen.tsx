@@ -49,7 +49,11 @@ export class MainScreen extends Component<NavigationScreenProps> {
   }
 
   private destinationAndTitlePairs: Array<DestinationAndTitle> = [
-    new DestinationAndTitle('Accelerometer'),
+    
+    new DestinationAndTitle('Login'),
+    new DestinationAndTitle('Settings')
+    
+    /*new DestinationAndTitle('Accelerometer'),
     new DestinationAndTitle('Amplitude'),
     new DestinationAndTitle('Asset'),
     new DestinationAndTitle('Audio'),
@@ -65,6 +69,6 @@ export class MainScreen extends Component<NavigationScreenProps> {
     new DestinationAndTitle('LocalAuthentication', 'Local Authentication'),
     new DestinationAndTitle('MapView'),
     new DestinationAndTitle('Svg'),
-    new DestinationAndTitle('VectorIcons', 'Vector Icons')
+    new DestinationAndTitle('VectorIcons', 'Vector Icons')*/
   ]
 }
