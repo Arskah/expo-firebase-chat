@@ -50,7 +50,7 @@ export default class LoginForm extends React.Component<LoginFormProps, LoginForm
 }
 
 const DEVICE_WIDTH = Layout.window.width;
-const DEVICE_HEIGHT = Layout.window.height;
+// const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   container: {

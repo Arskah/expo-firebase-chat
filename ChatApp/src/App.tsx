@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { SwitchNavigator, createSwitchNavigator } from 'react-navigation'
+// import * as React from 'react';
+import { createSwitchNavigator } from 'react-navigation'
 
 import LandingScreen from "./screens/LandingScreen"
 import SignupScreen from "./screens/SignupScreen"

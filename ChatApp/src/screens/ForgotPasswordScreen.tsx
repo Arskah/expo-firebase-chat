@@ -58,7 +58,7 @@ export default class ForgotPasswordScreen extends Component<ForgotPasswordScreen
 }
 
 const DEVICE_WIDTH = Layout.window.width;
-const DEVICE_HEIGHT = Layout.window.height;
+// const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   container: {

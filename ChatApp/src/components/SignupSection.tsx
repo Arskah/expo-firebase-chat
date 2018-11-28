@@ -4,12 +4,12 @@ import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import Colors from '../constants/Colors';
 import { withNavigation } from 'react-navigation';
 
-export interface LoginButtonProps {
+export interface SignupSectionProps {
   navigation: any;
 }
-export interface LoginButtonState {}
+export interface SignupSectionState {}
 
-class SignupSection extends Component {
+class SignupSection extends Component<SignupSectionProps, SignupSectionState> {
   render() {
     const { navigate } = this.props.navigation;
     return (

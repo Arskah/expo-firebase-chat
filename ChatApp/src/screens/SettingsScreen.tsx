@@ -31,7 +31,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
 }
 
 const DEVICE_WIDTH = Layout.window.width;
-const DEVICE_HEIGHT = Layout.window.height;
+// const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   container: {
