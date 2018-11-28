@@ -1,17 +1,16 @@
-// import * as React from 'react';
-import { createSwitchNavigator } from 'react-navigation'
+// import * as React from "react";
+import { createSwitchNavigator } from "react-navigation";
 
-import LandingScreen from "./screens/LandingScreen"
-import SignupScreen from "./screens/SignupScreen"
-import ForgotPasswordScreen from "./screens/ForgotPasswordScreen"
-import LoginScreen from "./screens/LoginScreen"
+import LandingScreen from "./screens/LandingScreen";
+import SignupScreen from "./screens/SignupScreen";
+import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
+import LoginScreen from "./screens/LoginScreen";
 // import ChatScreen from "./screens/ChatScreen"
-import SettingsScreen from "./screens/SettingsScreen"
-import firebase from 'firebase';
+import SettingsScreen from "./screens/SettingsScreen";
+import firebase from "firebase";
+import { ENV } from "../environment";
 
-var ENV = require('../environment.js')
-
-var config = {
+const config = {
   apiKey: ENV.APIKEY,
   authDomain: ENV.AUTH_DOMAIN,
   databaseURL: ENV.DB_URL,
@@ -22,7 +21,7 @@ var config = {
 
 firebase.initializeApp(config);
 
-// create our app's navigation stack
+// create our app"s navigation stack
 const App = createSwitchNavigator(
   {
     LandingScreen,
@@ -30,11 +29,11 @@ const App = createSwitchNavigator(
     ForgotPasswordScreen,
     LoginScreen,
     // ChatScreen,
-    SettingsScreen
+    SettingsScreen,
   },
   {
-    initialRouteName: 'LandingScreen'
-  }
-)
+    initialRouteName: "LandingScreen",
+  },
+);
 
-export default App
+export default App;

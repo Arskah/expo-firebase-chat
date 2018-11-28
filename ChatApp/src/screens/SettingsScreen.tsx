@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
-import {KeyboardAvoidingView, StyleSheet, Button} from 'react-native';
-import Wallpaper from '../components/Wallpaper';
-import SettingPicture from '../components/SettingPicture';
-import SettingName from '../components/SettingName';
-import SettingResolution from '../components/SettingResolution';
-import Layout from '../constants/Layout';
-import firebase from 'firebase';
+import React, {Component} from "react";
+import {KeyboardAvoidingView, StyleSheet, Button} from "react-native";
+import Wallpaper from "../components/Wallpaper";
+import SettingPicture from "../components/SettingPicture";
+import SettingName from "../components/SettingName";
+import SettingResolution from "../components/SettingResolution";
+import Layout from "../constants/Layout";
+import firebase from "firebase";
 
 export interface SettingsScreenProps {
   navigation: any
@@ -15,8 +15,8 @@ export interface SettingsScreenState {}
 export default class SettingsScreen extends Component<SettingsScreenProps, SettingsScreenState> {
 
   public static navigationOptions = {
-    title: 'Settings'
-  }
+    title: "Settings",
+  };
 
   logOutButton = () => {
     firebase.auth().signOut().then(function () {
@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
     width: DEVICE_WIDTH,
     padding: 20,
     justifyContent: "space-between",
-    alignItems: "center"
-  }
+    alignItems: "center",
+  },
 });
-

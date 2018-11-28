@@ -1,18 +1,18 @@
 import * as React from "react";
-import { TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView } from 'react-native';
-import Layout from '../constants/Layout';
-import Colors from '../constants/Colors';
-import { withNavigation } from 'react-navigation';
-import firebase from 'firebase';
+import { TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView } from "react-native";
+import Layout from "../constants/Layout";
+import Colors from "../constants/Colors";
+import { withNavigation } from "react-navigation";
+import firebase from "firebase";
 
 const onPressLogin = (username: string, password: string) => {
   firebase.auth().signInWithEmailAndPassword(username, password)
     .catch((error) => {
-      // var errorCode = error.code;
-      var errorMessage = error.message;
+      // const errorCode = error.code;
+      const errorMessage = error.message;
       alert(errorMessage);
     });
-}
+};
 
 export interface LoginFormProps {
   navigation: any;
@@ -28,13 +28,13 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
     this.state = {
       username: "",
       password: "",
-    }
+    };
   }
 
   componentDidMount = () => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        this.props.navigation.navigate('SettingsScreen');
+        this.props.navigation.navigate("SettingsScreen");
       }
     });
   }
@@ -79,13 +79,13 @@ const styles = StyleSheet.create({
   },
   loginUsername: {
     fontSize: 20,
-    color: 'white',
-    backgroundColor: 'transparent',
+    color: "white",
+    backgroundColor: "transparent",
   },
   loginPassword: {
     fontSize: 20,
     color: Colors.white,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   loginButton: {
     backgroundColor: Colors.darkBlue,
@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
   },
   loginText: {
     color: Colors.white,
-    textAlign: 'center',
-  }
+    textAlign: "center",
+  },
 });
 
 export default withNavigation(LoginForm);

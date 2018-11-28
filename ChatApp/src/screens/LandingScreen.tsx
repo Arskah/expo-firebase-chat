@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import firebase from 'firebase';
+import React from "react";
+import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
+import firebase from "firebase";
 
 export interface LandingScreenProps {
   navigation: any
@@ -11,10 +11,11 @@ export default class LandingScreen extends React.Component<LandingScreenProps, L
   constructor(props: any) {
     super(props);
   }
+
   componentDidMount() {
     firebase.auth().onAuthStateChanged(user => {
-      this.props.navigation.navigate(user ? 'SettingsScreen' : 'LoginScreen')
-    })
+      this.props.navigation.navigate(user ? "SettingsScreen" : "LoginScreen");
+    });
   }
 
   render() {
@@ -23,14 +24,14 @@ export default class LandingScreen extends React.Component<LandingScreenProps, L
         <Text>Loading</Text>
         <ActivityIndicator size="large" />
       </View>
-    )
+    );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  }
-})
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

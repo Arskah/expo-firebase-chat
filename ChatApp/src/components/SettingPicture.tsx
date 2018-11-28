@@ -1,7 +1,7 @@
 import * as React from "react";
-import Layout from '../constants/Layout';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import { Asset } from 'expo'
+import Layout from "../constants/Layout";
+import {View, Text, StyleSheet, TouchableOpacity, Image} from "react-native";
+import { Asset } from "expo";
 
 export interface SettingPictureProps {}
 export interface SettingPictureState {}
@@ -12,13 +12,13 @@ class SettingPicture extends React.Component<SettingPictureProps, SettingPicture
 
     return (
       <TouchableOpacity
-      style={styles.container} 
+      style={styles.container}
       onPress={() => alert("Change picture")}>
       <Image
-          source={require('../../assets/images/robot-dev.png')}
+          source={require("../../assets/images/robot-dev.png")}
           style={styles.image}
         />
-    </TouchableOpacity> 
+    </TouchableOpacity>
     );
   }
 
@@ -27,13 +27,13 @@ const DEVICE_WIDTH = Layout.window.width;
 const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     width: DEVICE_WIDTH,
   },
   image: {
-    resizeMode: 'cover',
-    justifyContent: 'center',
-    alignSelf: "center"
+    resizeMode: "cover",
+    justifyContent: "center",
+    alignSelf: "center",
   },
 });
 
