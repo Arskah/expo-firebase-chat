@@ -1,10 +1,14 @@
 import * as React from "react";
 import Layout from '../constants/Layout';
 import Colors from "../constants/Colors";
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {Text, StyleSheet, TouchableOpacity} from 'react-native';
 
-export interface SettingResolutionProps {}
-export interface SettingResolutionState {}
+export interface SettingResolutionProps {
+  resolution: string;
+}
+export interface SettingResolutionState {
+  resolution: string;
+}
 
 class SettingResolution extends React.Component<SettingResolutionProps, SettingResolutionState> {
   constructor(props: any) {
@@ -25,7 +29,7 @@ class SettingResolution extends React.Component<SettingResolutionProps, SettingR
 }
 
 const DEVICE_WIDTH = Layout.window.width;
-const DEVICE_HEIGHT = Layout.window.height;
+// const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   settingResolutionButton: {

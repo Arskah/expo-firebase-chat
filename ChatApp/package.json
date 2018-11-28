@@ -31,13 +31,13 @@
   },
   "dependencies": {
     "expo": "^31.0.4",
+    "firebase": "^5.5.7",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
     "react-native-router-flux": "^4.0.5",
     "react-native-typescript-transformer": "^1.2.10",
     "react-navigation": "2.18.2",
-    "tslib": "1.9.3",
-    "firebase": "^5.5.7"
+    "tslib": "1.9.3"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",

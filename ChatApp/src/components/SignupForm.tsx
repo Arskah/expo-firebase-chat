@@ -3,8 +3,11 @@ import { KeyboardAvoidingView, Text, TextInput, TouchableOpacity, StyleSheet } f
 import Layout from '../constants/Layout';
 import Colors from '../constants/Colors';
 import firebase from 'firebase';
+import { withNavigation } from 'react-navigation';
 
-export interface SignupFormProps {}
+export interface SignupFormProps {
+  navigation: any;
+}
 export interface SignupFormState {
   username: string;
   password1: string;
@@ -21,24 +24,24 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
     }
   }
 
-  createAccount = async () => {
+  componentDidMount() {
+    this.props.navigation.navigate('LoginScreen');
+    firebase.auth().onAuthStateChanged(user => {
+      this.props.navigation.navigate(user ? 'SettingsScreen' : 'LoginScreen')
+    })
+  }
+
+  createAccount = () => {
     const { username, password1, password2 } = this.state;
     if (password1 === password2) {
-      const user = await firebase.auth().createUserWithEmailAndPassword(username, password1).catch(function(error) {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        if (errorCode == 'auth/weak-password') {
-          alert('The password is too weak.');
-        } else {
+      const user = firebase.auth().createUserWithEmailAndPassword(username, password1)
+        .catch((error) => {
+          var errorMessage = error.message;
           alert(errorMessage);
-        }
-        alert(error);
-        return false;
-      });
-      return true;
-    }
-    alert("Passwords do not match");
-    return false;
+        });
+    } else {
+      alert("Passwords do not match");
+    };
   }
 
   render() {
@@ -65,7 +68,7 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
 }
 
 const DEVICE_WIDTH = Layout.window.width;
-const DEVICE_HEIGHT = Layout.window.height;
+// const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   signupForm: {
@@ -97,4 +100,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SignupForm;
+export default withNavigation(SignupForm);

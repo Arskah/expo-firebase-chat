@@ -2,24 +2,41 @@ import * as React from "react";
 import { TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import Layout from '../constants/Layout';
 import Colors from '../constants/Colors';
+import { withNavigation } from 'react-navigation';
+import firebase from 'firebase';
 
 const onPressLogin = (username: string, password: string) => {
-  alert(username);
+  firebase.auth().signInWithEmailAndPassword(username, password)
+    .catch((error) => {
+      // var errorCode = error.code;
+      var errorMessage = error.message;
+      alert(errorMessage);
+    });
 }
 
-export interface LoginFormProps {}
+export interface LoginFormProps {
+  navigation: any;
+}
 export interface LoginFormState {
   username: string;
   password: string;
 }
 
-export default class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
+class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
   constructor(props: any) {
     super(props);
     this.state = {
       username: "",
       password: "",
     }
+  }
+
+  componentDidMount = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.props.navigation.navigate('SettingsScreen');
+      }
+    });
   }
 
   handleOnPress = () => {
@@ -50,7 +67,7 @@ export default class LoginForm extends React.Component<LoginFormProps, LoginForm
 }
 
 const DEVICE_WIDTH = Layout.window.width;
-const DEVICE_HEIGHT = Layout.window.height;
+// const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   container: {
@@ -79,3 +96,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   }
 });
+
+export default withNavigation(LoginForm);
