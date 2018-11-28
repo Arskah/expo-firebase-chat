@@ -1,15 +1,18 @@
 import * as React from "react";
 import Layout from '../constants/Layout';
 import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import { Asset, ImagePicker, Permissions } from 'expo'
 import default_image from '../../assets/images/robot-dev.png'
 import Dialog from 'react-native-dialog';
 
 export interface SettingPictureProps {
-  image : string
+  visible : boolean,
+  image : string,
+  handlePush: any,
+  handleCancel: any,
+  pickCamera: any,
+  pickGallery: any,
 }
 export interface SettingPictureState {
-  image : string,
   dialogVisible: boolean
 }
 
@@ -18,46 +21,9 @@ class SettingPicture extends React.Component<SettingPictureProps, SettingPicture
   constructor(props: any) {
     super(props);
     this.state = {
-      image: props.image || "",
       dialogVisible: false
     };
   }
-
-  showDialog = () => {
-    this.setState({ dialogVisible: true });
-  };
-
-  handleCancel = () => {
-    this.setState({ dialogVisible: false});
-  };
-
-  pickFromGallery = async () => {
-    this.setState({ dialogVisible: false});
-    let result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
-
-    console.log(result);
-    if(!result.cancelled){this.setState({image: result.uri})}
-  };
-
-
-  pickFromCamera = async () => {
-    this.setState({ dialogVisible: false});
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    if (status === 'granted') {
-      let result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-      });
-  
-      console.log(result);
-      if(!result.cancelled){this.setState({image: result.uri})}
-    }
-
-  };
-
 
   render() {
 
@@ -65,24 +31,24 @@ class SettingPicture extends React.Component<SettingPictureProps, SettingPicture
       <View>
         <TouchableOpacity
           style={styles.container} 
-          onPress={() => this.showDialog()}>
-          {this.displayImage()}
+          onPress={this.props.handlePush}>
+          {this.displayImage(this.props.image)}
         </TouchableOpacity> 
-        <Dialog.Container visible={this.state.dialogVisible}>
+        <Dialog.Container visible={this.props.visible}>
           <Dialog.Title>Pick new picture from</Dialog.Title>
-          <Dialog.Button label="Gallery" onPress={this.pickFromGallery} />
-          <Dialog.Button label="Camera" onPress={this.pickFromCamera} />
-          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
+          <Dialog.Button label="Gallery" onPress={this.props.pickGallery} />
+          <Dialog.Button label="Camera" onPress={this.props.pickCamera} />
+          <Dialog.Button label="Cancel" onPress={this.props.handleCancel} />
         </Dialog.Container>
       </View>
     );
   }
 
-  displayImage() {
-    if (this.state.image === "") {
+  displayImage(image : string) {
+    if (image === "") {
       return <Image source={default_image} style={styles.image} />
     } else {
-      return <Image source={{ uri: this.state.image }} style={styles.image} />
+      return <Image source={{ uri: image }} style={styles.image} />
     }
 }
 

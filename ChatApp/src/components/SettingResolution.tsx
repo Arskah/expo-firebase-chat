@@ -4,17 +4,16 @@ import Colors from "../constants/Colors";
 import {View, Text, StyleSheet, TouchableOpacity, Picker} from 'react-native';
 
 export interface SettingResolutionProps {
-  resolution: string
+  resolution: 'low' | 'high' | 'full',
+  handleChange: any
 }
 export interface SettingResolutionState {
-  resolution: string,
 }
 
 class SettingResolution extends React.Component<SettingResolutionProps, SettingResolutionState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      resolution: props.resolution,
     };
   }
   render() {
@@ -28,9 +27,9 @@ class SettingResolution extends React.Component<SettingResolutionProps, SettingR
         <Text style={styles.settingResolutionText}>Resolution: {this.state.resolution}</Text>
       </TouchableOpacity>*/}
       <Picker
-      selectedValue={this.state.resolution}
+      selectedValue={this.props.resolution}
       style={styles.settingResolutionPicker}
-      onValueChange={(itemValue, itemIndex) => this.setState({resolution: itemValue})}>
+      onValueChange={(itemValue, itemIndex) => this.props.handleChange(itemValue)}>
         <Picker.Item label="  Resolution: Low" value="low" />
         <Picker.Item label="  Resolution: High" value="high" />
         <Picker.Item label="  Resolution: Full" value="full" />

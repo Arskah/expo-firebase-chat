@@ -5,7 +5,12 @@ import {View, Text, StyleSheet, TextInput, TouchableOpacity} from 'react-native'
 import Dialog from 'react-native-dialog';
 
 export interface SettingNameProps {
-  username: string
+  username: string,
+  dialogVisible: boolean,
+  showDialog: any,
+  handleCancel: any,
+  handleSubmit: any,
+  handleChange: any
 }
 export interface SettingNameState {
   username: string,
@@ -19,7 +24,7 @@ class SettingName extends React.Component<SettingNameProps, SettingNameState> {
     this.state = {
       username: props.username,
       mutable_username: props.username,
-      dialogVisible: false
+      dialogVisible: false,
       };
   }
 
@@ -39,20 +44,17 @@ class SettingName extends React.Component<SettingNameProps, SettingNameState> {
     this.setState({ mutable_username: name });
   };
   
-  
-
-
   render() {
     return (
       <View>
-        <TouchableOpacity style={styles.settingNameButton} onPress={this.showDialog}>
-          <Text style={styles.settingNameText}>Username: {this.state.username}</Text>
+        <TouchableOpacity style={styles.settingNameButton} onPress={this.props.showDialog}>
+          <Text style={styles.settingNameText}>Username: {this.props.username}</Text>
         </TouchableOpacity>
-        <Dialog.Container visible={this.state.dialogVisible}>
+        <Dialog.Container visible={this.props.dialogVisible}>
           <Dialog.Title>Change Username</Dialog.Title>
-          <Dialog.Input label="Username:" defaultValue={this.state.mutable_username} onChangeText={(name : string) => this.handleChange(name)} />
-          <Dialog.Button label="Submit" onPress={this.handleSubmit} />
-          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
+          <Dialog.Input label="Username:" defaultValue={this.props.username} onChangeText={(name : string) => this.props.handleChange(name)} />
+          <Dialog.Button label="Cancel" onPress={this.props.handleCancel} />
+          <Dialog.Button label="Submit" onPress={this.props.handleSubmit} />
         </Dialog.Container>
       </View>
     );
