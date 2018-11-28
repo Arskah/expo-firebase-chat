@@ -66,7 +66,7 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
 }
 
 const DEVICE_WIDTH = Layout.window.width;
-const DEVICE_HEIGHT = Layout.window.height;
+// const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   signupForm: {
