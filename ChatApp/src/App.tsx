@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { SwitchNavigator } from 'react-navigation'
+import { SwitchNavigator, createSwitchNavigator } from 'react-navigation'
 
 import LandingScreen from "./screens/LandingScreen"
 import SignupScreen from "./screens/SignupScreen"
@@ -23,7 +23,7 @@ var config = {
 firebase.initializeApp(config);
 
 // create our app's navigation stack
-const App = SwitchNavigator(
+const App = createSwitchNavigator(
   {
     LandingScreen,
     SignupScreen,
