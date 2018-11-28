@@ -2,23 +2,22 @@ import React, {Component} from 'react';
 import Layout from '../constants/Layout';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import Colors from '../constants/Colors';
+import { withNavigation } from 'react-navigation';
 
-const pressCreateAccount = () => {
-
+export interface LoginButtonProps {
+  navigation: any;
 }
+export interface LoginButtonState {}
 
-const pressForgotPassword = () => {
-
-}
-
-export default class SignupSection extends Component {
+class SignupSection extends Component {
   render() {
+    const { navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={pressCreateAccount}>
+        <TouchableOpacity onPress={() => navigate('SignupScreen') }>
           <Text style={styles.text}>Create Account</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={pressForgotPassword}>
+        <TouchableOpacity onPress={() => navigate('ForgotPasswordScreen') }>
           <Text style={styles.text}>Forgot Password?</Text>
         </TouchableOpacity>
       </View>
@@ -43,3 +42,5 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
 });
+
+export default withNavigation(SignupSection);

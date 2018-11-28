@@ -6,7 +6,12 @@ import SettingName from '../components/SettingName';
 import SettingResolution from '../components/SettingResolution';
 import Layout from '../constants/Layout';
 
-export default class SettingsScreen extends Component {
+export interface SettingsScreenProps {
+  navigation: any
+}
+export interface SettingsScreenState {}
+
+export default class SettingsScreen extends Component<SettingsScreenProps, SettingsScreenState> {
 
   public static navigationOptions = {
     title: 'Settings'
