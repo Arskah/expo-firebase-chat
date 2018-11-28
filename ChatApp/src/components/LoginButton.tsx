@@ -1,8 +1,8 @@
 import * as React from "react";
+import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 import Layout from '../constants/Layout';
-import {StyleSheet, TouchableOpacity, Text} from 'react-native';
 import Colors from "../constants/Colors";
-import LoginUsername from "./LoginUsername";
+import login from "../Fire";
 
 export interface LoginButtonProps {}
 export interface LoginButtonState {
@@ -25,10 +25,10 @@ class LoginButton extends React.Component<LoginButtonProps, LoginButtonState> {
   render() {
     return (
       <TouchableOpacity
-        style={styles.loginButton} 
+        style={styles.loginButton}
         onPress={onPressLogin(this.state)}>
         <Text style={styles.loginText}>LOGIN</Text>
-      </TouchableOpacity> 
+      </TouchableOpacity>
     );
   }
 }
