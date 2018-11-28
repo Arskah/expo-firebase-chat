@@ -9,7 +9,7 @@ import LoginScreen from "./screens/LoginScreen"
 import SettingsScreen from "./screens/SettingsScreen"
 import firebase from 'firebase';
 
-var ENV = require('./environment.js')
+var ENV = require('../environment.js')
 
 var config = {
   apiKey: ENV.APIKEY,
