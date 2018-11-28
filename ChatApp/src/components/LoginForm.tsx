@@ -1,8 +1,7 @@
 import * as React from "react";
-import { TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import Layout from '../constants/Layout';
 import Colors from '../constants/Colors';
-import { Fragment } from "react";
 
 const onPressLogin = (username: string, password: string) => {
   alert(username);
@@ -14,7 +13,7 @@ export interface LoginFormState {
   password: string;
 }
 
-class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
+export default class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -29,7 +28,7 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
 
   render() {
     return (
-      <Fragment>
+      <KeyboardAvoidingView style={styles.container} behavior="padding">
         <TextInput
           onChangeText={(text) => this.setState({ username: text })}
           style={styles.loginUsername}
@@ -45,7 +44,7 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
           onPress={this.handleOnPress}>
           <Text style={styles.loginText}>LOGIN</Text>
         </TouchableOpacity>
-      </Fragment>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -54,6 +53,13 @@ const DEVICE_WIDTH = Layout.window.width;
 const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 3,
+    top: 30,
+    width: DEVICE_WIDTH,
+    padding: 20,
+    justifyContent: "space-around",
+  },
   loginUsername: {
     fontSize: 20,
     color: 'white',
@@ -73,5 +79,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   }
 });
-
-export default LoginForm;
