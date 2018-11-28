@@ -25,9 +25,10 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
   }
 
   componentDidMount() {
-    this.props.navigation.navigate("LoginScreen");
     firebase.auth().onAuthStateChanged(user => {
-      this.props.navigation.navigate(user ? "SettingsScreen" : "LoginScreen");
+      if (user) {
+        this.props.navigation.navigate("SettingsScreen");
+      }
     });
   }
 
