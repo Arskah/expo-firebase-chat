@@ -12,10 +12,9 @@ export default class LandingScreen extends React.Component<LandingScreenProps, L
     super(props);
   }
   componentDidMount() {
-    this.props.navigation.navigate('LoginScreen')
-    // firebase.auth().onAuthStateChanged(user => {
-    //   this.props.navigation.navigate(user ? 'ChatScreen' : 'SignupScreen')
-    // })
+    firebase.auth().onAuthStateChanged(user => {
+      this.props.navigation.navigate(user ? 'SettingsScreen' : 'LoginScreen')
+    })
   }
 
   render() {

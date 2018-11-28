@@ -24,6 +24,13 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
     }
   }
 
+  componentDidMount() {
+    this.props.navigation.navigate('LoginScreen');
+    firebase.auth().onAuthStateChanged(user => {
+      this.props.navigation.navigate(user ? 'SettingsScreen' : 'LoginScreen')
+    })
+  }
+
   createAccount = () => {
     const { username, password1, password2 } = this.state;
     if (password1 === password2) {
@@ -31,11 +38,6 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
         .catch((error) => {
           var errorMessage = error.message;
           alert(errorMessage);
-        })
-        .then((user) => {
-          if (user) {
-            this.props.navigation.navigate('LoginScreen');  // TODO: Change to ChatScreen
-          };
         });
     } else {
       alert("Passwords do not match");

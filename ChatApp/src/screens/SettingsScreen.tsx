@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import {KeyboardAvoidingView, StyleSheet} from 'react-native';
+import {KeyboardAvoidingView, StyleSheet, Button} from 'react-native';
 import Wallpaper from '../components/Wallpaper';
 import SettingPicture from '../components/SettingPicture';
 import SettingName from '../components/SettingName';
 import SettingResolution from '../components/SettingResolution';
 import Layout from '../constants/Layout';
+import firebase from 'firebase';
 
 export interface SettingsScreenProps {
   navigation: any
@@ -17,14 +18,26 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     title: 'Settings'
   }
 
+  logOutButton = () => {
+    firebase.auth().signOut().then(function () {
+      // Sign-out successful.
+    }).catch(function (error) {
+      // An error happened.
+    });
+  }
+
   render() {
     return (
     <Wallpaper>
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <SettingPicture/>
-        <SettingName username="Erkki Erkkilä"/>
+        <SettingName username={firebase.auth().currentUser.email}/>
         <SettingResolution resolution="low"/>
       </KeyboardAvoidingView>
+      <Button title="Sign out"
+              onPress={this.logOutButton}
+      >
+      </Button>
     </Wallpaper>
     );
   }

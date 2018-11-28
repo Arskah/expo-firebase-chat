@@ -31,6 +31,14 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
     }
   }
 
+  componentDidMount = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.props.navigation.navigate('SettingsScreen');
+      }
+    });
+  }
+
   handleOnPress = () => {
     onPressLogin(this.state.username, this.state.password);
   }
