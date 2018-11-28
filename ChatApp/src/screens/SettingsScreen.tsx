@@ -10,8 +10,8 @@ import { ImagePicker, Permissions } from 'expo'
 
 export interface SettingsScreenProps {}
 export interface SettingsScreenState {
-  username: string,
-  mutable_username: string,
+  displayname: string,
+  mutable_displayname: string,
   dialogNameVisible: boolean,
   image: string,
   mutable_image: string,
@@ -26,8 +26,8 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     super(props);
     //TODO: authenticate user with firebase.auth() and get username, resolution and image from server
     this.state = {
-      username: "Heikki Hirvi",
-      mutable_username: "Heikki Hirvi",
+      displayname: "Heikki Hirvi",
+      mutable_displayname: "Heikki Hirvi",
       dialogNameVisible: false,
       image: "",
       mutable_image: "",
@@ -82,7 +82,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
   };
   
   handleNameCancel = () => {
-    this.setState({ dialogNameVisible: false, mutable_username:this.state.username });
+    this.setState({ dialogNameVisible: false, mutable_displayname:this.state.displayname });
   };
   
   handleNameSubmit = () => {
@@ -90,7 +90,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
   };
 
   handleNameChange = (name : string) => {
-    this.setState({ mutable_username: name });
+    this.setState({ mutable_displayname: name });
   };
 
   handleResolutionChange = (new_resolution : 'low'|'high'|'full') =>{
@@ -98,7 +98,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
   }
 
   handleSave = () =>{
-    if(this.state.image === this.state.mutable_image && this.state.resolution === this.state.mutable_resolution && this.state.username === this.state.mutable_username){
+    if(this.state.image === this.state.mutable_image && this.state.resolution === this.state.mutable_resolution && this.state.displayname === this.state.mutable_displayname){
       alert("Nothing to save")
     }
     else{
@@ -111,7 +111,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     <Wallpaper>
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <SettingPicture visible={this.state.dialogPictureVisible} image={this.state.mutable_image} handlePush={this.showPictureDialog} handleCancel={this.handlePictureCancel} pickCamera={this.pickFromCamera} pickGallery={this.pickFromGallery}/>
-        <SettingName username={this.state.mutable_username} dialogVisible={this.state.dialogNameVisible} showDialog={this.showNameDialog} handleCancel={this.handleNameCancel} handleSubmit={this.handleNameSubmit} handleChange={this.handleNameChange}/>
+        <SettingName displayname={this.state.mutable_displayname} dialogVisible={this.state.dialogNameVisible} showDialog={this.showNameDialog} handleCancel={this.handleNameCancel} handleSubmit={this.handleNameSubmit} handleChange={this.handleNameChange}/>
         <SettingResolution resolution={this.state.mutable_resolution} handleChange={this.handleResolutionChange}/>
       </KeyboardAvoidingView>
       <SettingSave handleClick={this.handleSave}></SettingSave>
