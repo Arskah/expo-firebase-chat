@@ -4,12 +4,24 @@ import {TextInput, StyleSheet} from 'react-native';
 import Colors from "../constants/Colors";
 
 export interface LoginPasswordProps {}
-export interface LoginPasswordState {}
+export interface LoginPasswordState {
+  password: string;
+}
 
 class LoginPassword extends React.Component<LoginPasswordProps, LoginPasswordState> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      password: ""
+    }
+  }
   render() {
     return (
-      <TextInput secureTextEntry={true} placeholder={"Password"} style={styles.loginPassword}/>
+      <TextInput
+        onChangeText={(text) => this.setState({ password: text})}
+        secureTextEntry={true}
+        placeholder={"Password"}
+        style={styles.loginPassword}/>
     );
   }
 }

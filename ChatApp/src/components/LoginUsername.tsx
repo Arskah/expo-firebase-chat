@@ -17,7 +17,11 @@ class LoginUsername extends React.Component<LoginUsernameProps, LoginUsernameSta
   }
   render() {
     return (
-      <TextInput style={styles.loginUsername } autoFocus={true} placeholder={"Username"} />
+      <TextInput
+        onChangeText={(text) => this.setState({ username: text })}
+        style={styles.loginUsername }
+        autoFocus={true}
+        placeholder={"Username"} />
     );
   }
 }

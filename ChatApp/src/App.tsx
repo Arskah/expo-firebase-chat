@@ -30,7 +30,7 @@ const App = SwitchNavigator(
     SettingsScreen
   },
   {
-    initialRouteName: 'LoginScreen'
+    initialRouteName: 'LandingScreen'
   }
 )
 
