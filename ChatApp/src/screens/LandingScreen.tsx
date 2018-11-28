@@ -1,14 +1,13 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import firebase from 'firebase';
-// import navigation from 'react-navigation';
 
 export interface LandingScreenProps {
   navigation: any
 }
 export interface LandingScreenState { }
 
-export default class LandingScreen extends React.Component {
+export default class LandingScreen extends React.Component<LandingScreenProps, LandingScreenState> {
   constructor(props: any) {
     super(props);
   }

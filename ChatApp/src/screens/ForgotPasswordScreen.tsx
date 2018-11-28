@@ -8,13 +8,14 @@ const handleResetPress = (email: string) => {
   alert(email);
 }
 
-
-export interface ForgotPasswordScreenProps { }
+export interface ForgotPasswordScreenProps {
+  navigation: any
+}
 export interface ForgotPasswordScreenState {
   email: string;
 }
 
-export default class ForgotPasswordScreen extends Component {
+export default class ForgotPasswordScreen extends Component<ForgotPasswordScreenProps, ForgotPasswordScreenState> {
   constructor(props: any) {
     super(props);
     this.state = {
