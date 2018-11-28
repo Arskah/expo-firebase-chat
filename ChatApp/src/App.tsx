@@ -7,19 +7,20 @@ import ForgotPasswordScreen from "./screens/ForgotPasswordScreen"
 import LoginScreen from "./screens/LoginScreen"
 // import ChatScreen from "./screens/ChatScreen"
 import SettingsScreen from "./screens/SettingsScreen"
+import firebase from 'firebase';
 
-// import firebase from 'firebase';
+var ENV = require('./environment.js')
 
-// var config = {
-//   apiKey: "<API_KEY>",
-//   authDomain: "<PROJECT_ID>.firebaseapp.com",
-//   databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
-//   projectId: "<PROJECT_ID>",
-//   storageBucket: "<BUCKET>.appspot.com",
-//   messagingSenderId: "<SENDER_ID>",
-// };
+var config = {
+  apiKey: ENV.APIKEY,
+  authDomain: ENV.AUTH_DOMAIN,
+  databaseURL: ENV.DB_URL,
+  projectId: ENV.PID,
+  storageBucket: ENV.SBUCKET,
+  messagingSenderId: ENV.SEND_ID,
+};
 
-// firebase.initializeApp(config)
+firebase.initializeApp(config);
 
 // create our app's navigation stack
 const App = SwitchNavigator(
