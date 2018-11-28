@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {BackHandler} from 'react-native';
 import Wallpaper from '../components/Wallpaper';
-import SignupForm from '../components/SignupForm'
+import SignupForm from '../components/SignupForm';
 
 export default class SignupScreen extends Component {
   componentDidMount() {
