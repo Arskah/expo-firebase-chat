@@ -2,7 +2,6 @@ import * as React from "react";
 import Layout from '../constants/Layout';
 import Colors from "../constants/Colors";
 import {View, Text, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
-import Prompt from 'react-native-prompt';
 import Dialog from 'react-native-dialog';
 
 export interface SettingNameProps {
@@ -11,7 +10,6 @@ export interface SettingNameProps {
 export interface SettingNameState {
   username: string,
   mutable_username: string,
-  promptVisible: boolean,
   dialogVisible: boolean
 }
 
@@ -21,7 +19,6 @@ class SettingName extends React.Component<SettingNameProps, SettingNameState> {
     this.state = {
       username: props.username,
       mutable_username: props.username,
-      promptVisible: false,
       dialogVisible: false
       };
   }
@@ -35,14 +32,10 @@ class SettingName extends React.Component<SettingNameProps, SettingNameState> {
   };
   
   handleSubmit = () => {
-    // The user has pressed the "Delete" button, so here you can do your own logic.
-    // ...Your logic
     this.setState({ dialogVisible: false, username: this.state.mutable_username });
   };
 
   handleChange = (name : string) => {
-    // The user has pressed the "Delete" button, so here you can do your own logic.
-    // ...Your logic
     this.setState({ mutable_username: name });
   };
   
