@@ -1,12 +1,12 @@
 import * as React from "react";
-import Layout from '../constants/Layout';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import default_image from '../../assets/images/robot-dev.png'
-import Dialog from 'react-native-dialog';
+import Layout from "../constants/Layout";
+import {View, Text, StyleSheet, TouchableOpacity, Image} from "react-native";
+import default_image from "../../assets/images/robot-dev.png";
+import Dialog from "react-native-dialog";
 
 export interface SettingPictureProps {
-  visible : boolean,
-  image : string,
+  visible: boolean,
+  image: string,
   handlePush: any,
   handleCancel: any,
   pickCamera: any,
@@ -21,7 +21,7 @@ class SettingPicture extends React.Component<SettingPictureProps, SettingPicture
   constructor(props: any) {
     super(props);
     this.state = {
-      dialogVisible: false
+      dialogVisible: false,
     };
   }
 
@@ -30,10 +30,10 @@ class SettingPicture extends React.Component<SettingPictureProps, SettingPicture
     return (
       <View>
         <TouchableOpacity
-          style={styles.container} 
+          style={styles.container}
           onPress={this.props.handlePush}>
           {this.displayImage(this.props.image)}
-        </TouchableOpacity> 
+        </TouchableOpacity>
         <Dialog.Container visible={this.props.visible}>
           <Dialog.Title>Pick new picture from</Dialog.Title>
           <Dialog.Button label="Gallery" onPress={this.props.pickGallery} />
@@ -44,11 +44,11 @@ class SettingPicture extends React.Component<SettingPictureProps, SettingPicture
     );
   }
 
-  displayImage(image : string) {
+  displayImage(image: string) {
     if (image === "") {
-      return <Image source={default_image} style={styles.image} />
+      return <Image source={default_image} style={styles.image} />;
     } else {
-      return <Image source={{ uri: image }} style={styles.image} />
+      return <Image source={{ uri: image }} style={styles.image} />;
     }
 }
 
@@ -61,11 +61,11 @@ const styles = StyleSheet.create({
     width: DEVICE_WIDTH,
   },
   image: {
-    resizeMode: 'cover',
-    justifyContent: 'center',
+    resizeMode: "cover",
+    justifyContent: "center",
     alignSelf: "center",
     width: 150,
-    height: 150
+    height: 150,
   },
 });
 

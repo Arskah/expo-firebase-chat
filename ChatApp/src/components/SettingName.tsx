@@ -1,8 +1,8 @@
 import * as React from "react";
 import Layout from '../constants/Layout';
 import Colors from "../constants/Colors";
-import {View, Text, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
-import Dialog from 'react-native-dialog';
+import {View, Text, StyleSheet, TextInput, TouchableOpacity} from "react-native";
+import Dialog from "react-native-dialog";
 
 export interface SettingNameProps {
   displayname: string,
@@ -15,7 +15,6 @@ export interface SettingNameProps {
 export interface SettingNameState {}
 
 class SettingName extends React.Component<SettingNameProps, SettingNameState> {
-  
   render() {
     return (
       <View>
@@ -24,7 +23,7 @@ class SettingName extends React.Component<SettingNameProps, SettingNameState> {
         </TouchableOpacity>
         <Dialog.Container visible={this.props.dialogVisible}>
           <Dialog.Title>Change Display name</Dialog.Title>
-          <Dialog.Input label="Display name:" defaultValue={this.props.displayname} onChangeText={(name : string) => this.props.handleChange(name)} />
+          <Dialog.Input label="Display name:" defaultValue={this.props.displayname} onChangeText={(name: string) => this.props.handleChange(name)} />
           <Dialog.Button label="Cancel" onPress={this.props.handleCancel} />
           <Dialog.Button label="Submit" onPress={this.props.handleSubmit} />
         </Dialog.Container>
@@ -47,8 +46,7 @@ const styles = StyleSheet.create({
   },
   settingNameText: {
     color: Colors.white,
-  }
-  
+  },
 });
 
 export default SettingName;
