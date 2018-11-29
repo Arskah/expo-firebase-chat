@@ -1,10 +1,10 @@
-import React, {Component} from 'react';
-import Layout from '../constants/Layout';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
-import Colors from '../constants/Colors';
+import React, {Component} from "react";
+import Layout from "../constants/Layout";
+import {StyleSheet, View, Text, TouchableOpacity} from "react-native";
+import Colors from "../constants/Colors";
 
 export interface SettingSaveProps {
-  handleClick : any
+  handleClick: any,
 }
 export interface SettingSaveState {}
 
@@ -25,17 +25,17 @@ const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   container: {
-    flex:1,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-around",
     width: DEVICE_WIDTH,
     top: 50,
     marginBottom: 300,
-    alignItems: 'center',
+    alignItems: "center",
   },
   text: {
     color: Colors.white,
-    fontSize: 20
+    fontSize: 20,
   },
 });
 
