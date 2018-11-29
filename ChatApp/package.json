@@ -30,10 +30,12 @@
     "plop": "plop"
   },
   "dependencies": {
+    "@types/react-native-dialog": "^4.0.1",
     "expo": "^31.0.4",
     "firebase": "^5.5.7",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
+    "react-native-dialog": "^5.4.0",
     "react-native-router-flux": "^4.0.5",
     "react-native-typescript-transformer": "^1.2.10",
     "react-navigation": "2.18.2",
