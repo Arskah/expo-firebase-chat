@@ -12,7 +12,7 @@ export interface LoginScreenState {}
 export default class LoginScreen extends Component<LoginScreenProps, LoginScreenState> {
 
   componentDidMount = () => {
-    console.log(firebase.auth().currentUser);
+    // console.log(firebase.auth().currentUser);
   }
 
   render() {

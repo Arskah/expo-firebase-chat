@@ -3,3 +3,5 @@
 
 *.log
 environment.ts
+environment.js
+dist/

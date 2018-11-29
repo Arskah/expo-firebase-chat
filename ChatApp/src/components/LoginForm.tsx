@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView } from "react-native";
+import { TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView, Alert } from "react-native";
 import Layout from "../constants/Layout";
 import Colors from "../constants/Colors";
 import { withNavigation } from "react-navigation";
@@ -8,9 +8,9 @@ import firebase from "firebase";
 const onPressLogin = (username: string, password: string) => {
   firebase.auth().signInWithEmailAndPassword(username, password)
     .catch((error) => {
-      // const errorCode = error.code;
+      // var errorCode = error.code;
       const errorMessage = error.message;
-      alert(errorMessage);
+      Alert.alert(errorMessage);
     });
 };
 
