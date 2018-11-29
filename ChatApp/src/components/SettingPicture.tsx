@@ -1,26 +1,56 @@
 import * as React from "react";
-import Layout from "../constants/Layout";
-import {View, Text, StyleSheet, TouchableOpacity, Image} from "react-native";
-import { Asset } from "expo";
+import Layout from '../constants/Layout';
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import default_image from '../../assets/images/robot-dev.png'
+import Dialog from 'react-native-dialog';
 
-export interface SettingPictureProps {}
-export interface SettingPictureState {}
+export interface SettingPictureProps {
+  visible : boolean,
+  image : string,
+  handlePush: any,
+  handleCancel: any,
+  pickCamera: any,
+  pickGallery: any,
+}
+export interface SettingPictureState {
+  dialogVisible: boolean
+}
 
 class SettingPicture extends React.Component<SettingPictureProps, SettingPictureState> {
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      dialogVisible: false
+    };
+  }
 
   render() {
 
     return (
-      <TouchableOpacity
-      style={styles.container}
-      onPress={() => alert("Change picture")}>
-      <Image
-          source={require("../../assets/images/robot-dev.png")}
-          style={styles.image}
-        />
-    </TouchableOpacity>
+      <View>
+        <TouchableOpacity
+          style={styles.container} 
+          onPress={this.props.handlePush}>
+          {this.displayImage(this.props.image)}
+        </TouchableOpacity> 
+        <Dialog.Container visible={this.props.visible}>
+          <Dialog.Title>Pick new picture from</Dialog.Title>
+          <Dialog.Button label="Gallery" onPress={this.props.pickGallery} />
+          <Dialog.Button label="Camera" onPress={this.props.pickCamera} />
+          <Dialog.Button label="Cancel" onPress={this.props.handleCancel} />
+        </Dialog.Container>
+      </View>
     );
   }
+
+  displayImage(image : string) {
+    if (image === "") {
+      return <Image source={default_image} style={styles.image} />
+    } else {
+      return <Image source={{ uri: image }} style={styles.image} />
+    }
+}
 
 }
 const DEVICE_WIDTH = Layout.window.width;
@@ -31,9 +61,11 @@ const styles = StyleSheet.create({
     width: DEVICE_WIDTH,
   },
   image: {
-    resizeMode: "cover",
-    justifyContent: "center",
+    resizeMode: 'cover',
+    justifyContent: 'center',
     alignSelf: "center",
+    width: 150,
+    height: 150
   },
 });
 

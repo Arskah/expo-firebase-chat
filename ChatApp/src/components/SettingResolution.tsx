@@ -1,29 +1,40 @@
 import * as React from "react";
 import Layout from "../constants/Layout";
 import Colors from "../constants/Colors";
-import {Text, StyleSheet, TouchableOpacity} from "react-native";
+import {View, Text, StyleSheet, TouchableOpacity, Picker} from 'react-native';
 
 export interface SettingResolutionProps {
-  resolution: string;
+  resolution: 'low' | 'high' | 'full',
+  handleChange: any
 }
 export interface SettingResolutionState {
-  resolution: string;
 }
 
 class SettingResolution extends React.Component<SettingResolutionProps, SettingResolutionState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      resolution: props.resolution,
     };
   }
   render() {
     return (
-      <TouchableOpacity
-      style={styles.settingResolutionButton}
-      onPress={() => alert("Change resolution")}>
-      <Text style={styles.settingResolutionText}>Resolution: {this.state.resolution}</Text>
-    </TouchableOpacity>
+      <View style={{    borderRadius: 4,
+        borderWidth: 0.5,
+        borderColor: '#d6d7da',}}>
+        {/*<TouchableOpacity
+        style={styles.settingResolutionButton} 
+        onPress={() => alert("Change resolution")}>
+        <Text style={styles.settingResolutionText}>Resolution: {this.state.resolution}</Text>
+      </TouchableOpacity>*/}
+      <Picker
+      selectedValue={this.props.resolution}
+      style={styles.settingResolutionPicker}
+      onValueChange={(itemValue, itemIndex) => this.props.handleChange(itemValue)}>
+        <Picker.Item label="  Resolution: Low" value="low" />
+        <Picker.Item label="  Resolution: High" value="high" />
+        <Picker.Item label="  Resolution: Full" value="full" />
+      </Picker>
+    </View>
     );
   }
 }
@@ -32,17 +43,16 @@ const DEVICE_WIDTH = Layout.window.width;
 // const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
-  settingResolutionButton: {
-    backgroundColor: Colors.darkBlue,
-    padding: 20,
+  settingResolutionPicker: {
+    backgroundColor: Colors.darkBlue, 
     width: DEVICE_WIDTH,
-    borderRadius: 4,
-    borderWidth: 0.5,
-    borderColor: "#d6d7da",
+    color: Colors.white,
+    justifyContent: 'center',
   },
   settingResolutionText: {
     color: Colors.white,
-    textAlign: "center",
+    textAlign: 'center',
+    fontSize: 15
   },
 });
 
