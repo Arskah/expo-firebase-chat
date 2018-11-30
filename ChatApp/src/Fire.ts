@@ -108,7 +108,7 @@ export const image_upload = (chat_id, image_path) => {
 
 // params are the mandatory info, not sure yet
 export const user_create = (username, email, password) => {
-  user_search(username).then((user_profile) => {
+  get_user_by_name(username).then((user_profile) => {
     // Check if username is free
     if (!user_profile) {
       firebase.auth().createUserWithEmailAndPassword(email, password)
@@ -151,7 +151,7 @@ export const user_state_change = (callback) => {
 // true on success + false on fail
 // TODO: Possible need to add callback as parameter for redirections etc.
 export const user_login = (username, passwd) => {
-  user_search(username).then((user_profile) => {
+  const user_promise = get_user_by_name(username).then(function (user_profile) {
     if (user_profile) {
       user_login_email(user_profile.email, passwd);
     }
@@ -167,12 +167,20 @@ export const user_login_email = (email, passwd) => {
     });
 };
 
+export const get_user_by_name = (username) => {
+  return new Promise((resolve, reject) => {
+    firebase.database().ref().child("users").orderByChild("displayName")
+      .equalTo(username).on("value", (snapshot) => {
+        snapshot.forEach((data) => {
+          resolve(data.val());
+        });
+    });
+  });
+};
+
 // results
 export const user_search = async (search_term) => {
-  return new Promise((resolve, reject) => {
-    // TODO: Set up user search
-    resolve(undefined);
-  });
+  return;
 };
 
 // value
