@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
     width: DEVICE_WIDTH,
     padding: 20,
     justifyContent: "space-around",
+    marginBottom: 320,
   },
   email: {
     fontSize: 20,
