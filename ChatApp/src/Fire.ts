@@ -103,10 +103,10 @@ export const image_get = (image_url) => {
 };
 
 // upload image to firebase => get image url
-export const image_upload = async (image_path : string) => {
+export const image_upload = async (image_path: string) => {
 
   const blob = await urlToBlob(image_path);
-  var ref = firebase.storage().ref("pictures").child("my-image");
+  let ref = firebase.storage().ref("pictures").child("my-image");
   return ref.put(blob).snapshot.downloadURL;
 
 };
@@ -121,24 +121,24 @@ export const image_upload_profile = (user_id, image_path) => {
 
 function urlToBlob(url) {
   return new Promise((resolve, reject) => {
-      var xhr = new XMLHttpRequest();
+      let xhr = new XMLHttpRequest();
       xhr.onerror = reject;
       xhr.onreadystatechange = () => {
           if (xhr.readyState === 4) {
               resolve(xhr.response);
           }
       };
-      xhr.open('GET', url);
-      xhr.responseType = 'blob'; // convert type
+      xhr.open("GET", url);
+      xhr.responseType = "blob"; // convert type
       xhr.send();
-  })
+  });
 }
-
 
 // params are the mandatory info, not sure yet
 export const user_create = (username, email, password) => {
   get_user_by_name(username).then((user_profile) => {
     // Check if username is free
+    console.log("pöö");
     if (!user_profile) {
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .catch((error) => {
@@ -146,6 +146,7 @@ export const user_create = (username, email, password) => {
           Alert.alert(errorMessage);
         })
         .then((user) => {
+          console.log(user);
           if (user) {
             // Create userprofile on authentication success
             let postData = {
@@ -170,7 +171,6 @@ export const user_create = (username, email, password) => {
       Alert.alert("Username is already in use!");
     }
   });
-
 };
 
 export const user_state_change = (callback) => {
@@ -196,13 +196,17 @@ export const user_login_email = (email, passwd) => {
     });
 };
 
-export const get_user_by_name = (username) => {
+export const get_user_by_name = async (username) => {
+  console.log("test");
   return new Promise((resolve, reject) => {
     firebase.database().ref().child("users").orderByChild("displayName")
       .equalTo(username).on("value", (snapshot) => {
+        console.log("snapshot: " + snapshot);
         snapshot.forEach((data) => {
+          console.log(data);
           resolve(data.val());
         });
+        resolve(undefined);
     });
   });
 };
