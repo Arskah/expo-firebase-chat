@@ -1,7 +1,6 @@
 {
   "rules": {
     "member-access": false,
-    "member-ordering": true,
     "no-any": false,
     "no-inferrable-types": [false],
     "no-internal-module": true,
@@ -47,7 +46,6 @@
     "no-string-literal": true,
     "no-switch-case-fall-through": true,
     "no-unused-expression": true,
-    "no-use-before-declare": true,
     "no-var-keyword": true,
     "radix": true,
     "switch-default": true,
