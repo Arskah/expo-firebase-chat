@@ -59,7 +59,6 @@ const DEVICE_HEIGHT = Layout.window.height;
 const styles = StyleSheet.create({
   container: {
     width: DEVICE_WIDTH,
-    flex: 1,
   },
   image: {
     resizeMode: "cover",
