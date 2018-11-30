@@ -2,6 +2,29 @@ import firebase from "firebase";
 import { Alert } from "react-native";
 import { ENV } from "../environment";
 
+/*
+  - /chats/
+    - chat_id
+      - title
+      - lastMessage
+  - /users/
+    - user_id
+      - displayName
+      - email
+      - resolution
+      - picture
+  - /members/
+    - chat_id
+      - displayName1: false
+      - dispalyName2: true
+      - ... (TODO: decide what is the best way to handle users) displayNames are unique, but still...
+  - /messages/
+    - chat_id
+      - message_id
+        - author (displayName)
+        - message
+*/
+
 let fb_app = undefined;
 let fb_db = undefined;
 
@@ -23,11 +46,16 @@ export const init = () => {
 
 // Create new chatroom
 export const chat_create = (name) => {
-  return;
+  let postData = {
+    title: name,
+    lastMessage: "",
+  };
+  let new_key = fb_db.ref().child("chats").push().key;
+  let updates = {};
 };
 
 // Add new user to chatroom
-export const chat_add = (chat_id, user_id) => {
+export const chat_adduser = (chat_id, user_id) => {
   return;
 };
 
@@ -38,11 +66,11 @@ export const chat_send = (chat_id, message, author) => {
     author: author,
     message: message,
   };
-  let new_key = firebase.database().ref().child("messages").push().key;
+  let new_key = fb_db.ref().child("messages").push().key;
   let updates = {};
   updates[`/chats/${chat_id}/lastMessage/`] = `${author}: ${message}`;
   updates[`/messages/${chat_id}/${new_key}/`] = postData;
-  return firebase.database().ref().update(updates);
+  return fb_db.ref().update(updates);
 };
 
 // Leave chatroom
@@ -94,15 +122,15 @@ export const user_create = (username, email, password) => {
               picture: defaultPicture,
             };
             // Also set user membership in all chats as false
-            let new_key = firebase.database().ref().child("users").push().key;
+            let new_key = fb_db.ref().child("users").push().key;
             let updates = {};
             updates[`/users/${new_key}`] = postData;
             // TODO: Not sure if .on() is the correct method...
             // If we see missing chatrooms after new chat room creation this may be the issue
-            firebase.database().ref().child("chats").on("value", (snapshot) => {
+            fb_db.ref().child("chats").on("value", (snapshot) => {
               updates["members/" + snapshot.key + `/${username}`] = false;
             });
-            firebase.database().ref().update(updates);
+            fb_db.ref().update(updates);
           }
         });
     } else {
