@@ -1,1 +1,3 @@
 *.code-workspace
+.expo
+environment.js
