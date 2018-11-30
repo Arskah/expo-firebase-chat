@@ -28,8 +28,8 @@ import { ENV } from "../environment";
 let fb_app = undefined;
 let fb_db = undefined;
 
-const defaultPicture = undefined;
-const defaultResolution = undefined;
+const defaultPicture = "gs://mcc-fall-2018-g13.appspot.com/robot-prod.png";
+const defaultResolution = "full";
 
 export const init = () => {
   const config = {
@@ -45,13 +45,17 @@ export const init = () => {
 };
 
 // Create new chatroom
-export const chat_create = (name) => {
+export const chat_create = (name, username) => {
   let postData = {
     title: name,
     lastMessage: "",
   };
   let new_key = fb_db.ref().child("chats").push().key;
   let updates = {};
+  // Add
+  updates[`/chats/${new_key}/`] = postData;
+  updates[`/members/${new_key}/${username}`] = true;
+  return fb_db.ref().update(updates);
 };
 
 // Add new user to chatroom
@@ -165,8 +169,10 @@ export const user_login_email = (email, passwd) => {
 
 // results
 export const user_search = async (search_term) => {
-  const user = "";
-  return user;
+  return new Promise((resolve, reject) => {
+    // TODO: Set up user search
+    resolve(undefined);
+  });
 };
 
 // value
