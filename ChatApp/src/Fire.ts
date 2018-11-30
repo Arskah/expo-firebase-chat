@@ -5,6 +5,9 @@ import { ENV } from "../environment";
 let fb_app = undefined;
 let fb_db = undefined;
 
+const defaultPicture = undefined;
+const defaultResolution = undefined;
+
 export const init = () => {
   const config = {
     apiKey: ENV.APIKEY,
@@ -73,11 +76,40 @@ export const image_upload = (chat_id, image_path) => {
 
 // params are the mandatory info, not sure yet
 export const user_create = (username, email, password) => {
-  const user = firebase.auth().createUserWithEmailAndPassword(email, password)
-    .catch((error) => {
-      const errorMessage = error.message;
-      Alert.alert(errorMessage);
-    });
+  user_search(username).then((user_profile) => {
+    // Check if username is free
+    if (!user_profile) {
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .catch((error) => {
+          const errorMessage = error.message;
+          Alert.alert(errorMessage);
+        })
+        .then((user) => {
+          if (user) {
+            // Create userprofile on authentication success
+            let postData = {
+              displayName: username,
+              email: email,
+              resolution: defaultResolution,
+              picture: defaultPicture,
+            };
+            // Also set user membership in all chats as false
+            let new_key = firebase.database().ref().child("users").push().key;
+            let updates = {};
+            updates[`/users/${new_key}`] = postData;
+            // TODO: Not sure if .on() is the correct method...
+            // If we see missing chatrooms after new chat room creation this may be the issue
+            firebase.database().ref().child("chats").on("value", (snapshot) => {
+              updates["members/" + snapshot.key + `/${username}`] = false;
+            });
+            firebase.database().ref().update(updates);
+          }
+        });
+    } else {
+      Alert.alert("Username is already in use!");
+    }
+  });
+
 };
 
 export const user_state_change = (callback) => {
