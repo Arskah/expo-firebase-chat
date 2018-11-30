@@ -152,7 +152,6 @@ export const user_state_change = (callback) => {
 // TODO: Possible need to add callback as parameter for redirections etc.
 export const user_login = (username, passwd) => {
   const user_promise = get_user_by_name(username).then(function (user_profile) {
-    console.log(user_profile);
     if (user_profile) {
       user_login_email(user_profile.email, passwd);
     }

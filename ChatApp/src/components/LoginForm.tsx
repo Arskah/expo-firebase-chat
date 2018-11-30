@@ -4,6 +4,7 @@ import Layout from "../constants/Layout";
 import Colors from "../constants/Colors";
 import { withNavigation } from "react-navigation";
 import { user_state_change, user_login, user_login_email } from "../Fire";
+import isEmail from "validator";
 
 export interface LoginFormProps {
   navigation: any;
@@ -31,12 +32,14 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
   }
 
   handleOnPress = () => {
-    // const isUsername = ;
-    // if (isUsername) {
-      // user_login(this.state.login, this.state.password);
-    // } else {
-      user_login_email(this.state.login, this.state.password);
-    // }
+    const { login, password } = this.state;
+    // Node validator package's validator for email.
+    const regex = /^(?:[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/;   // tslint:disable:max-line-length
+    if (regex.test(login)) {
+      user_login_email(login, password);
+    } else {
+      user_login(login, password);
+    }
   }
 
   render() {
