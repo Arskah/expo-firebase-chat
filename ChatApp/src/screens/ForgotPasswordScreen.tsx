@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
-import { BackHandler, Text, TouchableOpacity, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native';
-import Wallpaper from '../components/Wallpaper';
-import Layout from '../constants/Layout';
-import Colors from '../constants/Colors';
+import React, { Component } from "react";
+import { BackHandler, Text, TouchableOpacity, TextInput, StyleSheet, KeyboardAvoidingView } from "react-native";
+import Wallpaper from "../components/Wallpaper";
+import Layout from "../constants/Layout";
+import Colors from "../constants/Colors";
 
 const handleResetPress = (email: string) => {
   alert(email);
-}
+};
 
 export interface ForgotPasswordScreenProps {
   navigation: any
@@ -20,11 +20,11 @@ export default class ForgotPasswordScreen extends Component<ForgotPasswordScreen
     super(props);
     this.state = {
       email: "",
-    }
+    };
   }
   componentDidMount() {
-    this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      this.props.navigation.navigate('LoginScreen');
+    this.backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+      this.props.navigation.navigate("LoginScreen");
       return true;
     });
   }
@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 20,
-    color: 'white',
-    backgroundColor: 'transparent',
+    color: "white",
+    backgroundColor: "transparent",
   },
   button: {
     backgroundColor: Colors.darkBlue,
@@ -79,6 +79,6 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Colors.white,
-    textAlign: 'center',
-  }
+    textAlign: "center",
+  },
 });

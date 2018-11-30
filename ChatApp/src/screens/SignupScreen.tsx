@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import {BackHandler} from 'react-native';
-import Wallpaper from '../components/Wallpaper';
-import SignupForm from '../components/SignupForm';
+import React, { Component } from "react";
+import {BackHandler} from "react-native";
+import Wallpaper from "../components/Wallpaper";
+import SignupForm from "../components/SignupForm";
 
 export interface SignupScreenProps {
   navigation: any
@@ -9,8 +9,8 @@ export interface SignupScreenProps {
 export interface SignupScreenState { }
 export default class SignupScreen extends Component<SignupScreenProps, SignupScreenState> {
   componentDidMount() {
-    this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      this.props.navigation.navigate('LoginScreen');
+    this.backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+      this.props.navigation.navigate("LoginScreen");
       return true;
     });
   }
@@ -19,11 +19,11 @@ export default class SignupScreen extends Component<SignupScreenProps, SignupScr
     this.backHandler.remove();
   }
 
-	render() {
-		return (
+  render() {
+    return (
       <Wallpaper>
         <SignupForm />
       </Wallpaper>
-	  );
+    );
   }
 }

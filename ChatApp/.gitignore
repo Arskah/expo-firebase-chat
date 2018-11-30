@@ -2,4 +2,4 @@
 /.expo/
 
 *.log
-environment.js
+environment.ts

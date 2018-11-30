@@ -51,8 +51,8 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
   }
 
   public static navigationOptions = {
-    title: 'Settings'
-  }
+    title: "Settings",
+  };
 
   logOutButton = () => {
     firebase.auth().signOut().then(function () {
@@ -169,7 +169,6 @@ const styles = StyleSheet.create({
     width: DEVICE_WIDTH,
     padding: 20,
     justifyContent: "space-between",
-    alignItems: "center"
-  }
+    alignItems: "center",
+  },
 });
-

@@ -57,7 +57,7 @@ const DEVICE_WIDTH = Layout.window.width;
 const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     width: DEVICE_WIDTH,
   },
   image: {

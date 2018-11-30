@@ -1,4 +1,4 @@
-var Env = {
+export const ENV = {
   APIKEY: "",
   AUTH_DOMAIN: "",
   DB_URL: "",
@@ -6,5 +6,3 @@ var Env = {
   SBUCKET: "",
   SEND_ID: "",
 };
-
-module.exports = Env;

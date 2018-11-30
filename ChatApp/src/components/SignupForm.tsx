@@ -1,9 +1,9 @@
 import * as React from "react";
-import { KeyboardAvoidingView, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Layout from '../constants/Layout';
-import Colors from '../constants/Colors';
-import firebase from 'firebase';
-import { withNavigation } from 'react-navigation';
+import { KeyboardAvoidingView, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import Layout from "../constants/Layout";
+import Colors from "../constants/Colors";
+import firebase from "firebase";
+import { withNavigation } from "react-navigation";
 
 export interface SignupFormProps {
   navigation: any;
@@ -20,15 +20,16 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
     this.state = {
       username: "",
       password1: "",
-      password2: ""
-    }
+      password2: "",
+    };
   }
 
   componentDidMount() {
-    this.props.navigation.navigate('LoginScreen');
     firebase.auth().onAuthStateChanged(user => {
-      this.props.navigation.navigate(user ? 'SettingsScreen' : 'LoginScreen')
-    })
+      if (user) {
+        this.props.navigation.navigate("SettingsScreen");
+      }
+    });
   }
 
   createAccount = () => {
@@ -36,23 +37,23 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
     if (password1 === password2) {
       const user = firebase.auth().createUserWithEmailAndPassword(username, password1)
         .catch((error) => {
-          var errorMessage = error.message;
+          const errorMessage = error.message;
           alert(errorMessage);
         });
     } else {
       alert("Passwords do not match");
-    };
+    }
   }
 
   render() {
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.signupForm}>
-        <TextInput 
+        <TextInput
           onChangeText={(text) => this.setState({ username: text })}
-          style={styles.signupUsername} autoFocus={true} 
+          style={styles.signupUsername} autoFocus={true}
           placeholder={"Username"} />
-        <TextInput 
-          onChangeText={(text) => this.setState({ password1: text })} 
+        <TextInput
+          onChangeText={(text) => this.setState({ password1: text })}
           secureTextEntry={true} placeholder={"Password"}
           style={styles.signupPassword} />
         <TextInput
@@ -73,22 +74,22 @@ const DEVICE_WIDTH = Layout.window.width;
 const styles = StyleSheet.create({
   signupForm: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-around',
+    flexDirection: "column",
+    justifyContent: "space-around",
     width: DEVICE_WIDTH,
     top: 20,
     marginBottom: 400,
-    alignItems: 'center',
+    alignItems: "center",
   },
   signupUsername: {
     fontSize: 20,
-    color: 'white',
-    backgroundColor: 'transparent',
+    color: "white",
+    backgroundColor: "transparent",
   },
   signupPassword: {
     fontSize: 20,
-    color: 'white',
-    backgroundColor: 'transparent',
+    color: "white",
+    backgroundColor: "transparent",
   },
   button: {
     backgroundColor: Colors.lightBlue,
@@ -96,8 +97,8 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Colors.white,
-    textAlign: 'center',
-  }
+    textAlign: "center",
+  },
 });
 
 export default withNavigation(SignupForm);

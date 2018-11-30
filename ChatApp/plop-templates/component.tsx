@@ -1,6 +1,7 @@
 import * as React from "react";
-import Layout from '../constants/Layout';
-import {View, Text, StyleSheet} from 'react-native';
+import { View, Text, StyleSheet } from "react-native";
+import Colors from "../constants/Colors";
+import Layout from "../constants/Layout";
 {{#if observer}}
 import { observer } from "mobx-react";
 import {{ camelCase store_name }} from "../../stores/{{ properCase store_name }}";

@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
-import {StyleSheet, ImageBackground} from 'react-native';
+import React, {Component} from "react";
+import {StyleSheet, ImageBackground} from "react-native";
 
-import bgSrc from '../../assets/images/wallpaper.png'
+import bgSrc from "../../assets/images/wallpaper.png";
 
 export default class Wallpaper extends Component {
   render() {
@@ -16,8 +16,8 @@ export default class Wallpaper extends Component {
 const styles = StyleSheet.create({
   picture: {
     flex: 1,
-    width: null,
-    height: null,
+    width: undefined,
+    height: undefined,
     resizeMode: "cover",
   },
 });

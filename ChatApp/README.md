@@ -21,7 +21,7 @@ If you prefer to use npm the command is `npm install --global expo-cli`.
 
 ## Warnings When Installing Packages
 
-There are a surprising amout of of warnings when building and running the app, because of peer dependecies not being correct. My guess is that the Expo team has a tough time getting all the added React Native libraries to play well together, and this app seems to run fine, so I believe it's safe to ignore the warnings.
+There are a surprising amout of of warnings when building and running the app, because of peer dependecies not being correct. My guess is that the Expo team has a tough time getting all the added React Native libraries to play well together, and this app seems to run fine, so I believe it"s safe to ignore the warnings.
 
 ## Running the App
 
@@ -31,7 +31,7 @@ Start the local server. This will give you a QR code that you can scan using the
 yarn start
 ```
 
-If you're on a Mac and have Xcode installed, you can run the app using the iOS Simulator with the following command. I am sure you can do something similar with Android.
+If you"re on a Mac and have Xcode installed, you can run the app using the iOS Simulator with the following command. I am sure you can do something similar with Android.
 
 ```shell
 yarn ios
@@ -41,13 +41,13 @@ yarn ios
 
 This guide show how to transform and Expo app written in JavaScript in to TypeScript. While Expo supports TypeScript since version 31,  it is still a work in progress, and namely the type definition files are not yet included.
 
-Setting breakpoints in TypeScript files works, and hot reloading works, so it's a pretty solid development experience as long as you're lucky enough to not hit a missing type definition.
+Setting breakpoints in TypeScript files works, and hot reloading works, so it"s a pretty solid development experience as long as you"re lucky enough to not hit a missing type definition.
 
-**Since version 31 Expo supports TypeScript natively. If you're using that version, 1) don't add the `react-native-typescript-transformer` package, 2) don't specify `sourceExt` and `transformer` in `app.json` and 3) don't mention `babel-preset-expo` and `transform-react-jsx-source` in your `.babelrc`, i.e. delete the file if those were the only two things in it.**
+**Since version 31 Expo supports TypeScript natively. If you"re using that version, 1) don"t add the `react-native-typescript-transformer` package, 2) don"t specify `sourceExt` and `transformer` in `app.json` and 3) don"t mention `babel-preset-expo` and `transform-react-jsx-source` in your `.babelrc`, i.e. delete the file if those were the only two things in it.**
 
 ### Add TypeScript
 
-Add TypeScript and the helper library, `tslib`, to the project. I prefer micro managing the version of the packages that I'm using so I add `--exact`, but this is optional. You can, of course, also use `npm` instead of `yarn`.
+Add TypeScript and the helper library, `tslib`, to the project. I prefer micro managing the version of the packages that I"m using so I add `--exact`, but this is optional. You can, of course, also use `npm` instead of `yarn`.
 
 ```shell
 yarn add --dev --exact typescript react-native-typescript-transformer
@@ -63,7 +63,7 @@ Create a `src` folder, move `App.js` to that folder, and rename the file to `App
 Create a new `App.js` in the root of the project, and insert the following lines. Expo will still be looking for App.js in the root of the project, and these lines simply loads `src/App.tsx`.
 
 ```javascript
-import App from './src/App'
+import App from "./src/App"
 export default App
 ```
 
