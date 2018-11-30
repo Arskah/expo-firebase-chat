@@ -1,8 +1,8 @@
 import * as React from "react";
 import Layout from "../constants/Layout";
-import {View, Text, StyleSheet, TouchableOpacity, Image} from "react-native";
-import * as default_image from "../assets/images/robot-dev.png";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import Dialog from "react-native-dialog";
+const default_image = require("../assets/images/robot-dev.png");
 
 export interface SettingPictureProps {
   visible: boolean,
@@ -62,11 +62,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   image: {
-    // resizeMode: "cover",
-    // justifyContent: "center",
-    // alignSelf: "center",
+    resizeMode: "cover",
+    justifyContent: "center",
+    alignSelf: "center",
     width: 150,
-    // height: 150,
+    height: 150,
   },
 });
 
