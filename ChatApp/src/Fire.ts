@@ -1,6 +1,7 @@
 import firebase from "firebase";
 import { Alert } from "react-native";
 import { ENV } from "../environment";
+import { FileSystem } from "expo";
 
 /*
   - /chats/
@@ -102,9 +103,37 @@ export const image_get = (image_url) => {
 };
 
 // upload image to firebase => get image url
-export const image_upload = (chat_id, image_path) => {
+export const image_upload = async (image_path : string) => {
+
+  const blob = await urlToBlob(image_path);
+  var ref = firebase.storage().ref("pictures").child("my-image");
+  return ref.put(blob).snapshot.downloadURL;
+
+};
+
+export const image_upload_chat = (chat_id, image_path) => {
   return;
 };
+
+export const image_upload_profile = (user_id, image_path) => {
+  return;
+};
+
+function urlToBlob(url) {
+  return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.onerror = reject;
+      xhr.onreadystatechange = () => {
+          if (xhr.readyState === 4) {
+              resolve(xhr.response);
+          }
+      };
+      xhr.open('GET', url);
+      xhr.responseType = 'blob'; // convert type
+      xhr.send();
+  })
+}
+
 
 // params are the mandatory info, not sure yet
 export const user_create = (username, email, password) => {

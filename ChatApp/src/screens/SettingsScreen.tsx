@@ -8,6 +8,7 @@ import SettingSave from "../components/SettingSave";
 import Layout from "../constants/Layout";
 import firebase from "firebase";
 import { ImagePicker, Permissions } from "expo";
+import {image_upload} from '../Fire'
 // import ImagePicker from "react-native-image-picker";
 
 export interface SettingsScreenProps {
@@ -82,7 +83,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
 
   pickFromCamera = async () => {
     this.setState({ dialogPictureVisible: false});
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
     if (status === "granted") {
       let result = await ImagePicker.launchCameraAsync(
         {
@@ -93,7 +94,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
 
       // console.log(result);
       if (!result.cancelled) {
-        // this.setState({mutable_image: result.uri});
+        this.setState({mutable_image: result.uri});
     }
       // console.log(this.state.mutable_image);
     }
@@ -108,7 +109,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
 
     // console.log(result);
     if (!result.cancelled) {
-      // this.setState({mutable_image: result.uri});
+      this.setState({mutable_image: result.uri});
     }
   }
 
@@ -138,7 +139,18 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
         this.state.displayname === this.state.mutable_displayname) {
       Alert.alert("Nothing to save");
     } else {
-      Alert.alert("Changes to be saved");
+      if(this.state.image === this.state.mutable_image){
+        Alert.alert("Changes to be saved");
+      }
+      else{
+        image_upload(this.state.mutable_image)
+        .then(res => {
+          console.log("Image upload returned url: "+res)
+        })
+        .catch(error =>{
+          console.error(error)
+        })
+      }
     }
   }
 
