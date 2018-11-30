@@ -1,7 +1,8 @@
 {
   "linterOptions": {
     "exclude": [
-      "plop-templates/**/*"
+      "plop-templates/**/*",
+      "plopfile.ts"
     ]
   },
   "rules": {

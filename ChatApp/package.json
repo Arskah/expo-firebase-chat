@@ -16,7 +16,7 @@
     "android": "expo android",
     "ios": "expo ios",
     "test": "jest",
-    "lint": "tslint **/*.ts **/*.tsx",
+    "lint": "tslint -p tslint.json",
     "validate": "npm run lint --scripts-prepend-node-path && tsc --noEmit",
     "tsc": "tsc",
     "clean": "rimraf dist",

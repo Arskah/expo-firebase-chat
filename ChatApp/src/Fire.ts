@@ -57,7 +57,7 @@ export const image_upload = (chat_id, image_path) => {
 
 // params are the mandatory info, not sure yet
 export const user_create = (username, email, password) => {
-  const user = firebase.auth().createUserWithEmailAndPassword(username, password1)
+  const user = firebase.auth().createUserWithEmailAndPassword(username, password)
     .catch((error) => {
       const errorMessage = error.message;
       Alert.alert(errorMessage);
