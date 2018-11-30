@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
-import firebase from "firebase";
+import { user_state_change } from "../Fire";
 
 export interface LandingScreenProps {
   navigation: any
@@ -13,7 +13,7 @@ export default class LandingScreen extends React.Component<LandingScreenProps, L
   }
 
   componentDidMount() {
-    firebase.auth().onAuthStateChanged(user => {
+    user_state_change(user => {
       this.props.navigation.navigate(user ? "SettingsScreen" : "LoginScreen");
     });
   }

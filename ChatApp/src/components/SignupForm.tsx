@@ -2,14 +2,15 @@ import * as React from "react";
 import { KeyboardAvoidingView, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import Layout from "../constants/Layout";
 import Colors from "../constants/Colors";
-import firebase from "firebase";
 import { withNavigation } from "react-navigation";
+import { user_create, user_state_change } from "../Fire";
 
 export interface SignupFormProps {
   navigation: any;
 }
 export interface SignupFormState {
   username: string;
+  email: string;
   password1: string;
   password2: string;
 }
@@ -19,13 +20,14 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
     super(props);
     this.state = {
       username: "",
+      email: "",
       password1: "",
       password2: "",
     };
   }
 
   componentDidMount() {
-    firebase.auth().onAuthStateChanged(user => {
+    user_state_change((user) => {
       if (user) {
         this.props.navigation.navigate("SettingsScreen");
       }
@@ -33,13 +35,9 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
   }
 
   createAccount = () => {
-    const { username, password1, password2 } = this.state;
+    const { username, email, password1, password2 } = this.state;
     if (password1 === password2) {
-      const user = firebase.auth().createUserWithEmailAndPassword(username, password1)
-        .catch((error) => {
-          const errorMessage = error.message;
-          Alert.alert(errorMessage);
-        });
+      user_create(username, email, password1);
     } else {
       Alert.alert("Passwords do not match");
     }
@@ -52,6 +50,10 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
           onChangeText={(text) => this.setState({ username: text })}
           style={styles.signupUsername} autoFocus={true}
           placeholder={"Username"} />
+        <TextInput
+          onChangeText={(text) => this.setState({ email: text })}
+          style={styles.signupUsername}
+          placeholder={"Email"} />
         <TextInput
           onChangeText={(text) => this.setState({ password1: text })}
           secureTextEntry={true} placeholder={"Password"}

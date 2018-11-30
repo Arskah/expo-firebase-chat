@@ -7,19 +7,9 @@ import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import LoginScreen from "./screens/LoginScreen";
 // import ChatScreen from "./screens/ChatScreen";
 import SettingsScreen from "./screens/SettingsScreen";
-import firebase from "firebase";
-import { ENV } from "../environment";
+import { init } from "./Fire";
 
-const config = {
-  apiKey: ENV.APIKEY,
-  authDomain: ENV.AUTH_DOMAIN,
-  databaseURL: ENV.DB_URL,
-  projectId: ENV.PID,
-  storageBucket: ENV.SBUCKET,
-  messagingSenderId: ENV.SEND_ID,
-};
-
-firebase.initializeApp(config);
+init();
 
 // create our app"s navigation stack
 const App = createSwitchNavigator(

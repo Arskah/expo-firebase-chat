@@ -1,24 +1,15 @@
 import * as React from "react";
-import { TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView, Alert } from "react-native";
+import { TextInput, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView } from "react-native";
 import Layout from "../constants/Layout";
 import Colors from "../constants/Colors";
 import { withNavigation } from "react-navigation";
-import firebase from "firebase";
-
-const onPressLogin = (username: string, password: string) => {
-  firebase.auth().signInWithEmailAndPassword(username, password)
-    .catch((error) => {
-      // var errorCode = error.code;
-      const errorMessage = error.message;
-      Alert.alert(errorMessage);
-    });
-};
+import { user_state_change, user_login, user_login_email } from "../Fire";
 
 export interface LoginFormProps {
   navigation: any;
 }
 export interface LoginFormState {
-  username: string;
+  login: string;
   password: string;
 }
 
@@ -26,13 +17,13 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      username: "",
+      login: "",
       password: "",
     };
   }
 
   componentDidMount = () => {
-    firebase.auth().onAuthStateChanged((user) => {
+    user_state_change((user) => {
       if (user) {
         this.props.navigation.navigate("SettingsScreen");
       }
@@ -40,17 +31,22 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
   }
 
   handleOnPress = () => {
-    onPressLogin(this.state.username, this.state.password);
+    // const isUsername = ;
+    // if (isUsername) {
+      // user_login(this.state.login, this.state.password);
+    // } else {
+      user_login_email(this.state.login, this.state.password);
+    // }
   }
 
   render() {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding">
         <TextInput
-          onChangeText={(text) => this.setState({ username: text })}
+          onChangeText={(text) => this.setState({ login: text })}
           style={styles.loginUsername}
           autoFocus={true}
-          placeholder={"Username"} />
+          placeholder={"Username or email"} />
         <TextInput
           onChangeText={(text) => this.setState({ password: text })}
           secureTextEntry={true}
