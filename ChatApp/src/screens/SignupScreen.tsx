@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {BackHandler} from "react-native";
+import {BackHandler, View} from "react-native";
 import Wallpaper from "../components/Wallpaper";
 import SignupForm from "../components/SignupForm";
 
@@ -23,6 +23,15 @@ export default class SignupScreen extends Component<SignupScreenProps, SignupScr
     return (
       <Wallpaper>
         <SignupForm />
+        <View style={
+          {
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "space-around",
+            top: 20,
+            marginBottom: 300,
+            alignItems: "center",
+          }} />
       </Wallpaper>
     );
   }

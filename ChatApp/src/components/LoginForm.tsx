@@ -78,12 +78,14 @@ const styles = StyleSheet.create({
   },
   loginUsername: {
     fontSize: 20,
-    color: "white",
+    color: Colors.white,
+    padding: 0,
     backgroundColor: "transparent",
   },
   loginPassword: {
     fontSize: 20,
     color: Colors.white,
+    padding: 0,
     backgroundColor: "transparent",
   },
   loginButton: {

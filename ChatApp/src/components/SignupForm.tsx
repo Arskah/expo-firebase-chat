@@ -49,21 +49,33 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
         <TextInput
           onChangeText={(text) => this.setState({ username: text })}
           style={styles.signupUsername} autoFocus={true}
+          returnKeyType={"next"}
+          // onSubmitEditing={() => { this.InputRef2.focus(); } }
           placeholder={"Username"} />
         <TextInput
           onChangeText={(text) => this.setState({ email: text })}
           style={styles.signupUsername}
+          returnKeyType={"next"}
+          // onSubmitEditing={() => { this.InputRef3.focus(); }}
+          // ref={ (input) => { this.InputRef2 = input }}
           placeholder={"Email"} />
         <TextInput
           onChangeText={(text) => this.setState({ password1: text })}
-          secureTextEntry={true} placeholder={"Password"}
+          secureTextEntry={true}
+          returnKeyType={"next"}
+          // onSubmitEditing={() => { this.InputRef4.focus(); }}
+          // ref={(input) => { this.InputRef3 }}
+          placeholder={"Password"}
           style={styles.signupPassword} />
         <TextInput
           onChangeText={(text) => this.setState({ password2: text })}
-          secureTextEntry={true} placeholder={"Re-type password"}
+          secureTextEntry={true}
+          returnKeyType={"next"}
+          onSubmitEditing={this.createAccount}
+          placeholder={"Re-type password"}
           style={styles.signupPassword} />
-        <TouchableOpacity onPress={this.createAccount}>
-          <Text style={styles.button}>Create Account</Text>
+        <TouchableOpacity onPress={this.createAccount} style={styles.button}>
+          <Text style={styles.text}>Create Account</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     );
@@ -75,26 +87,26 @@ const DEVICE_WIDTH = Layout.window.width;
 
 const styles = StyleSheet.create({
   signupForm: {
-    flex: 1,
+    flex: 3,
     flexDirection: "column",
-    justifyContent: "space-around",
+    top: 30,
     width: DEVICE_WIDTH,
-    top: 20,
-    marginBottom: 400,
-    alignItems: "center",
+    padding: 20,
+    justifyContent: "space-around",
   },
   signupUsername: {
     fontSize: 20,
-    color: "white",
+    color: Colors.white,
     backgroundColor: "transparent",
   },
   signupPassword: {
     fontSize: 20,
-    color: "white",
+    color: Colors.white,
     backgroundColor: "transparent",
   },
   button: {
-    backgroundColor: Colors.lightBlue,
+    top: 50,
+    backgroundColor: Colors.darkBlue,
     padding: 20,
   },
   text: {
