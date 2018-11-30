@@ -48,6 +48,7 @@ class SettingPicture extends React.Component<SettingPictureProps, SettingPicture
     if (image === "") {
       return <Image source={default_image} style={styles.image} />;
     } else {
+      console.log(image)
       return <Image source={{ uri: image }} style={styles.image} />;
     }
 }
