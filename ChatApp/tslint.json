@@ -1,4 +1,9 @@
 {
+  "linterOptions": {
+    "exclude": [
+      "plop-templates/**/*"
+    ]
+  },
   "rules": {
     "member-access": false,
     "no-any": false,
