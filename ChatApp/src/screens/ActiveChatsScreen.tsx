@@ -13,13 +13,6 @@ export interface ActiveChatsScreenState {
   activeChatsList: object;
 }
 
-interface UserProfile {
-  displayName: string;
-  email: string;
-  resolution: string;
-  picture: string;
-}
-
 class ActiveChatsScreen extends React.Component<ActiveChatsScreenProps, ActiveChatsScreenState> {
   constructor(props: ActiveChatsScreenProps) {
     super(props);
@@ -29,33 +22,15 @@ class ActiveChatsScreen extends React.Component<ActiveChatsScreenProps, ActiveCh
       };
   }
 
+  //Object of all active chat rooms
   componentDidMount() {
     if (firebase.auth()) {
       const email = firebase.auth().currentUser.email;
-      //const name = get_user_by_email(email);
       var active;
-      //var username = "";
-      //const user_promise = name.then((user_profile: UserProfile) => {
-      //  if (user_profile) {
-          //console.log(user_profile.displayName);
-          //this.setState({actives: active_chats('Arska')});
       active_chats(email).then((actives) => {
-        console.log(actives)
         this.setState({activeChatsList : actives})
         console.log(this.state.activeChatsList);
-
       });
-      //  }
-      //});
-
-      //console.log(this.state.actives);
-      //if (username) {
-        //this.setState({displayname: name});
-        //console.log(this.state.displayname);
-        //active_chats(name);
-      //}
-    
-      
     };
   }
 
