@@ -93,6 +93,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
 
       // console.log(result);
       if (!result.cancelled) {
+        // @ts-ignore
         this.setState({mutable_image: result.uri});
     }
       // console.log(this.state.mutable_image);
@@ -108,6 +109,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
 
     // console.log(result);
     if (!result.cancelled) {
+      // @ts-ignore
       this.setState({mutable_image: result.uri});
     }
   }
