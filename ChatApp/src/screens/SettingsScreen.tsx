@@ -8,8 +8,7 @@ import SettingSave from "../components/SettingSave";
 import Layout from "../constants/Layout";
 import firebase from "firebase";
 import { ImagePicker, Permissions } from "expo";
-import {image_upload} from '../Fire'
-// import ImagePicker from "react-native-image-picker";
+import {image_upload} from "../Fire";
 
 export interface SettingsScreenProps {
   navigation: any
@@ -22,7 +21,7 @@ export interface SettingsScreenState {
   mutable_image: string,
   dialogPictureVisible: boolean,
   resolution: "full" | "high" | "low",
-  mutable_resolution: "full" | "high" | "low"
+  mutable_resolution: "full" | "high" | "low",
 }
 
 const options = {
@@ -36,7 +35,7 @@ const options = {
 
 export default class SettingsScreen extends Component<SettingsScreenProps, SettingsScreenState> {
 
-  constructor(props: any) {
+  constructor(props: SettingsScreenProps) {
     super(props);
     // TODO: authenticate user with firebase.auth() and get username, resolution and image from server
     this.state = {
@@ -139,17 +138,16 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
         this.state.displayname === this.state.mutable_displayname) {
       Alert.alert("Nothing to save");
     } else {
-      if(this.state.image === this.state.mutable_image){
+      if (this.state.image === this.state.mutable_image) {
         Alert.alert("Changes to be saved");
-      }
-      else{
+      } else {
         image_upload(this.state.mutable_image)
         .then(res => {
-          console.log("Image upload returned url: "+res)
+          console.log("Image upload returned url: " + res);
         })
-        .catch(error =>{
-          console.error(error)
-        })
+        .catch(error => {
+          console.error(error);
+        });
       }
     }
   }

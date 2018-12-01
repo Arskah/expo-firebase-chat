@@ -16,7 +16,7 @@ export interface SignupFormState {
 }
 
 class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
-  constructor(props: any) {
+  constructor(props: SignupFormProps) {
     super(props);
     this.state = {
       username: "",

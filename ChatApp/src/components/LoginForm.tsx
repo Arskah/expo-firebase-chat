@@ -4,7 +4,6 @@ import Layout from "../constants/Layout";
 import Colors from "../constants/Colors";
 import { withNavigation } from "react-navigation";
 import { user_state_change, user_login, user_login_email } from "../Fire";
-import isEmail from "validator";
 
 export interface LoginFormProps {
   navigation: any;
@@ -15,7 +14,7 @@ export interface LoginFormState {
 }
 
 class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
-  constructor(props: any) {
+  constructor(props: LoginFormProps) {
     super(props);
     this.state = {
       login: "",

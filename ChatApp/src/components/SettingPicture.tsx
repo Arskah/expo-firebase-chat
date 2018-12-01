@@ -18,7 +18,7 @@ export interface SettingPictureState {
 
 class SettingPicture extends React.Component<SettingPictureProps, SettingPictureState> {
 
-  constructor(props: any) {
+  constructor(props: SettingPictureProps) {
     super(props);
     this.state = {
       dialogVisible: false,

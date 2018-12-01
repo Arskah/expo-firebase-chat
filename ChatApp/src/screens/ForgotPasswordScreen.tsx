@@ -16,7 +16,7 @@ export interface ForgotPasswordScreenState {
 }
 
 export default class ForgotPasswordScreen extends Component<ForgotPasswordScreenProps, ForgotPasswordScreenState> {
-  constructor(props: any) {
+  constructor(props: ForgotPasswordScreenProps) {
     super(props);
     this.state = {
       email: "",

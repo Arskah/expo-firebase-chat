@@ -8,7 +8,7 @@ export interface LandingScreenProps {
 export interface LandingScreenState { }
 
 export default class LandingScreen extends React.Component<LandingScreenProps, LandingScreenState> {
-  constructor(props: any) {
+  constructor(props: LandingScreenProps) {
     super(props);
   }
 

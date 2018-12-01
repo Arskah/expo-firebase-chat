@@ -11,7 +11,7 @@ export interface SettingResolutionState {
 }
 
 class SettingResolution extends React.Component<SettingResolutionProps, SettingResolutionState> {
-  constructor(props: any) {
+  constructor(props: SettingResolutionProps) {
     super(props);
     this.state = {
     };
