@@ -60,8 +60,14 @@ export const chat_create = (name: string, username: string) => {
 };
 
 // Add new user to chatroom
-export const chat_adduser = (chat_id: string, user_id: string) => {
-  return;
+export const chat_adduser = (chat_id: string, user_id: string, adder_id: string) => {
+  let new_key = fb_db.ref.child("messages").push().key;
+  let updates = {};
+  let message = `User ${user_id} was added by ${adder_id}`;
+  updates[`/members/${chat_id}/${user_id}`] = true;
+  updates[`/chats/${chat_id}/lastMessage/`] = message;
+  updates[`/messages/${chat_id}/${new_key}/`] = message;
+  return fb_db.ref.update(updates);
 };
 
 // Send a message in chat
@@ -79,8 +85,14 @@ export const chat_send = (chat_id: string, message: string, author: string) => {
 };
 
 // Leave chatroom
-export const chat_leave = (chat_id: string) => {
-  return;
+export const chat_leave = (chat_id: string, user_id: string) => {
+  let new_key = fb_db.ref.child("messages").push().key;
+  let message = `User ${user_id} left`;
+  let updates = {};
+  updates[`/members/${chat_id}/${user_id}`] = false;
+  updates[`/chats/${chat_id}/lastMessage/`] = message;
+  updates[`/messages/${chat_id}/${new_key}/`] = message;
+  return fb_db.ref.update(updates);
 };
 
 export const get_chat_message = (chat_id: string) => {
