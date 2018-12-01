@@ -1,5 +1,5 @@
 // import * as React from "react";
-import { createSwitchNavigator } from "react-navigation";
+import { createSwitchNavigator, DrawerNavigator, createDrawerNavigator } from "react-navigation";
 
 import LandingScreen from "./screens/LandingScreen";
 import SignupScreen from "./screens/SignupScreen";
@@ -38,5 +38,6 @@ const App = createSwitchNavigator(
     initialRouteName: "LandingScreen",
   },
 );
+
 
 export default App;
