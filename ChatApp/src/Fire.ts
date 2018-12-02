@@ -235,6 +235,17 @@ export const get_user_by_email = (email) => {
   });
 };
 
+export const get_user_by_email = (email) => {
+  return new Promise((resolve, reject) => {
+    firebase.database().ref().child("users").orderByChild("email")
+      .equalTo(email).on("value", (snapshot) => {
+        snapshot.forEach((data) => {
+          resolve(data);
+        });
+    });
+  });
+};
+
 // results
 export const user_search = async (search_term: string) => {
   return;
