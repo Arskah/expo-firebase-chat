@@ -199,7 +199,10 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
               picture: res,
               resolution: this.state.mutable_resolution,
             };
-            settings_set(this.state.key, postData);
+            settings_set(this.state.key, postData)
+            .then(result => {
+              Alert.alert("Data updated succesfully");
+            });
           })
           .catch(error => {
             console.error(error);
@@ -211,7 +214,10 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
             picture: this.state.image,
             resolution: this.state.mutable_resolution,
           };
-          settings_set(this.state.key, postData);
+          settings_set(this.state.key, postData)
+          .then(result => {
+            Alert.alert("Data updated succesfully");
+          });
         }
       }
     }
