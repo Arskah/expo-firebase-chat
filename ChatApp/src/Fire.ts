@@ -115,11 +115,11 @@ export const image_get = (image_url: string) => {
 };
 
 // upload image to firebase => get image url
-export const image_upload = async (image_path: string, folder : string, name : string) => {
+export const image_upload = async (image_path: string, folder: string, name: string) => {
 
   const blob = await urlToBlob(image_path);
   const ref = firebase.storage().ref(folder).child(name);
-  const result = await ref.put(blob)
+  const result = await ref.put(blob);
   return result.ref.getDownloadURL();
 
 };
@@ -129,8 +129,8 @@ export const image_upload_chat = (chat_id: string, image_path: string) => {
 };
 
 export const image_upload_profile = async (user_id: string, image_path: string) => {
-  const result = await image_upload(image_path, "profile_pictures", user_id)
-  return result
+  const result = await image_upload(image_path, "profile_pictures", user_id);
+  return result;
 };
 
 function urlToBlob(url: string) {
@@ -159,7 +159,7 @@ export const user_create = (username: string, email: string, password: string) =
           Alert.alert(errorMessage);
         })
         .then((user) => {
-          update_user(username)
+          update_user(username);
           console.log(user);
           if (user) {
             // Create userprofile on authentication success
@@ -187,18 +187,17 @@ export const user_create = (username: string, email: string, password: string) =
   });
 };
 
-export const update_user = (displayName : string) => {
-  
-  var user = firebase.auth().currentUser;
+export const update_user = (displayName: string) => {
+  let user = firebase.auth().currentUser;
   user.updateProfile({
     displayName: displayName,
-    photoURL: null
+    photoURL: undefined,
   }).then(function() {
-    console.log("Updated displayname successfully")
+    console.log("Updated displayname successfully");
   }).catch(function(error) {
-    console.log(error)
+    console.log(error);
   });
-}
+};
 
 export const user_state_change = (callback) => {
   firebase.auth().onAuthStateChanged(callback);
@@ -239,7 +238,6 @@ export const get_user_by_name = async (username: string) => {
     });
   });
 };
-
 
 export const get_user_by_name2 = async (username: string) => {
   return new Promise((resolve, reject) => {

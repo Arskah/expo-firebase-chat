@@ -45,13 +45,11 @@ class SettingPicture extends React.Component<SettingPictureProps, SettingPicture
   }
 
   displayImage(image: string) {
-    
-    if(image !== ""){
-      console.log(image)
+    if (image !== "") {
+      console.log(image);
       return <Image source={{ uri: image }} style={styles.image} />;
     }
-    return <View></View>
-    
+    return <View></View>;
 }
 
 }

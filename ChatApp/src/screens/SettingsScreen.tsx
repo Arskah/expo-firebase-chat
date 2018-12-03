@@ -8,7 +8,7 @@ import SettingSave from "../components/SettingSave";
 import Layout from "../constants/Layout";
 import firebase, { database } from "firebase";
 import { ImagePicker, Permissions } from "expo";
-import {image_upload_profile, get_user_by_name2, settings_set, update_user} from '../Fire'
+import {image_upload_profile, get_user_by_name2, settings_set, update_user} from "../Fire";
 // import ImagePicker from "react-native-image-picker";
 
 export interface SettingsScreenProps {
@@ -53,7 +53,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
       mutable_resolution: "full",
       id: "",
       key: "",
-      email: ""
+      email: "",
       };
   }
 
@@ -61,10 +61,9 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     if (firebase.auth()) {
 
       const user = firebase.auth().currentUser;
-      console.log(user.displayName)
+      console.log(user.displayName);
       get_user_by_name2(user.displayName)
-      .then((response) => {
-       
+      .then((response: firebase.database.DataSnapshot) => {
         this.setState({
           displayname: response.val().displayName,
           mutable_displayname: response.val().displayName,
@@ -74,10 +73,10 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
           mutable_resolution: response.val().resolution,
           id: user.uid,
           key: response.key,
-          email: response.val().email
+          email: response.val().email,
         });
-        console.log(response.key)
-      })
+        console.log(response.key);
+      });
     }
   }
 
@@ -162,44 +161,42 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
       Alert.alert("Nothing to save");
     } else {
 
-      if(this.state.displayname !== this.state.mutable_displayname) {
-        update_user(this.state.mutable_displayname)
+      if (this.state.displayname !== this.state.mutable_displayname) {
+        update_user(this.state.mutable_displayname);
       }
 
       this.setState({
         displayname: this.state.mutable_displayname,
         resolution: this.state.mutable_resolution,
-      })
-      if(this.state.image !== this.state.mutable_image){
+      });
+      if (this.state.image !== this.state.mutable_image) {
         image_upload_profile(this.state.id, this.state.mutable_image)
         .then(res => {
           console.log("Image upload returned url: " + res);
           this.setState({
             image: this.state.mutable_image,
-          })
+          });
           let postData = {
             displayName: this.state.mutable_displayname,
             email: this.state.email,
             picture: res,
             resolution: this.state.mutable_resolution,
-          }
-          settings_set(this.state.key, postData)
+          };
+          settings_set(this.state.key, postData);
         })
         .catch(error => {
           console.error(error);
         });
-      }
-      else{
+      } else {
         let postData = {
           displayName: this.state.mutable_displayname,
           email: this.state.email,
           picture: this.state.image,
           resolution: this.state.mutable_resolution,
-        }
-        settings_set(this.state.key, postData)
+        };
+        settings_set(this.state.key, postData);
       }
     }
-    
   }
 
   render() {
