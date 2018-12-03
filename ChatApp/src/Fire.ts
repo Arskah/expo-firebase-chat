@@ -241,17 +241,28 @@ export const active_chats = (email: string) => {
   return new Promise((resolve, reject) => {
     const user_id_promise = get_user_by_email(email).then((user_profile: UserProfile) => {
       if (user_profile) {
-        fb_db.ref.child('members').orderByChild(user_profile.displayName).equalTo(true).once("value", function(snapshot) {
-          var results = [];
-          snapshot.forEach((data) => {
-            results.push(data.key);
-          });
-          resolve(results);
+        fb_db.ref.child('members').orderByChild('Arska')
+          .equalTo(true).once("value", function(snapshot) {
+            var results = [];
+            snapshot.forEach((data) => {
+              results.push(data.key);    
+            });
+            resolve(results);
         });
       }
     });
   });
 }
+
+/*export const get_chat_details = (chat_id: string) => {
+  return new Promise((resolve, reject) => {
+    fb_db.ref.child('chats').orderByKey()
+      .equalTo(chat_id).on('value', (snapshot) => {
+        resolve(snapshot.key);
+      });
+      resolve(undefined);
+  });
+}*/
 
 // results
 export const user_search = async (search_term: string) => {
