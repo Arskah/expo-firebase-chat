@@ -25,7 +25,8 @@ export interface SettingsScreenState {
   mutable_resolution: "full" | "high" | "low",
   id: string,
   key: string,
-  email: string
+  email: string,
+  user: firebase.User,
 }
 
 const options = {
@@ -54,6 +55,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
       id: "",
       key: "",
       email: "",
+      user: undefined,
       };
   }
 
@@ -61,38 +63,27 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     if (firebase.auth()) {
 
       const user = firebase.auth().currentUser;
-      if (user.displayName) {
-        get_user(user.displayName)
-        .then((response: firebase.database.DataSnapshot) => {
-          this.setState({
-            displayname: response.val().displayName,
-            mutable_displayname: response.val().displayName,
-            image: response.val().picture,
-            mutable_image: response.val().picture,
-            resolution: response.val().resolution,
-            mutable_resolution: response.val().resolution,
-            id: user.uid,
-            key: response.key,
-            email: response.val().email,
-          });
-        });
-      } else {
-        get_user(user.email, "email")
-        .then((response: firebase.database.DataSnapshot) => {
-          this.setState({
-            displayname: response.val().displayName,
-            mutable_displayname: response.val().displayName,
-            image: response.val().picture,
-            mutable_image: response.val().picture,
-            resolution: response.val().resolution,
-            mutable_resolution: response.val().resolution,
-            id: user.uid,
-            key: response.key,
-            email: response.val().email,
-          });
-        });
+      let value = user.displayName;
+      let method: "displayName" | "email" = "displayName";
+      if (!user.displayName) {
+        value = user.email;
+        method = "email";
       }
-
+      get_user(value, method)
+      .then((response: firebase.database.DataSnapshot) => {
+        this.setState({
+          displayname: response.val().displayName,
+          mutable_displayname: response.val().displayName,
+          image: response.val().picture,
+          mutable_image: response.val().picture,
+          resolution: response.val().resolution,
+          mutable_resolution: response.val().resolution,
+          id: user.uid,
+          key: response.key,
+          email: response.val().email,
+          user: user,
+        });
+      });
     }
   }
 
@@ -170,47 +161,58 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     this.setState({mutable_resolution: new_resolution});
   }
 
-  handleSave = () => {
+  handleSave = async () => {
     if (this.state.image === this.state.mutable_image &&
         this.state.resolution === this.state.mutable_resolution &&
         this.state.displayname === this.state.mutable_displayname) {
       Alert.alert("Nothing to save");
     } else {
 
+      let nameReserved = false;
       if (this.state.displayname !== this.state.mutable_displayname) {
-        update_user(this.state.mutable_displayname);
-      }
-
-      this.setState({
-        displayname: this.state.mutable_displayname,
-        resolution: this.state.mutable_resolution,
-      });
-      if (this.state.image !== this.state.mutable_image) {
-        image_upload_profile(this.state.id, this.state.mutable_image)
-        .then(res => {
-          console.log("Image upload returned url: " + res);
+        const user = await get_user(this.state.mutable_displayname);
+        if (user) {
+          Alert.alert("Display name already exists");
+          nameReserved = true;
           this.setState({
-            image: this.state.mutable_image,
+            mutable_displayname: this.state.displayname,
           });
+        } else {
+          update_user(this.state.mutable_displayname, this.state.user);
+        }
+      }
+      if (!nameReserved) {
+        this.setState({
+          displayname: this.state.mutable_displayname,
+          resolution: this.state.mutable_resolution,
+        });
+        if (this.state.image !== this.state.mutable_image) {
+          image_upload_profile(this.state.id, this.state.mutable_image)
+          .then(res => {
+            console.log("Image upload returned url: " + res);
+            this.setState({
+              image: this.state.mutable_image,
+            });
+            let postData = {
+              displayName: this.state.mutable_displayname,
+              email: this.state.email,
+              picture: res,
+              resolution: this.state.mutable_resolution,
+            };
+            settings_set(this.state.key, postData);
+          })
+          .catch(error => {
+            console.error(error);
+          });
+        } else {
           let postData = {
             displayName: this.state.mutable_displayname,
             email: this.state.email,
-            picture: res,
+            picture: this.state.image,
             resolution: this.state.mutable_resolution,
           };
           settings_set(this.state.key, postData);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-      } else {
-        let postData = {
-          displayName: this.state.mutable_displayname,
-          email: this.state.email,
-          picture: this.state.image,
-          resolution: this.state.mutable_resolution,
-        };
-        settings_set(this.state.key, postData);
+        }
       }
     }
   }
@@ -236,9 +238,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
         <SettingResolution resolution={this.state.mutable_resolution} handleChange={this.handleResolutionChange}/>
       </KeyboardAvoidingView>
       <SettingSave handleClick={this.handleSave}></SettingSave>
-      <Button title="Sign out"
-              onPress={this.logOutButton}
-      >
+      <Button title="Sign out" onPress={this.logOutButton}>
       </Button>
     </Wallpaper>
     );
