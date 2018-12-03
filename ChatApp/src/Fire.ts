@@ -29,6 +29,7 @@ import { FileSystem } from "expo";
 let fb_app: firebase.app.App;
 let fb_db: firebase.database.Reference;
 
+// tslint:disable-next-line:max-line-length
 const defaultPicture = "https://firebasestorage.googleapis.com/v0/b/mcc-fall-2018-g13.appspot.com/o/robot-prod.png?alt=media&token=1088c6f3-b0e8-4fde-845e-a77095c33f15";
 const defaultResolution = "full";
 
@@ -159,7 +160,6 @@ export const user_create = (username: string, email: string, password: string) =
           Alert.alert(errorMessage);
         })
         .then((user) => {
-          update_user(username);
           console.log(user);
           if (user) {
             // Create userprofile on authentication success
@@ -179,6 +179,7 @@ export const user_create = (username: string, email: string, password: string) =
               updates["members/" + snapshot.key + `/${username}`] = false;
             });
             fb_db.ref.update(updates);
+            update_user(username, user.user);
           }
         });
     } else {
@@ -187,8 +188,10 @@ export const user_create = (username: string, email: string, password: string) =
   });
 };
 
-export const update_user = (displayName: string) => {
-  let user = firebase.auth().currentUser;
+export const update_user = (displayName: string, user: firebase.User) => {
+  if (!user) {
+    user = firebase.auth().currentUser;
+  }
   user.updateProfile({
     displayName: displayName,
     photoURL: undefined,
@@ -258,6 +261,7 @@ export const get_user_by_email = (email) => {
         snapshot.forEach((data) => {
           resolve(data);
         });
+        resolve(undefined);
     });
   });
 };

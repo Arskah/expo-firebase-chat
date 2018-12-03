@@ -8,7 +8,7 @@ import SettingSave from "../components/SettingSave";
 import Layout from "../constants/Layout";
 import firebase, { database } from "firebase";
 import { ImagePicker, Permissions } from "expo";
-import {image_upload_profile, get_user_by_name2, settings_set, update_user} from "../Fire";
+import {image_upload_profile, get_user_by_name2, get_user_by_email, settings_set, update_user} from "../Fire";
 // import ImagePicker from "react-native-image-picker";
 
 export interface SettingsScreenProps {
@@ -61,22 +61,38 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     if (firebase.auth()) {
 
       const user = firebase.auth().currentUser;
-      console.log(user.displayName);
-      get_user_by_name2(user.displayName)
-      .then((response: firebase.database.DataSnapshot) => {
-        this.setState({
-          displayname: response.val().displayName,
-          mutable_displayname: response.val().displayName,
-          image: response.val().picture,
-          mutable_image: response.val().picture,
-          resolution: response.val().resolution,
-          mutable_resolution: response.val().resolution,
-          id: user.uid,
-          key: response.key,
-          email: response.val().email,
+      if (user.displayName) {
+        get_user_by_name2(user.displayName)
+        .then((response: firebase.database.DataSnapshot) => {
+          this.setState({
+            displayname: response.val().displayName,
+            mutable_displayname: response.val().displayName,
+            image: response.val().picture,
+            mutable_image: response.val().picture,
+            resolution: response.val().resolution,
+            mutable_resolution: response.val().resolution,
+            id: user.uid,
+            key: response.key,
+            email: response.val().email,
+          });
         });
-        console.log(response.key);
-      });
+      } else {
+        get_user_by_email(user.email)
+        .then((response: firebase.database.DataSnapshot) => {
+          this.setState({
+            displayname: response.val().displayName,
+            mutable_displayname: response.val().displayName,
+            image: response.val().picture,
+            mutable_image: response.val().picture,
+            resolution: response.val().resolution,
+            mutable_resolution: response.val().resolution,
+            id: user.uid,
+            key: response.key,
+            email: response.val().email,
+          });
+        });
+      }
+
     }
   }
 
