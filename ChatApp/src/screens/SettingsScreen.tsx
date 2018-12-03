@@ -61,38 +61,26 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     if (firebase.auth()) {
 
       const user = firebase.auth().currentUser;
-      if (user.displayName) {
-        get_user(user.displayName)
-        .then((response: firebase.database.DataSnapshot) => {
-          this.setState({
-            displayname: response.val().displayName,
-            mutable_displayname: response.val().displayName,
-            image: response.val().picture,
-            mutable_image: response.val().picture,
-            resolution: response.val().resolution,
-            mutable_resolution: response.val().resolution,
-            id: user.uid,
-            key: response.key,
-            email: response.val().email,
-          });
-        });
-      } else {
-        get_user(user.email, "email")
-        .then((response: firebase.database.DataSnapshot) => {
-          this.setState({
-            displayname: response.val().displayName,
-            mutable_displayname: response.val().displayName,
-            image: response.val().picture,
-            mutable_image: response.val().picture,
-            resolution: response.val().resolution,
-            mutable_resolution: response.val().resolution,
-            id: user.uid,
-            key: response.key,
-            email: response.val().email,
-          });
-        });
+      let value = user.displayName;
+      let method: "displayName" | "email" = "displayName";
+      if (!user.displayName) {
+        value = user.email;
+        method = "email";
       }
-
+      get_user(value, method)
+      .then((response: firebase.database.DataSnapshot) => {
+        this.setState({
+          displayname: response.val().displayName,
+          mutable_displayname: response.val().displayName,
+          image: response.val().picture,
+          mutable_image: response.val().picture,
+          resolution: response.val().resolution,
+          mutable_resolution: response.val().resolution,
+          id: user.uid,
+          key: response.key,
+          email: response.val().email,
+        });
+      });
     }
   }
 
