@@ -1,4 +1,4 @@
-import firebase from "firebase";
+import firebase, { User } from "firebase";
 import { Alert } from "react-native";
 import { ENV } from "../environment";
 import { FileSystem } from "expo";
@@ -29,7 +29,7 @@ import { FileSystem } from "expo";
 let fb_app: firebase.app.App;
 let fb_db: firebase.database.Reference;
 
-const defaultPicture = "gs://mcc-fall-2018-g13.appspot.com/robot-prod.png";
+const defaultPicture = "https://firebasestorage.googleapis.com/v0/b/mcc-fall-2018-g13.appspot.com/o/robot-prod.png?alt=media&token=1088c6f3-b0e8-4fde-845e-a77095c33f15";
 const defaultResolution = "full";
 
 export const init = () => {
@@ -115,11 +115,12 @@ export const image_get = (image_url: string) => {
 };
 
 // upload image to firebase => get image url
-export const image_upload = async (image_path: string) => {
+export const image_upload = async (image_path: string, folder : string, name : string) => {
 
   const blob = await urlToBlob(image_path);
-  let ref = firebase.storage().ref("pictures").child("my-image");
-  return ref.put(blob).snapshot.downloadURL;
+  const ref = firebase.storage().ref(folder).child(name);
+  const result = await ref.put(blob)
+  return result.ref.getDownloadURL();
 
 };
 
@@ -127,8 +128,9 @@ export const image_upload_chat = (chat_id: string, image_path: string) => {
   return;
 };
 
-export const image_upload_profile = (user_id: string, image_path: string) => {
-  return;
+export const image_upload_profile = async (user_id: string, image_path: string) => {
+  const result = await image_upload(image_path, "profile_pictures", user_id)
+  return result
 };
 
 function urlToBlob(url: string) {
@@ -157,6 +159,7 @@ export const user_create = (username: string, email: string, password: string) =
           Alert.alert(errorMessage);
         })
         .then((user) => {
+          update_user(username)
           console.log(user);
           if (user) {
             // Create userprofile on authentication success
@@ -183,6 +186,19 @@ export const user_create = (username: string, email: string, password: string) =
     }
   });
 };
+
+export const update_user = (displayName : string) => {
+  
+  var user = firebase.auth().currentUser;
+  user.updateProfile({
+    displayName: displayName,
+    photoURL: null
+  }).then(function() {
+    console.log("Updated displayname successfully")
+  }).catch(function(error) {
+    console.log(error)
+  });
+}
 
 export const user_state_change = (callback) => {
   firebase.auth().onAuthStateChanged(callback);
@@ -224,6 +240,19 @@ export const get_user_by_name = async (username: string) => {
   });
 };
 
+
+export const get_user_by_name2 = async (username: string) => {
+  return new Promise((resolve, reject) => {
+    firebase.database().ref().child("users").orderByChild("displayName")
+      .equalTo(username).on("value", (snapshot) => {
+        snapshot.forEach((data) => {
+          resolve(data);
+        });
+        resolve(undefined);
+    });
+  });
+};
+
 export const get_user_by_email = (email) => {
   return new Promise((resolve, reject) => {
     firebase.database().ref().child("users").orderByChild("email")
@@ -246,8 +275,10 @@ export const settings_get = (key: string) => {
 };
 
 // value
-export const settings_set = (key: string, value: string) => {
-  return;
+export const settings_set = (key: string, value: UserProfile) => {
+  let updates = {};
+  updates[`/users/${key}`] = value;
+  fb_db.ref.update(updates);
 };
 
 export const profile_picture_set = () => {

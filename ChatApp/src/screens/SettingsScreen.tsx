@@ -6,9 +6,9 @@ import SettingName from "../components/SettingName";
 import SettingResolution from "../components/SettingResolution";
 import SettingSave from "../components/SettingSave";
 import Layout from "../constants/Layout";
-import firebase from "firebase";
+import firebase, { database } from "firebase";
 import { ImagePicker, Permissions } from "expo";
-import {image_upload, get_user_by_email} from '../Fire'
+import {image_upload_profile, get_user_by_name2, settings_set, update_user} from '../Fire'
 // import ImagePicker from "react-native-image-picker";
 
 export interface SettingsScreenProps {
@@ -23,6 +23,9 @@ export interface SettingsScreenState {
   dialogPictureVisible: boolean,
   resolution: "full" | "high" | "low",
   mutable_resolution: "full" | "high" | "low",
+  id: string,
+  key: string,
+  email: string
 }
 
 const options = {
@@ -48,15 +51,19 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
       dialogPictureVisible: false,
       resolution: "full",
       mutable_resolution: "full",
+      id: "",
+      key: "",
+      email: ""
       };
   }
 
   componentDidMount() {
     if (firebase.auth()) {
 
-      const email = firebase.auth().currentUser.email;
-      get_user_by_email(email)
-      .then(response => {
+      const user = firebase.auth().currentUser;
+      console.log(user.displayName)
+      get_user_by_name2(user.displayName)
+      .then((response) => {
        
         this.setState({
           displayname: response.val().displayName,
@@ -64,9 +71,12 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
           image: response.val().picture,
           mutable_image: response.val().picture,
           resolution: response.val().resolution,
-          mutable_resolution: response.val().resolution
+          mutable_resolution: response.val().resolution,
+          id: user.uid,
+          key: response.key,
+          email: response.val().email
         });
-        
+        console.log(response.key)
       })
     }
   }
@@ -151,18 +161,45 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
         this.state.displayname === this.state.mutable_displayname) {
       Alert.alert("Nothing to save");
     } else {
-      if (this.state.image === this.state.mutable_image) {
-        Alert.alert("Changes to be saved");
-      } else {
-        image_upload(this.state.mutable_image)
+
+      if(this.state.displayname !== this.state.mutable_displayname) {
+        update_user(this.state.mutable_displayname)
+      }
+
+      this.setState({
+        displayname: this.state.mutable_displayname,
+        resolution: this.state.mutable_resolution,
+      })
+      if(this.state.image !== this.state.mutable_image){
+        image_upload_profile(this.state.id, this.state.mutable_image)
         .then(res => {
           console.log("Image upload returned url: " + res);
+          this.setState({
+            image: this.state.mutable_image,
+          })
+          let postData = {
+            displayName: this.state.mutable_displayname,
+            email: this.state.email,
+            picture: res,
+            resolution: this.state.mutable_resolution,
+          }
+          settings_set(this.state.key, postData)
         })
         .catch(error => {
           console.error(error);
         });
       }
+      else{
+        let postData = {
+          displayName: this.state.mutable_displayname,
+          email: this.state.email,
+          picture: this.state.image,
+          resolution: this.state.mutable_resolution,
+        }
+        settings_set(this.state.key, postData)
+      }
     }
+    
   }
 
   render() {
