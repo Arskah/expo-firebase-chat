@@ -267,7 +267,7 @@ export const active_chats = (email: string) => {
   return new Promise((resolve, reject) => {
     const user_id_promise = get_user_by_email(email).then((user_profile: UserProfile) => {
       if (user_profile) {
-        fb_db.ref.child('members').orderByChild('Arska')
+        fb_db.ref.child('members').orderByChild(user_profile.displayName)
           .equalTo(true).once("value", function(snapshot) {
             var results = [];
             snapshot.forEach((data) => {
