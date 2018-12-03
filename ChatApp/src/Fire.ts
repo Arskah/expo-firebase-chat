@@ -151,8 +151,10 @@ function urlToBlob(url: string) {
 
 // params are the mandatory info, not sure yet
 export const user_create = (username: string, email: string, password: string) => {
-  get_user_by_name(username).then((user_profile) => {
+  get_user(username)
+  .then((user_profile) => {
     // Check if username is free
+    console.log(user_profile);
     if (!user_profile) {
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .catch((error) => {
@@ -214,9 +216,12 @@ interface UserProfile {
 }
 
 export const user_login = (username: string, passwd: string) => {
-  const user_promise = get_user_by_name(username).then((user_profile: UserProfile) => {
-    if (user_profile) {
-      user_login_email(user_profile.email, passwd);
+  const user_promise = get_user(username)
+    .then((user: firebase.database.DataSnapshot) => {
+    if (user) {
+      user_login_email(user.val().email, passwd);
+    } else {
+      Alert.alert("Username doesn't exist");
     }
   });
 };
@@ -230,34 +235,13 @@ export const user_login_email = (email: string, passwd: string) => {
     });
 };
 
-export const get_user_by_name = async (username: string) => {
+export const get_user = async (username: string, method?: "displayName" | "email") => {
+  if (!method) {
+    method = "displayName";
+  }
   return new Promise((resolve, reject) => {
-    firebase.database().ref().child("users").orderByChild("displayName")
+    firebase.database().ref().child("users").orderByChild(method)
       .equalTo(username).on("value", (snapshot) => {
-        snapshot.forEach((data) => {
-          resolve(data.val());
-        });
-        resolve(undefined);
-    });
-  });
-};
-
-export const get_user_by_name2 = async (username: string) => {
-  return new Promise((resolve, reject) => {
-    firebase.database().ref().child("users").orderByChild("displayName")
-      .equalTo(username).on("value", (snapshot) => {
-        snapshot.forEach((data) => {
-          resolve(data);
-        });
-        resolve(undefined);
-    });
-  });
-};
-
-export const get_user_by_email = (email) => {
-  return new Promise((resolve, reject) => {
-    firebase.database().ref().child("users").orderByChild("email")
-      .equalTo(email).on("value", (snapshot) => {
         snapshot.forEach((data) => {
           resolve(data);
         });

@@ -8,7 +8,7 @@ import SettingSave from "../components/SettingSave";
 import Layout from "../constants/Layout";
 import firebase, { database } from "firebase";
 import { ImagePicker, Permissions } from "expo";
-import {image_upload_profile, get_user_by_name2, get_user_by_email, settings_set, update_user} from "../Fire";
+import {image_upload_profile, get_user, settings_set, update_user} from "../Fire";
 // import ImagePicker from "react-native-image-picker";
 
 export interface SettingsScreenProps {
@@ -62,7 +62,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
 
       const user = firebase.auth().currentUser;
       if (user.displayName) {
-        get_user_by_name2(user.displayName)
+        get_user(user.displayName)
         .then((response: firebase.database.DataSnapshot) => {
           this.setState({
             displayname: response.val().displayName,
@@ -77,7 +77,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
           });
         });
       } else {
-        get_user_by_email(user.email)
+        get_user(user.email, "email")
         .then((response: firebase.database.DataSnapshot) => {
           this.setState({
             displayname: response.val().displayName,
