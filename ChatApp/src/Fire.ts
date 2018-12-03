@@ -261,10 +261,10 @@ export const settings_get = (key: string) => {
 };
 
 // value
-export const settings_set = (key: string, value: UserProfile) => {
+export const settings_set = async (key: string, value: UserProfile) => {
   let updates = {};
   updates[`/users/${key}`] = value;
-  fb_db.ref.update(updates);
+  return fb_db.ref.update(updates);
 };
 
 export const profile_picture_set = () => {
