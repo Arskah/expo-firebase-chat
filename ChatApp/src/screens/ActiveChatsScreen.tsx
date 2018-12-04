@@ -5,6 +5,8 @@ import Layout from "../constants/Layout";
 import { active_chats, get_user_by_email, get_chat_details } from "../Fire"; 
 import * as firebase from 'firebase';
 import { object } from "prop-types";
+import Wallpaper from "../components/Wallpaper";
+
 
 export interface ActiveChatsScreenProps {
   
@@ -12,7 +14,8 @@ export interface ActiveChatsScreenProps {
 export interface ActiveChatsScreenState {
   displayname: string;
   activeChatsList: object;
-  activeChatsDetailsList: object;
+  //activeChatsDetailsList: Array<object>;
+  titles_lastMessages: Array<{}>;
 }
 
 export default class ActiveChatsScreen extends React.Component<ActiveChatsScreenProps, ActiveChatsScreenState> {
@@ -21,50 +24,73 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
     this.state = {
       displayname: "",
       activeChatsList: null,
-      activeChatsDetailsList: null,
+      //activeChatsDetailsList: [],
+      titles_lastMessages: [],
       };
-
-    
   }
 
- /* chat_details(chats_list) {
-    var results_list = [];
-    var chat_promise;
-    console.log(chats_list);
-    chats_list.forEach(chat => {
-      get_chat_details(chat).then((details) => {
-        results_list.push(details)
-      });
-    });
-    while (chats_list.length != results_list.length) {}
-    return results_list;
-  }*/
-
-  //Object of all active chat rooms
-  componentDidMount() {
+   //Object of all active chat rooms
+   componentDidMount() {
     if (firebase.auth()) {
       const email = firebase.auth().currentUser.email;
-      active_chats(email).then((actives) => {
-        //console.log(typeof(actives));
+      active_chats().then((actives) => {
         this.setState({activeChatsList : actives})
-        //console.log(this.state.activeChatsList);
+        var temp_list = new Array;
+        for (var i in actives){
+          temp_list.push(actives[i]);
+        }
+        //console.log(this.state);
+        this.chat_details(temp_list, this);
+
       });
     };
   }
 
-  render() {
-    var temp_list = new Array;
-    for (var i in this.state.activeChatsList){
-      temp_list.push(this.state.activeChatsList[i]);
+  get_titles_lastMessages = (results) => {
+    var return_list = [];
+    for (var i in results){
+      return_list.push({title: results[i].val().title, lastMessage: results[i].val().lastMessage});
     }
-   // var details_list = this.chat_details(temp_list);
+    this.setState({titles_lastMessages: return_list})
+  }
 
+  /*get_last_messages = (results) => {
+    var last_messages = [];
+    for (var i in results){
+      last_messages.push(results[i].val().lastMessage);
+    }
+    this.setState({lastMessages:last_messages})
+  }*/
+
+  chat_details = (chats_list,this_) => {
+    var chat_promises = chats_list.map(function(key) {
+      return firebase.database().ref("chats").child(key).once("value");
+    })
+    Promise.all(chat_promises).then(function (snapshots) {
+      var results = [];
+      snapshots.forEach(function(snapshot) {
+        results.push(snapshot);
+      });
+      
+      this_.get_titles_lastMessages(results)
+    });
+  }
+
+  render() { 
+    
+    //console.log(this.state.activeChatsDetailsList);
+    //var lastMessages = this.get_last_messages();
+    
     return (
-      <View style = {styles.container}>
-        <FlatList
-          data={temp_list}
-          renderItem= {({item}) => <Text style={styles.activeChatsScreen}>{item}</Text>}/>
-      </View>
+      <Wallpaper> 
+        <View style = {styles.container}>
+          <FlatList
+            data = {this.state.titles_lastMessages}
+            renderItem = {({item}) =>
+              <Text style={styles.activeChatsScreen}> {item['title']} {"\n"} {item['lastMessage']} </Text>}/>
+        </View>
+      </Wallpaper>
+
     );
   }
 }
@@ -74,10 +100,20 @@ const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
   activeChatsScreen: {
+    padding: 8,
+    fontSize: 18,
+    height: 60,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "black",
   },
 
   container: {
-
+    top: 30,
+    width: DEVICE_WIDTH,
+    padding: 20,
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 });
 
