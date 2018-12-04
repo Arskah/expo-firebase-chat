@@ -241,7 +241,7 @@ export const get_user_by_email = async (email: string) => {
 export const active_chats = () => {
   var username = firebase.auth().currentUser.displayName;
   return new Promise((resolve, reject) => {
-    const user_id_promise =  fb_db.ref.child('members').orderByChild('Arska')
+    const user_id_promise =  fb_db.ref.child('members').orderByChild(username)
       .equalTo(true).once("value", function(snapshot) {
         var results = [];
         //console.log(snapshot);
