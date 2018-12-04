@@ -1,17 +1,17 @@
 import React from "react";
-import { ImageStyle, View, Platform } from 'react-native';
-import KeyboardSpacer from 'react-native-keyboard-spacer';
-import { GiftedChat } from 'react-native-gifted-chat'
-import { chat_send, get_user, ChatMessage, UserChatMessage } from '../Fire';
+import { ImageStyle, View, Platform } from "react-native";
+import KeyboardSpacer from "react-native-keyboard-spacer";
+import { GiftedChat } from "react-native-gifted-chat";
+import { chat_send, get_user, ChatMessage, UserChatMessage } from "../Fire";
 import firebase from "firebase";
 
 export interface ChatScreenProps {
   navigation: any,
   chat_id?: string
   user_id?: string
-};
+}
 
-export interface ChatScreenState { 
+export interface ChatScreenState {
   messages: any,
   displayName: string,
   id: string,
@@ -21,57 +21,48 @@ export interface ChatScreenState {
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
-  constructor(props: any){
-    super(props)
+  constructor(props: any) {
+    super(props);
     this.state = {
       messages: [],
       displayName: undefined,
       id: undefined,
       chat_id: "123",
-      dbref: undefined
-    }
+      dbref: undefined,
+    };
   }
 
   componentDidMount() {
 
     if (firebase.auth()) {
-      
-      let dbref = firebase.database().ref('messages').child("123");
-      /*
-      dbref.on('value', (e) => {
-        var rows = [];
-        if ( e && e.val() && e.val().map ) {
-            e.val().map((v) => rows.push ( v ));
-        }
-        console.log("Rows: ",rows);
-      });*/
-      
-      dbref.on('value', (snapshot) => {
-        let messages = []
-        snapshot.forEach(value => {
-          if(value && value.val() && value.val()["_id"]){
+      let dbref = firebase.database().ref("messages").child("123");
+      dbref.on("value", (snapshot) => {
+        let messages = [];
+        /* tslint:disable:no-string-literal */
+        snapshot.forEach(child => {
+          if (child && child.val() && child.val()["_id"]) {
 
-            let message : ChatMessage;
-            let user : UserChatMessage;
+            let message: ChatMessage;
+            let userObject: UserChatMessage;
 
-            user = {
-              _id: value.val()["user"]["_id"],
-              name: value.val()["user"]["name"],
-              avatar: value.val()["user"]["avatar"]
-            }
+            userObject = {
+              _id: child.val()["user"]["_id"],
+              name: child.val()["user"]["name"],
+              avatar: child.val()["user"]["avatar"],
+            };
 
             message = {
-              _id: value.val()["_id"],
-              createdAt: value.val()["createdAt"],
-              text: value.val()["text"],
-              user: user
+              _id: child.val()["_id"],
+              createdAt: child.val()["createdAt"],
+              text: child.val()["text"],
+              user: userObject,
 
-            }
+            };
             messages.push(message);
           }
-        })
-        console.log(messages)
-        this.setState({messages:messages.reverse()})
+          /* tslint:enable:no-string-literal */
+        });
+        this.setState({messages: messages.reverse()});
       });
 
       const user = firebase.auth().currentUser;
@@ -86,24 +77,23 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         this.setState({
           displayName: response.val().displayName,
           id: response.key,
-          dbref: dbref
+          dbref: dbref,
         });
       });
-    }
-    else{
+    } else {
       this.props.navigation.navigate("LoginScreen");
     }
   }
 
   componentDidUnMount() {
-    this.state.dbref.off('value');
+    this.state.dbref.off("value");
   }
 
   onSend(messages = []) {
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages),
-    }))
-    if(messages[0]){
+    }));
+    if (messages[0]) {
       chat_send(this.state.chat_id, messages[0]);
     }
   }
@@ -118,10 +108,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             _id: this.state.id,
             name: this.state.displayName,
           }}
-          //imageStyle={new ImageStyle()}
+          // imageStyle={new ImageStyle()}
         />
-        {Platform.OS === 'android' ? <KeyboardSpacer /> : null }
+        {Platform.OS === "android" ? <KeyboardSpacer /> : undefined }
       </View>
-    )
+    );
   }
 }

@@ -71,14 +71,14 @@ export const chat_adduser = (chat_id: string, user_id: string, adder_id: string)
   return fb_db.ref.update(updates);
 };
 
-export interface ChatMessage{
+export interface ChatMessage {
   _id: string,
   text: string,
   createdAt: Date,
   user: UserChatMessage
 }
 
-export interface UserChatMessage{
+export interface UserChatMessage {
   _id: string,
   name: string,
   avatar: string,
