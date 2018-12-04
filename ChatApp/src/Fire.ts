@@ -2,6 +2,7 @@ import firebase, { User } from "firebase";
 import { Alert } from "react-native";
 import { ENV } from "../environment";
 import { FileSystem } from "expo";
+import { array } from "prop-types";
 
 /*
   - /chats/
@@ -229,7 +230,7 @@ export const user_login = (username: string, passwd: string) => {
 export const user_login_email = (email: string, passwd: string) => {
   firebase.auth().signInWithEmailAndPassword(email, passwd)
     .catch((error) => {
-      // var errorCode = error.code;
+      // let errorCode = error.code;
       const errorMessage = error.message;
       Alert.alert(errorMessage);
     });
@@ -262,33 +263,30 @@ export const get_user_by_email = async (email: string) => {
   });
 };
 
-//Get all chat rooms user is active in
-export const active_chats = (email: string) => {
+// Get all chat rooms user is active in
+export const active_chats = () => {
+  let username = firebase.auth().currentUser.displayName;
   return new Promise((resolve, reject) => {
-    const user_id_promise = get_user_by_email(email).then((user_profile: UserProfile) => {
-      if (user_profile) {
-        fb_db.ref.child('members').orderByChild(user_profile.displayName)
-          .equalTo(true).once("value", function(snapshot) {
-            var results = [];
-            snapshot.forEach((data) => {
-              results.push(data.key);    
-            });
-            resolve(results);
-        });
-      }
-    });
-  });
-}
-
-/*export const get_chat_details = (chat_id: string) => {
-  return new Promise((resolve, reject) => {
-    fb_db.ref.child('chats').orderByKey()
-      .equalTo(chat_id).on('value', (snapshot) => {
-        resolve(snapshot.key);
+    const user_id_promise =  fb_db.ref.child("members").orderByChild(username)
+      .equalTo(true).once("value", function(snapshot) {
+        let results = [];
+        // console.log(snapshot);
+        snapshot.forEach((data) => {
+          results.push(data.key);
+                });
+        resolve(results);
       });
-      resolve(undefined);
   });
-}*/
+};
+
+export const get_chat_details = (chats_list: any) => {
+  return new Promise((resolve, reject) => {
+    let results = [];
+      fb_db.ref.child("chats").orderByKey().equalTo(chats_list).on("value", (snapshot) => {
+        results.push(snapshot.key);
+      });
+  });
+};
 
 // results
 export const user_search = async (search_term: string) => {
