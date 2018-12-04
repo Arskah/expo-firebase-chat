@@ -5,7 +5,7 @@ import LandingScreen from "./screens/LandingScreen";
 import SignupScreen from "./screens/SignupScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import LoginScreen from "./screens/LoginScreen";
-// import ChatScreen from "./screens/ChatScreen";
+import ChatScreen from "./screens/ChatScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import ActiveChatsScreen from "./screens/ActiveChatsScreen";
 import { init } from "./Fire";
@@ -30,7 +30,7 @@ const App = createSwitchNavigator(
     SignupScreen,
     ForgotPasswordScreen,
     LoginScreen,
-    // ChatScreen,
+    ChatScreen,
     SettingsScreen,
     ActiveChatsScreen,
   },

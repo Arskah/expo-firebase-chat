@@ -72,18 +72,29 @@ export const chat_adduser = (chat_id: string, user_id: string, adder_id: string)
   return fb_db.ref.update(updates);
 };
 
+export interface ChatMessage {
+  _id: string,
+  text: string,
+  createdAt: Date,
+  user: UserChatMessage
+}
+
+export interface UserChatMessage {
+  _id: string,
+  name: string,
+  avatar: string,
+}
+
 // Send a message in chat
 // reference images with some funky syntax
-export const chat_send = (chat_id: string, message: string, author: string) => {
-  let postData = {
-    author: author,
-    message: message,
-  };
+export const chat_send = (chat_id: string, message: ChatMessage) => {
+
   let new_key = fb_db.ref.child("messages").push().key;
   let updates = {};
-  updates[`/chats/${chat_id}/lastMessage/`] = `${author}: ${message}`;
-  updates[`/messages/${chat_id}/${new_key}/`] = postData;
+  updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.text}`;
+  updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
+
 };
 
 // Leave chatroom
@@ -97,8 +108,17 @@ export const chat_leave = (chat_id: string, user_id: string) => {
   return fb_db.ref.update(updates);
 };
 
-export const get_chat_message = (chat_id: string) => {
-  return;
+export const get_chat_messages = async (chat_id: string) => {
+
+  return new Promise((resolve, reject) => {
+    firebase.database().ref().child("users").orderByChild(method)
+      .equalTo(username).on("value", (snapshot) => {
+        snapshot.forEach((data) => {
+          resolve(data);
+        });
+        resolve(undefined);
+    });
+  });
 };
 
 // retrieve list of images on given chat
