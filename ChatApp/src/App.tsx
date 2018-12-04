@@ -39,5 +39,4 @@ const App = createSwitchNavigator(
   },
 );
 
-
 export default App;

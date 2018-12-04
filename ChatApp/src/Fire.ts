@@ -207,7 +207,7 @@ export const user_login = (username: string, passwd: string) => {
 export const user_login_email = (email: string, passwd: string) => {
   firebase.auth().signInWithEmailAndPassword(email, passwd)
     .catch((error) => {
-      // var errorCode = error.code;
+      // let errorCode = error.code;
       const errorMessage = error.message;
       Alert.alert(errorMessage);
     });
@@ -237,30 +237,31 @@ export const get_user_by_email = async (email: string) => {
   });
 };
 
-//Get all chat rooms user is active in
+// Get all chat rooms user is active in
 export const active_chats = () => {
-  var username = firebase.auth().currentUser.displayName;
+  let username = firebase.auth().currentUser.displayName;
   return new Promise((resolve, reject) => {
-    const user_id_promise =  fb_db.ref.child('members').orderByChild(username)
+    console.log(username);
+    const user_id_promise =  fb_db.ref.child("members").orderByChild(username)
       .equalTo(true).once("value", function(snapshot) {
-        var results = [];
-        //console.log(snapshot);
+        let results = [];
+        // console.log(snapshot);
         snapshot.forEach((data) => {
-          results.push(data.key);    
-        });
+          results.push(data.key);
+                });
         resolve(results);
       });
   });
-}
+};
 
 export const get_chat_details = (chats_list: any) => {
   return new Promise((resolve, reject) => {
-    var results = [];
-      fb_db.ref.child('chats').orderByKey().equalTo(chats_list).on('value', (snapshot) => {
+    let results = [];
+      fb_db.ref.child("chats").orderByKey().equalTo(chats_list).on("value", (snapshot) => {
         results.push(snapshot.key);
       });
   });
-}
+};
 
 // results
 export const user_search = async (search_term: string) => {
