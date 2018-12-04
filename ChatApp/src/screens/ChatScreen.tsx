@@ -47,7 +47,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       });*/
       
       dbref.on('value', (snapshot) => {
-        console.log(snapshot)
         let messages = []
         snapshot.forEach(value => {
           if(value && value.val() && value.val()["_id"]){
@@ -68,12 +67,11 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
               user: user
 
             }
-
             messages.push(message);
-
           }
-          this.setState({messages:messages.reverse()})
         })
+        console.log(messages)
+        this.setState({messages:messages.reverse()})
       });
 
       const user = firebase.auth().currentUser;
