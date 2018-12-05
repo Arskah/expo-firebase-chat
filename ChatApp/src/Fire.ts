@@ -93,12 +93,12 @@ export const chat_send = (chat_id: string, message: ChatMessage) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let updates = {};
   message._id = new_key;
-  if(message.text){
+  if (message.text) {
     updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.text}`;
   } else {
     updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.image}`;
   }
-  
+
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 
@@ -154,7 +154,7 @@ export const image_upload = async (image_path: string, folder: string, name: str
 };
 
 export const image_upload_chat = async (chat_id: string, image_path: string) => {
-  const result = await image_upload(image_path, "chat_pictures/"+chat_id, Date());
+  const result = await image_upload(image_path, "chat_pictures/" + chat_id, Date());
   return result;
 };
 

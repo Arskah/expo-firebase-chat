@@ -33,7 +33,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       chat_id: this.props.chat_id,
       dbref: firebase.database().ref("messages").child(this.props.chat_id),
       visible: false,
-    };  
+    };
   }
 
   componentDidMount() {
@@ -42,7 +42,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       this.state.dbref.on("child_added", (child) => {
         let messages = [];
         /* tslint:disable:no-string-literal */
-      
+
         if (child && child.val() && child.val()["_id"]) {
 
           let message: ChatMessage;
@@ -109,22 +109,22 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         },
       );
       if (!result.cancelled) {
-      
+
         const url = await image_upload_chat(this.state.chat_id, result.uri);
-  
+
         let user: UserChatMessage = {
           _id: this.state.user_id,
           name: this.state.displayName,
-        }
-  
+        };
+
         let message: ChatMessage = {
           _id: undefined,
           createdAt: new Date(),
           user: user,
           image: url,
-        }
-        chat_send(this.state.chat_id,message)
-        .catch(error => console.log(error))
+        };
+        chat_send(this.state.chat_id, message)
+        .catch(error => console.log(error));
       }
     }
   }
@@ -137,30 +137,28 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     });
 
     if (!result.cancelled) {
-      
+
       const url = await image_upload_chat(this.state.chat_id, result.uri);
 
       let user: UserChatMessage = {
         _id: this.state.user_id,
         name: this.state.displayName,
-      }
+      };
 
       let message: ChatMessage = {
         _id: undefined,
         createdAt: new Date(),
         user: user,
         image: url,
-      }
-      chat_send(this.state.chat_id,message)
-      .catch(error => console.log(error))
-      Alert.alert("Send picture from gallery")
+      };
+      chat_send(this.state.chat_id, message)
+      .catch(error => console.log(error));
     }
   }
 
   showDialog = () => {
     this.setState({ visible: true });
   }
-
 
   handleCancel = () => {
     this.setState({ visible: false });
