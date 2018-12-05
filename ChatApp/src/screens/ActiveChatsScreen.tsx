@@ -83,7 +83,8 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
               <TouchableOpacity
                 style={styles.chatButton}
                 onPress={() => this.handleOnPress(item.chatId)}>
-                <Text style={styles.activeChatsScreen}> {item.title} {"\n"} {item.lastMessage} </Text>
+                <Text style={styles.titleText}> {item.title} {"\n"}</Text>
+                <Text style={styles.lastMessageText}> {item.lastMessage} </Text>
               </TouchableOpacity>
             }
           />
@@ -98,15 +99,15 @@ const DEVICE_WIDTH = Layout.window.width;
 const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
-  activeChatsScreen: {
+  chatButton: {
     padding: 8,
     fontSize: 18,
     height: 60,
-    alignItems: "center",
-    borderWidth: 2,
+    width: DEVICE_WIDTH - 50,
+    alignItems: "flex-start",
+    borderWidth: 1,
     borderColor: "black",
   },
-
   container: {
     top: 30,
     width: DEVICE_WIDTH,
@@ -114,8 +115,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-
-  chatButton: {
-    backgroundColor: Colors.grey1,
+  titleText: {
+    height: 25,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  lastMessageText: {
+    height: 25,
+    fontSize: 16,
   }
 });
