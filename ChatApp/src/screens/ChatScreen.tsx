@@ -9,8 +9,7 @@ import { ImagePicker, Permissions } from "expo";
 import {image_upload_chat} from "../Fire";
 
 export interface ChatScreenProps {
-  navigation: any,
-  chat_id: string
+  navigation: any
 }
 
 export interface ChatScreenState {
@@ -20,18 +19,21 @@ export interface ChatScreenState {
   chat_id: string,
   dbref: any,
   visible: boolean,
-
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
   constructor(props: any) {
     super(props);
+    const chat_id = this.props.navigation.getParam("chat_id", undefined);
+    if (!chat_id) {
+      this.props.navigation.navigate("ActiveChatsScreen");
+    }
     this.state = {
       messages: [],
       displayName: undefined,
       user_id: undefined,
-      chat_id: this.props.chat_id,
-      dbref: firebase.database().ref("messages").child(this.props.chat_id),
+      chat_id: chat_id,
+      dbref: firebase.database().ref("messages").child(chat_id),
       visible: false,
     };
   }
