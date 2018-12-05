@@ -27,47 +27,60 @@ export interface ChatScreenState {
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
   constructor(props: any) {
     super(props);
-    this.state = {
-      messages: [],
-      displayName: undefined,
-      id: undefined,
-      chat_id: "123",
-      dbref: undefined,
-      visible: false,
-    };
+    if(!this.props.chat_id){
+      this.state = {
+        messages: [],
+        displayName: undefined,
+        id: undefined,
+        chat_id: "123",
+        dbref: firebase.database().ref("messages").child("123"),
+        visible: false,
+      };
+    }
+    else{
+      this.state = {
+        messages: [],
+        displayName: undefined,
+        id: undefined,
+        chat_id: this.props.chat_id,
+        dbref: firebase.database().ref("messages").child(this.props.chat_id),
+        visible: false,
+      };
+    }
+    
   }
 
   componentDidMount() {
 
     if (firebase.auth()) {
-      let dbref = firebase.database().ref("messages").child("123");
-      dbref.on("value", (snapshot) => {
+      this.state.dbref.on("child_added", (child) => {
         let messages = [];
         /* tslint:disable:no-string-literal */
-        snapshot.forEach(child => {
-          if (child && child.val() && child.val()["_id"]) {
+      
+        if (child && child.val() && child.val()["_id"]) {
 
-            let message: ChatMessage;
-            let userObject: UserChatMessage;
+          let message: ChatMessage;
+          let userObject: UserChatMessage;
 
-            userObject = {
-              _id: child.val()["user"]["_id"],
-              name: child.val()["user"]["name"],
-              avatar: child.val()["user"]["avatar"],
-            };
+          userObject = {
+            _id: child.val()["user"]["_id"],
+            name: child.val()["user"]["name"],
+            avatar: child.val()["user"]["avatar"],
+          };
 
-            message = {
-              _id: child.val()["_id"],
-              createdAt: child.val()["createdAt"],
-              text: child.val()["text"],
-              user: userObject,
+          message = {
+            _id: child.val()["_id"],
+            createdAt: child.val()["createdAt"],
+            text: child.val()["text"],
+            user: userObject,
 
-            };
-            messages.push(message);
-          }
-          /* tslint:enable:no-string-literal */
-        });
-        this.setState({messages: messages.reverse()});
+          };
+          messages.push(message);
+        }
+        /* tslint:enable:no-string-literal */
+        this.setState(previousState => ({
+          messages: GiftedChat.append(previousState.messages, messages),
+        }));
       });
 
       const user = firebase.auth().currentUser;
@@ -82,7 +95,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         this.setState({
           displayName: response.val().displayName,
           id: response.key,
-          dbref: dbref,
         });
       });
     } else {
@@ -95,9 +107,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   onSend(messages = []) {
-    this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }));
     if (messages[0]) {
       chat_send(this.state.chat_id, messages[0]);
     }
@@ -113,16 +122,12 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           aspect: [4, 3],
         },
       );
-
-      // console.log(result);
       if (!result.cancelled) {
         // @ts-ignore
-        //this.setState({mutable_image: result.uri});
         image_upload_chat(this.state.chat_id, result.uri);
         Alert.alert("Send picture from camera");
         
-    }
-      // console.log(this.state.mutable_image);
+      }
     }
   }
 
@@ -133,10 +138,8 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       aspect: [4, 3],
     });
 
-    // console.log(result);
     if (!result.cancelled) {
       // @ts-ignore
-      //this.setState({mutable_image: result.uri});
       image_upload_chat(this.state.chat_id, result.uri);
       Alert.alert("Send picture from gallery")
     }
