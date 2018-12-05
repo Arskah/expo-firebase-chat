@@ -67,30 +67,37 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         /* tslint:disable:no-string-literal */
 
         if (child && child.val() && child.val()["_id"]) {
+          if(this.state.messages.findIndex(m => m._id === child.val()["_id"]) === -1){
+            let message: ChatMessage;
+            let userObject: UserChatMessage;
 
-          let message: ChatMessage;
-          let userObject: UserChatMessage;
+            userObject = {
+              _id: child.val()["user"]["_id"],
+              name: child.val()["user"]["name"],
+              avatar: child.val()["user"]["avatar"],
+            };
 
-          userObject = {
-            _id: child.val()["user"]["_id"],
-            name: child.val()["user"]["name"],
-            avatar: child.val()["user"]["avatar"],
-          };
-
-          message = {
-            _id: child.val()["_id"],
-            createdAt: child.val()["createdAt"],
-            text: child.val()["text"],
-            user: userObject,
-            image: child.val()["image"],
-          };
-          messages.push(message);
-        }
+            message = {
+              _id: child.val()["_id"],
+              createdAt: child.val()["createdAt"],
+              text: child.val()["text"],
+              user: userObject,
+              image: child.val()["image"],
+            };
         /* tslint:enable:no-string-literal */
-        if(this.state.messages.findIndex(m => m._id === messages[0]._id) === -1){
-          this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, messages),
-          }));
+            get_user(userObject.name)
+            .then((response: firebase.database.DataSnapshot) => {
+              if(response && response.val()){
+                console.log(response.val())
+                message.user.avatar = response.val().picture;
+              }
+              messages.push(message);
+            
+              this.setState(previousState => ({
+                messages: GiftedChat.append(previousState.messages, messages),
+              }));
+            })
+          }
         }
       });
 
@@ -203,6 +210,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             name: this.state.displayName,
           }}
           renderAccessory={() => <Button title={"Add a picture"} onPress={this.showDialog}></Button>}
+          showUserAvatar = {true}
           // imageStyle={new ImageStyle()}
         />
         <Dialog.Container visible={this.state.visible}>
