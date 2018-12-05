@@ -10,8 +10,7 @@ import {image_upload_chat} from "../Fire";
 
 export interface ChatScreenProps {
   navigation: any,
-  chat_id?: string
-  user_id?: string
+  chat_id: string
 }
 
 export interface ChatScreenState {
@@ -27,27 +26,14 @@ export interface ChatScreenState {
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
   constructor(props: any) {
     super(props);
-    if(!this.props.chat_id){
-      this.state = {
-        messages: [],
-        displayName: undefined,
-        user_id: undefined,
-        chat_id: "123",
-        dbref: firebase.database().ref("messages").child("123"),
-        visible: false,
-      };
-    }
-    else{
-      this.state = {
-        messages: [],
-        displayName: undefined,
-        user_id: undefined,
-        chat_id: this.props.chat_id,
-        dbref: firebase.database().ref("messages").child(this.props.chat_id),
-        visible: false,
-      };
-    }
-    
+    this.state = {
+      messages: [],
+      displayName: undefined,
+      user_id: undefined,
+      chat_id: this.props.chat_id,
+      dbref: firebase.database().ref("messages").child(this.props.chat_id),
+      visible: false,
+    };  
   }
 
   componentDidMount() {
