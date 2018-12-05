@@ -35,7 +35,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
       active_chats().then((actives) => {
         this.setState({activeChatsList : actives});
         let temp_list = new Array;
-        for (let i in actives) {
+        for (let i of Object.keys(actives)) {
           temp_list.push(actives[i]);
         }
         this.chat_details(temp_list, this);
@@ -46,10 +46,10 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
 
   get_titles_lastMessages = (results) => {
     let return_list = [];
-    for (let i in results) {
+    for (let i of Object.keys(results)) {
       return_list.push({title: results[i][0].val().title,
                         lastMessage: results[i][0].val().lastMessage,
-                        chatId: results[i][1]});      
+                        chatId: results[i][1]});
     }
     this.setState({titles_lastMessages: return_list});
   }
@@ -61,7 +61,6 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
     Promise.all(chat_promises).then(function (snapshots) {
       let results = [];
       snapshots.forEach(function(snapshot) {
-        //console.log(snapshot.key);
         results.push([snapshot, snapshot.key]);
       });
       this_.get_titles_lastMessages(results);
@@ -70,7 +69,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
 
   handleOnPress = (chat_id) => {
     console.log(chat_id);
-    this.props.navigation.navigate('ChatScreen', {chat_id: chat_id});
+    this.props.navigation.navigate("ChatScreen", {chat_id: chat_id});
   }
 
   render() {
@@ -79,7 +78,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
         <View style = {styles.container}>
           <FlatList
             data = {this.state.titles_lastMessages}
-            renderItem = {({item}) => 
+            renderItem = {({item}) =>
               <TouchableOpacity
                 style={styles.chatButton}
                 onPress={() => this.handleOnPress(item.chatId)}>
@@ -123,5 +122,5 @@ const styles = StyleSheet.create({
   lastMessageText: {
     height: 25,
     fontSize: 16,
-  }
+  },
 });
