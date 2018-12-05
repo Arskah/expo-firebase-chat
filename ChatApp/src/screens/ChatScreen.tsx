@@ -1,5 +1,5 @@
 import React, { Children } from "react";
-import { ImageStyle, View, Platform, Text, Button, Alert} from "react-native";
+import { ImageStyle, View, Platform, Text, Button, Alert, BackHandler} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
 import { chat_send, get_user, ChatMessage, UserChatMessage, get_chat_messages } from "../Fire";
@@ -39,6 +39,11 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   componentDidMount() {
+
+    BackHandler.addEventListener("hardwareBackPress", () => {
+      this.props.navigation.navigate("ActiveChatsScreen");
+      return true;
+    });
 
     if (firebase.auth()) {
       this.state.dbref.on("child_added", (child) => {
@@ -92,6 +97,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
 
   componentDidUnMount() {
     this.state.dbref.off("value");
+    BackHandler.removeEventListener("hardwareBackPress", () => { return; });
   }
 
   onSend(messages = []) {
