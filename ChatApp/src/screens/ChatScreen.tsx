@@ -117,7 +117,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       let result = await ImagePicker.launchCameraAsync(
         {
           allowsEditing: true,
-          aspect: [4, 3],
         },
       );
       if (!result.cancelled) {
@@ -154,7 +153,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     this.setState({ visible: false});
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      aspect: [4, 3],
     });
 
     if (!result.cancelled) {
