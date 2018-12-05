@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Children } from "react";
 import { ImageStyle, View, Platform, Text, Button, Alert} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
@@ -17,7 +17,7 @@ export interface ChatScreenProps {
 export interface ChatScreenState {
   messages: any,
   displayName: string,
-  id: string,
+  user_id: string,
   chat_id: string,
   dbref: any,
   visible: boolean,
@@ -31,7 +31,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       this.state = {
         messages: [],
         displayName: undefined,
-        id: undefined,
+        user_id: undefined,
         chat_id: "123",
         dbref: firebase.database().ref("messages").child("123"),
         visible: false,
@@ -41,7 +41,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       this.state = {
         messages: [],
         displayName: undefined,
-        id: undefined,
+        user_id: undefined,
         chat_id: this.props.chat_id,
         dbref: firebase.database().ref("messages").child(this.props.chat_id),
         visible: false,
@@ -73,7 +73,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             createdAt: child.val()["createdAt"],
             text: child.val()["text"],
             user: userObject,
-
+            image: child.val()["image"],
           };
           messages.push(message);
         }
@@ -94,7 +94,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       .then((response: firebase.database.DataSnapshot) => {
         this.setState({
           displayName: response.val().displayName,
-          id: response.key,
+          user_id: response.key,
         });
       });
     } else {
@@ -123,10 +123,22 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         },
       );
       if (!result.cancelled) {
-        // @ts-ignore
-        image_upload_chat(this.state.chat_id, result.uri);
-        Alert.alert("Send picture from camera");
-        
+      
+        const url = await image_upload_chat(this.state.chat_id, result.uri);
+  
+        let user: UserChatMessage = {
+          _id: this.state.user_id,
+          name: this.state.displayName,
+        }
+  
+        let message: ChatMessage = {
+          _id: undefined,
+          createdAt: new Date(),
+          user: user,
+          image: url,
+        }
+        chat_send(this.state.chat_id,message)
+        .catch(error => console.log(error))
       }
     }
   }
@@ -139,8 +151,22 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     });
 
     if (!result.cancelled) {
-      // @ts-ignore
-      image_upload_chat(this.state.chat_id, result.uri);
+      
+      const url = await image_upload_chat(this.state.chat_id, result.uri);
+
+      let user: UserChatMessage = {
+        _id: this.state.user_id,
+        name: this.state.displayName,
+      }
+
+      let message: ChatMessage = {
+        _id: undefined,
+        createdAt: new Date(),
+        user: user,
+        image: url,
+      }
+      chat_send(this.state.chat_id,message)
+      .catch(error => console.log(error))
       Alert.alert("Send picture from gallery")
     }
   }
@@ -161,7 +187,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           messages={this.state.messages}
           onSend={messages => this.onSend(messages)}
           user={{
-            _id: this.state.id,
+            _id: this.state.user_id,
             name: this.state.displayName,
           }}
           renderAccessory={() => <Button title={"Add a picture"} onPress={this.showDialog}></Button>}

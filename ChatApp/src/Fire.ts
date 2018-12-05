@@ -74,15 +74,16 @@ export const chat_adduser = (chat_id: string, user_id: string, adder_id: string)
 
 export interface ChatMessage {
   _id: string,
-  text: string,
+  text?: string,
   createdAt: Date,
-  user: UserChatMessage
+  user: UserChatMessage,
+  image?: string
 }
 
 export interface UserChatMessage {
   _id: string,
   name: string,
-  avatar: string,
+  avatar?: string,
 }
 
 // Send a message in chat
@@ -91,7 +92,13 @@ export const chat_send = (chat_id: string, message: ChatMessage) => {
 
   let new_key = fb_db.ref.child("messages").push().key;
   let updates = {};
-  updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.text}`;
+  message._id = new_key;
+  if(message.text){
+    updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.text}`;
+  } else {
+    updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.image}`;
+  }
+  
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 
