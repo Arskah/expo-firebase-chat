@@ -85,14 +85,25 @@ export interface UserChatMessage {
   name: string,
   avatar?: string,
 }
-
+export const get_new_key = (child: string) => {
+  if(!child){
+    child = "messages";
+  }
+  let new_key = fb_db.ref.child(child).push().key;
+  return new_key;
+}
 // Send a message in chat
 // reference images with some funky syntax
 export const chat_send = (chat_id: string, message: ChatMessage) => {
 
-  let new_key = fb_db.ref.child("messages").push().key;
+  let new_key;
+  if(!message._id){
+    new_key = fb_db.ref.child("messages").push().key;
+    message._id = new_key;
+  } else {
+    new_key = message._id;
+  }
   let updates = {};
-  message._id = new_key;
   if (message.text) {
     updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.text}`;
   } else {

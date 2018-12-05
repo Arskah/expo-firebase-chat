@@ -2,7 +2,7 @@ import React, { Children } from "react";
 import { ImageStyle, View, Platform, Text, Button, Alert, BackHandler} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
-import { chat_send, get_user, ChatMessage, UserChatMessage, get_chat_messages } from "../Fire";
+import { chat_send, get_user, ChatMessage, UserChatMessage, get_chat_messages, get_new_key } from "../Fire";
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions } from "expo";
@@ -46,6 +46,22 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     });
 
     if (firebase.auth()) {
+
+      const user = firebase.auth().currentUser;
+      let value = user.displayName;
+      let method: "displayName" | "email" = "displayName";
+      if (!user.displayName) {
+        value = user.email;
+        method = "email";
+      }
+      get_user(value, method)
+      .then((response: firebase.database.DataSnapshot) => {
+        this.setState({
+          displayName: response.val().displayName,
+          user_id: response.key,
+        });
+      });
+
       this.state.dbref.on("child_added", (child) => {
         let messages = [];
         /* tslint:disable:no-string-literal */
@@ -71,25 +87,13 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           messages.push(message);
         }
         /* tslint:enable:no-string-literal */
-        this.setState(previousState => ({
-          messages: GiftedChat.append(previousState.messages, messages),
-        }));
+        if(this.state.messages.findIndex(m => m._id === messages[0]._id) === -1){
+          this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, messages),
+          }));
+        }
       });
 
-      const user = firebase.auth().currentUser;
-      let value = user.displayName;
-      let method: "displayName" | "email" = "displayName";
-      if (!user.displayName) {
-        value = user.email;
-        method = "email";
-      }
-      get_user(value, method)
-      .then((response: firebase.database.DataSnapshot) => {
-        this.setState({
-          displayName: response.val().displayName,
-          user_id: response.key,
-        });
-      });
     } else {
       this.props.navigation.navigate("LoginScreen");
     }
@@ -118,19 +122,28 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       );
       if (!result.cancelled) {
 
-        const url = await image_upload_chat(this.state.chat_id, result.uri);
-
+        let new_key = get_new_key("messages");
         let user: UserChatMessage = {
           _id: this.state.user_id,
           name: this.state.displayName,
         };
 
         let message: ChatMessage = {
-          _id: undefined,
+          _id: new_key,
           createdAt: new Date(),
           user: user,
-          image: url,
+          image: result.uri,
         };
+        let messages = [];
+        messages.push(message);
+        this.setState(previousState => ({
+          messages: GiftedChat.append(previousState.messages, messages),
+        }));
+
+        const url = await image_upload_chat(this.state.chat_id, result.uri);
+
+        message.image = url;
+
         chat_send(this.state.chat_id, message)
         .catch(error => console.log(error));
       }
@@ -146,19 +159,28 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
 
     if (!result.cancelled) {
 
-      const url = await image_upload_chat(this.state.chat_id, result.uri);
-
+      let new_key = get_new_key("messages");
       let user: UserChatMessage = {
         _id: this.state.user_id,
         name: this.state.displayName,
       };
 
       let message: ChatMessage = {
-        _id: undefined,
+        _id: new_key,
         createdAt: new Date(),
         user: user,
-        image: url,
+        image: result.uri,
       };
+      let messages = [];
+      messages.push(message);
+      this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, messages),
+      }));
+
+      const url = await image_upload_chat(this.state.chat_id, result.uri);
+
+      message.image = url;
+
       chat_send(this.state.chat_id, message)
       .catch(error => console.log(error));
     }
