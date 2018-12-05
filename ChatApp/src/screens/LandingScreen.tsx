@@ -16,8 +16,9 @@ export default class LandingScreen extends React.Component<LandingScreenProps, L
     user_state_change(user => {
       if (!user) {
         this.props.navigation.navigate("LoginScreen");
+      } else{
+        this.props.navigation.navigate("ChatScreen", {chat_id: "123"});
       }
-      this.props.navigation.navigate("ChatScreen", {chat_id: "123"});
     });
   }
 
