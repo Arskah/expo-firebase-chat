@@ -146,8 +146,9 @@ export const image_upload = async (image_path: string, folder: string, name: str
 
 };
 
-export const image_upload_chat = (chat_id: string, image_path: string) => {
-  return;
+export const image_upload_chat = async (chat_id: string, image_path: string) => {
+  const result = await image_upload(image_path, "chat_pictures/"+chat_id, Date());
+  return result;
 };
 
 export const image_upload_profile = async (user_id: string, image_path: string) => {

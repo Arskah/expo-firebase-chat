@@ -1,9 +1,12 @@
 import React from "react";
-import { ImageStyle, View, Platform } from "react-native";
+import { ImageStyle, View, Platform, Text, Button, Alert} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
-import { chat_send, get_user, ChatMessage, UserChatMessage } from "../Fire";
+import { chat_send, get_user, ChatMessage, UserChatMessage, get_chat_messages } from "../Fire";
 import firebase from "firebase";
+import Dialog from "react-native-dialog";
+import { ImagePicker, Permissions } from "expo";
+import {image_upload_chat} from "../Fire";
 
 export interface ChatScreenProps {
   navigation: any,
@@ -16,7 +19,8 @@ export interface ChatScreenState {
   displayName: string,
   id: string,
   chat_id: string,
-  dbref: any
+  dbref: any,
+  visible: boolean,
 
 }
 
@@ -29,6 +33,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       id: undefined,
       chat_id: "123",
       dbref: undefined,
+      visible: false,
     };
   }
 
@@ -98,6 +103,54 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     }
   }
 
+  pickFromCamera = async () => {
+    this.setState({ visible: false});
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    if (status === "granted") {
+      let result = await ImagePicker.launchCameraAsync(
+        {
+          allowsEditing: true,
+          aspect: [4, 3],
+        },
+      );
+
+      // console.log(result);
+      if (!result.cancelled) {
+        // @ts-ignore
+        //this.setState({mutable_image: result.uri});
+        image_upload_chat(this.state.chat_id, result.uri);
+        Alert.alert("Send picture from camera");
+        
+    }
+      // console.log(this.state.mutable_image);
+    }
+  }
+
+  pickFromGallery = async () => {
+    this.setState({ visible: false});
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    // console.log(result);
+    if (!result.cancelled) {
+      // @ts-ignore
+      //this.setState({mutable_image: result.uri});
+      image_upload_chat(this.state.chat_id, result.uri);
+      Alert.alert("Send picture from gallery")
+    }
+  }
+
+  showDialog = () => {
+    this.setState({ visible: true });
+  }
+
+
+  handleCancel = () => {
+    this.setState({ visible: false });
+  }
+
   render() {
     return (
       <View style={{flex: 1}}>
@@ -108,8 +161,15 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             _id: this.state.id,
             name: this.state.displayName,
           }}
+          renderAccessory={() => <Button title={"Add a picture"} onPress={this.showDialog}></Button>}
           // imageStyle={new ImageStyle()}
         />
+        <Dialog.Container visible={this.state.visible}>
+          <Dialog.Title>Pick a picture from</Dialog.Title>
+          <Dialog.Button label="Gallery" onPress={this.pickFromGallery} />
+          <Dialog.Button label="Camera" onPress={this.pickFromCamera} />
+          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
+        </Dialog.Container>
         {Platform.OS === "android" ? <KeyboardSpacer /> : undefined }
       </View>
     );
