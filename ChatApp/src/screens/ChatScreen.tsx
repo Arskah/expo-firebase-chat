@@ -27,7 +27,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       messages: [],
       displayName: undefined,
       id: undefined,
-      chat_id: "123",
+      chat_id: "",
       dbref: undefined,
     };
   }
@@ -35,7 +35,9 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   componentDidMount() {
 
     if (firebase.auth()) {
-      let dbref = firebase.database().ref("messages").child("123");
+      let chatId = this.props.navigation.getParam("chat_id", "ERROR NO CHAT ID");
+      this.setState({chat_id: chatId});
+      let dbref = firebase.database().ref("messages").child(chatId);
       dbref.on("value", (snapshot) => {
         let messages = [];
         /* tslint:disable:no-string-literal */
