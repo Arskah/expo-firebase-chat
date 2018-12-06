@@ -64,6 +64,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           avatar: response.val().picture,
         });
       });
+      //Load messages before starting the chat in order
       this.state.dbref.once("value", (snapshot) => {
         let messages = [];
         /* tslint:disable:no-string-literal */
@@ -92,6 +93,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         });
         this.setState({messages: messages.reverse()});
       });
+      //Load only messages that have come after the creation of start_key
       let start_key = get_new_key("messages");
       this.state.dbref.orderByKey().startAt(start_key).on("child_added", (child) => {
         let messages = [];
