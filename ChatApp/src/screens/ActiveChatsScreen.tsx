@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { BackHandler, View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 import { active_chats } from "../Fire";
@@ -42,6 +42,15 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
 
       });
     }
+
+    BackHandler.addEventListener("hardwareBackPress", () => {
+      BackHandler.exitApp();
+      return true;
+    });
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener("hardwareBackPress", () => { return; });
   }
 
   get_titles_lastMessages = (results) => {
