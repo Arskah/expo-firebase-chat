@@ -19,6 +19,7 @@ export interface ChatScreenState {
   chat_id: string,
   dbref: any,
   visible: boolean,
+  avatar: string,
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
@@ -35,6 +36,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       chat_id: chat_id,
       dbref: firebase.database().ref("messages").child(chat_id),
       visible: false,
+      avatar: undefined,
     };
   }
 
@@ -59,10 +61,39 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         this.setState({
           displayName: response.val().displayName,
           user_id: response.key,
+          avatar: response.val().picture,
         });
       });
+      this.state.dbref.once("value", (snapshot) => {
+        let messages = [];
+        /* tslint:disable:no-string-literal */
+        snapshot.forEach(child => {
+          if (child && child.val() && child.val()["_id"]) {
 
-      this.state.dbref.on("child_added", (child) => {
+            let message: ChatMessage;
+            let userObject: UserChatMessage;
+
+            userObject = {
+              _id: child.val()["user"]["_id"],
+              name: child.val()["user"]["name"],
+              avatar: child.val()["user"]["avatar"],
+            };
+
+            message = {
+              _id: child.val()["_id"],
+              createdAt: child.val()["createdAt"],
+              text: child.val()["text"],
+              user: userObject,
+              image: child.val()["image"],
+            };
+            messages.push(message);
+          }
+          /* tslint:enable:no-string-literal */
+        });
+        this.setState({messages: messages.reverse()});
+      });
+      let start_key = get_new_key("messages");
+      this.state.dbref.orderByKey().startAt(start_key).on("child_added", (child) => {
         let messages = [];
         /* tslint:disable:no-string-literal */
 
@@ -88,7 +119,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             get_user(userObject.name)
             .then((response: firebase.database.DataSnapshot) => {
               if(response && response.val()){
-                console.log(response.val())
                 message.user.avatar = response.val().picture;
               }
               messages.push(message);
@@ -112,8 +142,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   onSend(messages = []) {
-    if (messages[0]) {
-      chat_send(this.state.chat_id, messages[0]);
+    let msg = messages[0];
+    if (msg) {
+      msg._id = undefined;
+      chat_send(this.state.chat_id, msg);
     }
   }
 
@@ -132,6 +164,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         let user: UserChatMessage = {
           _id: this.state.user_id,
           name: this.state.displayName,
+          avatar: this.state.avatar,
         };
 
         let message: ChatMessage = {
@@ -168,6 +201,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       let user: UserChatMessage = {
         _id: this.state.user_id,
         name: this.state.displayName,
+        avatar: this.state.avatar,
       };
 
       let message: ChatMessage = {
