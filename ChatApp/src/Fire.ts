@@ -363,7 +363,7 @@ export const profile_picture_set = () => {
 // RESOLUTION
 
 // Expo push notification token. We save them (if using multiple devices) with firebase.User.user.uid in to /push_keys/
-async function update_expo_push_notification(user_id: string) {
+export const update_expo_push_notification = async (user_id: string) => {
   const { status: existingStatus } = await Permissions.getAsync(
     Permissions.NOTIFICATIONS,
   );
@@ -385,9 +385,19 @@ async function update_expo_push_notification(user_id: string) {
   let postData = {
     token: token,
   };
-  // Also set user membership in all chats as false
-  let new_key = fb_db.ref.child(`push_keys/${user_id}`).push().key;
+  // Firebase does not allow [] characters... So we encode the keys
+  let encoded_key = encode_push_key(token);
   let updates = {};
-  updates[`/push_keys/${user_id}/${new_key}`] = postData;
+  updates[`/push_keys/${user_id}/${encoded_key}`] = postData;
   return fb_db.ref.update(updates);
-}
+};
+
+// Assume every key starts with ExponentPushToken[ and ends in ]. We just parse these.
+export const encode_push_key = (decoded: string) => {
+  let regex = /ExponentPushToken\[(.*)\]/;
+  return decoded.match(regex)[1];
+};
+
+export const decode_push_key = (encoded: string) => {
+  return "ExponentPushToken[".concat(encoded).concat("]");
+};
