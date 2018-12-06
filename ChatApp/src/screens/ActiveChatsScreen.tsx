@@ -2,7 +2,7 @@ import * as React from "react";
 import { BackHandler, View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
-import { active_chats, get_chat_details } from "../Fire";
+import { active_chats, get_chat_details, ChatDetailsItem } from "../Fire";
 import * as firebase from "firebase";
 import { object } from "prop-types";
 import Wallpaper from "../components/Wallpaper";
@@ -14,7 +14,7 @@ export interface ActiveChatsScreenProps {
 export interface ActiveChatsScreenState {
   displayname: string;
   activeChatsList: object;
-  titles_lastMessages: Array<{}>;
+  titles_lastMessages: Array<object>;
 }
 
 export default class ActiveChatsScreen extends React.Component<ActiveChatsScreenProps, ActiveChatsScreenState> {
@@ -23,7 +23,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
     this.state = {
       displayname: "",
       activeChatsList: undefined,
-      titles_lastMessages: [],
+      titles_lastMessages: undefined,
       };
   }
 
@@ -87,9 +87,9 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             renderItem = {({item}) =>
               <TouchableOpacity
                 style={styles.chatButton}
-                onPress={() => this.handleOnPress(item.chatId)}>
-                <Text style={styles.titleText}> {item.key} {"\n"}</Text>
-                <Text style={styles.lastMessageText}> {item.lastMessage} </Text>
+                onPress={() => this.handleOnPress(item["chatId"])}>
+                <Text style={styles.titleText}> {item["key"]} {"\n"}</Text>
+                <Text style={styles.lastMessageText}> {item["lastMessage"]} </Text>
               </TouchableOpacity>
             }
           />

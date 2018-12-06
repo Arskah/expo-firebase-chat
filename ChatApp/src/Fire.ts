@@ -108,19 +108,6 @@ export const chat_leave = (chat_id: string, user_id: string) => {
   return fb_db.ref.update(updates);
 };
 
-export const get_chat_messages = async (chat_id: string) => {
-
-  return new Promise((resolve, reject) => {
-    firebase.database().ref().child("users").orderByChild(method)
-      .equalTo(username).on("value", (snapshot) => {
-        snapshot.forEach((data) => {
-          resolve(data);
-        });
-        resolve(undefined);
-    });
-  });
-};
-
 // retrieve list of images on given chat
 export const chat_images = (chat_id: string, sort?: string) => {
   return;
