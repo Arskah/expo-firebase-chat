@@ -64,6 +64,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           avatar: response.val().picture,
         });
       });
+      // Load messages before starting the chat in order
       this.state.dbref.once("value", (snapshot) => {
         let messages = [];
         /* tslint:disable:no-string-literal */
@@ -92,13 +93,14 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         });
         this.setState({messages: messages.reverse()});
       });
+      // Load only messages that have come after the creation of start_key
       let start_key = get_new_key("messages");
       this.state.dbref.orderByKey().startAt(start_key).on("child_added", (child) => {
         let messages = [];
         /* tslint:disable:no-string-literal */
 
         if (child && child.val() && child.val()["_id"]) {
-          if(this.state.messages.findIndex(m => m._id === child.val()["_id"]) === -1){
+          if (this.state.messages.findIndex(m => m._id === child.val()["_id"]) === -1) {
             let message: ChatMessage;
             let userObject: UserChatMessage;
 
@@ -118,11 +120,11 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         /* tslint:enable:no-string-literal */
             get_user(userObject.name)
             .then((response: firebase.database.DataSnapshot) => {
-              if(response && response.val()){
+              if (response && response.val()) {
                 message.user.avatar = response.val().picture;
               }
               messages.push(message);
-            
+
               this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, messages),
               }));
@@ -137,7 +139,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   componentDidUnMount() {
-    this.state.dbref.off("value");
+    this.state.dbref.off("child_added");
     BackHandler.removeEventListener("hardwareBackPress", () => { return; });
   }
 
