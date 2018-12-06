@@ -74,24 +74,42 @@ export const chat_adduser = (chat_id: string, user_id: string, adder_id: string)
 
 export interface ChatMessage {
   _id: string,
-  text: string,
+  text?: string,
   createdAt: Date,
-  user: UserChatMessage
+  user: UserChatMessage,
+  image?: string
 }
 
 export interface UserChatMessage {
   _id: string,
   name: string,
-  avatar: string,
+  avatar?: string,
 }
-
+export const get_new_key = (child: string) => {
+  if (!child) {
+    child = "messages";
+  }
+  let new_key = fb_db.ref.child(child).push().key;
+  return new_key;
+};
 // Send a message in chat
 // reference images with some funky syntax
 export const chat_send = (chat_id: string, message: ChatMessage) => {
 
-  let new_key = fb_db.ref.child("messages").push().key;
+  let new_key;
+  if (!message._id) {
+    new_key = fb_db.ref.child("messages").push().key;
+    message._id = new_key;
+  } else {
+    new_key = message._id;
+  }
   let updates = {};
-  updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.text}`;
+  if (message.text) {
+    updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.text}`;
+  } else {
+    updates[`/chats/${chat_id}/lastMessage/`] = `${message.user.name}: ${message.image}`;
+  }
+
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 
@@ -133,8 +151,9 @@ export const image_upload = async (image_path: string, folder: string, name: str
 
 };
 
-export const image_upload_chat = (chat_id: string, image_path: string) => {
-  return;
+export const image_upload_chat = async (chat_id: string, image_path: string) => {
+  const result = await image_upload(image_path, "chat_pictures/" + chat_id, Date());
+  return result;
 };
 
 export const image_upload_profile = async (user_id: string, image_path: string) => {

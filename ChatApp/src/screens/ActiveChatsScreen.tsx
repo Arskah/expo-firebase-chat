@@ -18,6 +18,7 @@ export interface ActiveChatsScreenState {
 }
 
 export default class ActiveChatsScreen extends React.Component<ActiveChatsScreenProps, ActiveChatsScreenState> {
+  _isMounted = false;
   constructor(props: ActiveChatsScreenProps) {
     super(props);
     this.state = {
@@ -29,16 +30,18 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
 
    // Object of all active chat rooms
    componentDidMount() {
+     this._isMounted = true;
     if (firebase.auth()) {
       const email = firebase.auth().currentUser.email;
       active_chats().then((actives) => {
-        this.setState({activeChatsList : actives});
         let temp_list = new Array;
         for (let i of Object.keys(actives)) {
           temp_list.push(actives[i]);
         }
         this.chat_details(temp_list, this);
-
+        if (this._isMounted) {
+          this.setState({activeChatsList : actives});
+        }
       });
     }
 
@@ -50,6 +53,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
 
   componentWillUnmount() {
     BackHandler.removeEventListener("hardwareBackPress", () => { return; });
+    this._isMounted = false;
   }
 
   get_titles_lastMessages = (results) => {
@@ -59,7 +63,9 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
                         lastMessage: results[i][0].val().lastMessage,
                         key: results[i][1]});
     }
-    this.setState({titles_lastMessages: return_list});
+    if (this._isMounted) {
+      this.setState({titles_lastMessages: return_list});
+    }
   }
 
   chat_details = (chats_list, this_) => {
