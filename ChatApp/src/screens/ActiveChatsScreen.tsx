@@ -1,5 +1,6 @@
 import * as React from "react";
 import { BackHandler, View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import GestureRecognizer from "react-native-swipe-gestures";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 import { active_chats } from "../Fire";
@@ -88,9 +89,25 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
     this.props.navigation.navigate("ChatScreen", {chat_id: chat_id});
   }
 
+  onSwipeRight() {
+    this.props.navigation.navigate("SettingsScreen");
+  }
+
   render() {
+    const config = {
+      velocityThreshold: 0.3,
+      directionalOffsetThreshold: 80,
+    };
     return (
       <Wallpaper>
+        <GestureRecognizer
+          onSwipeLeft={(state) => this.onSwipeRight()}
+          config={config}
+          style={{
+            backgroundColor: "transparent",
+            flex: 1,
+          }}
+        >
         <View style = {styles.container}>
           <FlatList
             data = {this.state.titles_lastMessages}
@@ -104,11 +121,8 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             }
           />
         </View>
-        <View style={styles.settingsButton}>
-          <SettingsButton />
-        </View>
+        </GestureRecognizer>
       </Wallpaper>
-
     );
   }
 }
@@ -146,6 +160,6 @@ const styles = StyleSheet.create({
   settingsButton: {
     flex: 1,
     alignItems: "flex-end",
-    padding: 50,
+    padding: 40,
   },
 });
