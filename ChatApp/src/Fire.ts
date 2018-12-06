@@ -126,8 +126,85 @@ export const chat_leave = (chat_id: string, user_id: string) => {
   return fb_db.ref.update(updates);
 };
 
-export const get_chat_messages = async (chat_id: string) => {
-  return;
+export const get_old_chat_messages = (chat_id: string) => {
+  console.log("Messages for chat: ", chat_id);
+  return new Promise<any[]>((resolve, reject) => {
+    fb_db.ref.child("messages").child(chat_id).once("value", (snapshot) => {
+      let messages = [];
+      /* tslint:disable:no-string-literal */
+      if (!snapshot) {
+        resolve(undefined);
+      }
+      snapshot.forEach(child => {
+        if (child && child.val() && child.val()["_id"]) {
+          let message: ChatMessage;
+          let userObject: UserChatMessage;
+
+          userObject = {
+            _id: child.val()["user"]["_id"],
+            name: child.val()["user"]["name"],
+            avatar: child.val()["user"]["avatar"],
+          };
+
+          message = {
+            _id: child.val()["_id"],
+            createdAt: child.val()["createdAt"],
+            text: child.val()["text"],
+            user: userObject,
+            image: child.val()["image"],
+          };
+          messages.push(message);
+        }
+        /* tslint:enable:no-string-literal */
+
+      });
+      resolve(messages);
+    });
+  });
+};
+
+export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessage]) => {
+  console.log("Messages for chat: ", chat_id);
+  return new Promise<any[]>((resolve, reject) => {
+    let start_key = get_new_key("messages");
+    fb_db.ref.child("messages").child(chat_id).orderByKey().startAt(start_key).on("child_added", (child) => {
+      let messages = [];
+      /* tslint:disable:no-string-literal */
+
+      if (child && child.val() && child.val()["_id"]) {
+        if (old_messages.findIndex(m => m._id === child.val()["_id"]) === -1) {
+          let message: ChatMessage;
+          let userObject: UserChatMessage;
+
+          userObject = {
+            _id: child.val()["user"]["_id"],
+            name: child.val()["user"]["name"],
+            avatar: child.val()["user"]["avatar"],
+          };
+
+          message = {
+            _id: child.val()["_id"],
+            createdAt: child.val()["createdAt"],
+            text: child.val()["text"],
+            user: userObject,
+            image: child.val()["image"],
+          };
+      /* tslint:enable:no-string-literal */
+          get_user(userObject.name)
+          .then((response: firebase.database.DataSnapshot) => {
+            if (response && response.val()) {
+              message.user.avatar = response.val().picture;
+            }
+            messages.push(message);
+
+            resolve(messages);
+          });
+        } else {
+          resolve(undefined);
+        }
+      }
+    });
+  });
 };
 
 // retrieve list of images on given chat
