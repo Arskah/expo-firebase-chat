@@ -328,8 +328,17 @@ export const get_chat_details = (chats_list: any) => {
 };
 
 // results
-export const user_search = async (search_term: string) => {
-  return;
+export const user_search = (search_term: string) => {
+  return new Promise((resolve, reject) => {
+    firebase.database().ref().child("users").orderByChild("displayName")
+      .startAt(search_term).endAt(search_term+"\uf8ff").on("value", (snapshot) => {
+        let users = [];
+        snapshot.forEach((data) => {
+          users.push(data.val());
+        });
+        resolve(users);
+    });
+  });
 };
 
 // value

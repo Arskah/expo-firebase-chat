@@ -8,6 +8,7 @@ import LoginScreen from "./screens/LoginScreen";
 import ChatScreen from "./screens/ChatScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import ActiveChatsScreen from "./screens/ActiveChatsScreen";
+import UserSearchScreen from "./screens/UserSearchScreen";
 import { init } from "./Fire";
 // import {
 //   init, chat_create, chat_adduser, chat_send, chat_leave, get_chat_message, chat_images,
@@ -33,6 +34,7 @@ const App = createSwitchNavigator(
     ChatScreen,
     SettingsScreen,
     ActiveChatsScreen,
+    UserSearchScreen,
   },
   {
     initialRouteName: "LandingScreen",

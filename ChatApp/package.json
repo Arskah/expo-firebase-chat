@@ -24,12 +24,14 @@
     "plop": "plop"
   },
   "dependencies": {
+    "@expo/vector-icons": "^8.0.0",
     "@types/react-native-dialog": "^4.0.1",
     "expo": "^31.0.4",
     "firebase": "^5.6.0",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
     "react-native-dialog": "^5.4.0",
+    "react-native-elements": "^0.19.1",
     "react-native-gifted-chat": "^0.5.0",
     "react-native-image-picker": "^0.27.1",
     "react-native-keyboard-spacer": "^0.4.1",
