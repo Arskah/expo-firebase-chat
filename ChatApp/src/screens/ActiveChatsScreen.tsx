@@ -6,6 +6,7 @@ import { active_chats } from "../Fire";
 import * as firebase from "firebase";
 import { object } from "prop-types";
 import Wallpaper from "../components/Wallpaper";
+import SettingsButton from "../components/SettingsButton";
 
 export interface ActiveChatsScreenProps {
   navigation: any;
@@ -103,6 +104,9 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             }
           />
         </View>
+        <View style={styles.settingsButton}>
+          <SettingsButton />
+        </View>
       </Wallpaper>
 
     );
@@ -128,6 +132,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "space-between",
     alignItems: "center",
+    flex: 3,
   },
   titleText: {
     height: 25,
@@ -137,5 +142,10 @@ const styles = StyleSheet.create({
   lastMessageText: {
     height: 25,
     fontSize: 16,
+  },
+  settingsButton: {
+    flex: 1,
+    alignItems: "flex-end",
+    padding: 50,
   },
 });
