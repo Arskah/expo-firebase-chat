@@ -247,7 +247,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           }}
           renderAccessory={() => <Button title={"Add a picture"} onPress={this.showDialog}></Button>}
           showUserAvatar = {true}
-          // imageStyle={new ImageStyle()}
+          imageStyle={undefined}
         />
         <Dialog.Container visible={this.state.visible}>
           <Dialog.Title>Pick a picture from</Dialog.Title>
