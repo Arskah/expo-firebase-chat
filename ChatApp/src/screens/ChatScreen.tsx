@@ -153,41 +153,48 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
 
   pickFromCamera = async () => {
     this.setState({ visible: false});
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
-      let result = await ImagePicker.launchCameraAsync(
-        {
-          allowsEditing: true,
-        },
-      );
-      if (!result.cancelled) {
-
-        let new_key = get_new_key("messages");
-        let user: UserChatMessage = {
-          _id: this.state.user_id,
-          name: this.state.displayName,
-          avatar: this.state.avatar,
-        };
-
-        let message: ChatMessage = {
-          _id: new_key,
-          createdAt: new Date(),
-          user: user,
-          image: result.uri,
-        };
-        let messages = [];
-        messages.push(message);
-        this.setState(previousState => ({
-          messages: GiftedChat.append(previousState.messages, messages),
-        }));
-
-        const url = await image_upload_chat(this.state.chat_id, result.uri);
-
-        message.image = url;
-
-        chat_send(this.state.chat_id, message)
-        .catch(error => console.log(error));
+      const { status } = await Permissions.askAsync(Permissions.CAMERA);
+      if (status === "granted") {
+        let result = await ImagePicker.launchCameraAsync(
+          {
+            allowsEditing: true,
+          },
+        );
+        if (!result.cancelled) {
+  
+          let new_key = get_new_key("messages");
+          let user: UserChatMessage = {
+            _id: this.state.user_id,
+            name: this.state.displayName,
+            avatar: this.state.avatar,
+          };
+  
+          let message: ChatMessage = {
+            _id: new_key,
+            createdAt: new Date(),
+            user: user,
+            image: result.uri,
+          };
+          let messages = [];
+          messages.push(message);
+          this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, messages),
+          }));
+  
+          const url = await image_upload_chat(this.state.chat_id, result.uri);
+  
+          message.image = url;
+  
+          chat_send(this.state.chat_id, message)
+          .catch(error => console.log(error));
+        }
+      } else {
+        Alert.alert("You can't take pictures without CAMERA permissions");
       }
+    } else {
+      Alert.alert("You can't take pictures without CAMERA_ROLL permissions");
     }
   }
 

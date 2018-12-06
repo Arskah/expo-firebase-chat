@@ -27,7 +27,11 @@
         "foregroundImage": "./src/assets/icons/app-icon.png",
         "backgroundColor": "#FFFFFF",
         "backgroundImage": "./src/assets/icons/app-icon.png"
-      }
+      },
+      "permissions": ["CAMERA",
+        "READ_INTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION"]
     },
     "ios": {
       "bundleIdentifier": "com.mcc.awesomechatapp",

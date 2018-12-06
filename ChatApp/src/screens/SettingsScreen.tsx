@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import { KeyboardAvoidingView, StyleSheet, Button, View, Alert, BackHandler } from "react-native";
+import { KeyboardAvoidingView, StyleSheet, Button, View, Alert, BackHandler, PermissionsAndroid } from "react-native";
 import GestureRecognizer from "react-native-swipe-gestures";
 import Wallpaper from "../components/Wallpaper";
 import SettingPicture from "../components/SettingPicture";
@@ -122,19 +122,26 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     this.setState({ dialogPictureVisible: false});
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     if (status === "granted") {
-      let result = await ImagePicker.launchCameraAsync(
-        {
-          allowsEditing: true,
-          aspect: [4, 3],
-        },
-      );
-
-      // console.log(result);
-      if (!result.cancelled) {
-        // @ts-ignore
-        this.setState({mutable_image: result.uri});
-    }
-      // console.log(this.state.mutable_image);
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status === "granted") {
+        
+        let result = await ImagePicker.launchCameraAsync(
+          {
+            allowsEditing: true,
+            aspect: [4, 3],
+          },
+        );
+  
+        // console.log(result);
+        if (!result.cancelled) {
+          // @ts-ignore
+          this.setState({mutable_image: result.uri});
+        }
+      } else {
+        Alert.alert("You can't take pictures without CAMERA permissions");
+      }
+    } else {
+      Alert.alert("You can't take pictures without CAMERA_ROLL permissions");
     }
   }
 
