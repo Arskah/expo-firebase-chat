@@ -2,11 +2,12 @@ import React, { Children } from "react";
 import { ImageStyle, View, Platform, Text, Button, Alert, BackHandler} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
-import { chat_send, get_user, ChatMessage, UserChatMessage, get_chat_messages, get_new_key } from "../Fire";
+import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key } from "../Fire";
+import { image_upload_chat, get_old_chat_messages, get_new_chat_messages } from "../Fire";
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions } from "expo";
-import {image_upload_chat} from "../Fire";
+
 
 export interface ChatScreenProps {
   navigation: any
@@ -65,72 +66,20 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         });
       });
       // Load messages before starting the chat in order
-      this.state.dbref.once("value", (snapshot) => {
-        let messages = [];
-        /* tslint:disable:no-string-literal */
-        snapshot.forEach(child => {
-          if (child && child.val() && child.val()["_id"]) {
-
-            let message: ChatMessage;
-            let userObject: UserChatMessage;
-
-            userObject = {
-              _id: child.val()["user"]["_id"],
-              name: child.val()["user"]["name"],
-              avatar: child.val()["user"]["avatar"],
-            };
-
-            message = {
-              _id: child.val()["_id"],
-              createdAt: child.val()["createdAt"],
-              text: child.val()["text"],
-              user: userObject,
-              image: child.val()["image"],
-            };
-            messages.push(message);
-          }
-          /* tslint:enable:no-string-literal */
-        });
-        this.setState({messages: messages.reverse()});
-      });
-      // Load only messages that have come after the creation of start_key
-      let start_key = get_new_key("messages");
-      this.state.dbref.orderByKey().startAt(start_key).on("child_added", (child) => {
-        let messages = [];
-        /* tslint:disable:no-string-literal */
-
-        if (child && child.val() && child.val()["_id"]) {
-          if (this.state.messages.findIndex(m => m._id === child.val()["_id"]) === -1) {
-            let message: ChatMessage;
-            let userObject: UserChatMessage;
-
-            userObject = {
-              _id: child.val()["user"]["_id"],
-              name: child.val()["user"]["name"],
-              avatar: child.val()["user"]["avatar"],
-            };
-
-            message = {
-              _id: child.val()["_id"],
-              createdAt: child.val()["createdAt"],
-              text: child.val()["text"],
-              user: userObject,
-              image: child.val()["image"],
-            };
-        /* tslint:enable:no-string-literal */
-            get_user(userObject.name)
-            .then((response: firebase.database.DataSnapshot) => {
-              if (response && response.val()) {
-                message.user.avatar = response.val().picture;
-              }
-              messages.push(message);
-
-              this.setState(previousState => ({
-                messages: GiftedChat.append(previousState.messages, messages),
-              }));
-            })
-          }
+      get_old_chat_messages(this.state.chat_id)
+      .then(messages => {
+        console.log(messages);
+        if (messages) {
+          this.setState({messages: messages.reverse()});
         }
+      });
+
+      // Load only messages that have come after the creation of start_key
+      get_new_chat_messages(this.state.chat_id, this.state.messages)
+      .then(messages => {
+        this.setState(previousState => ({
+          messages: GiftedChat.append(previousState.messages, messages),
+        }));
       });
 
     } else {
