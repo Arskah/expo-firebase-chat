@@ -127,16 +127,7 @@ export const chat_leave = (chat_id: string, user_id: string) => {
 };
 
 export const get_chat_messages = async (chat_id: string) => {
-
-  return new Promise((resolve, reject) => {
-    firebase.database().ref().child("users").orderByChild(method)
-      .equalTo(username).on("value", (snapshot) => {
-        snapshot.forEach((data) => {
-          resolve(data);
-        });
-        resolve(undefined);
-    });
-  });
+  return;
 };
 
 // retrieve list of images on given chat
