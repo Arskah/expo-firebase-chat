@@ -5,9 +5,7 @@ import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 import { active_chats } from "../Fire";
 import * as firebase from "firebase";
-import { object } from "prop-types";
 import Wallpaper from "../components/Wallpaper";
-import SettingsButton from "../components/SettingsButton";
 
 export interface ActiveChatsScreenProps {
   navigation: any;
