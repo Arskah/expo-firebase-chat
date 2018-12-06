@@ -2,7 +2,7 @@ import * as React from "react";
 import { BackHandler, View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
-import { active_chats } from "../Fire";
+import { active_chats, get_chat_details } from "../Fire";
 import * as firebase from "firebase";
 import { object } from "prop-types";
 import Wallpaper from "../components/Wallpaper";
@@ -14,7 +14,6 @@ export interface ActiveChatsScreenProps {
 export interface ActiveChatsScreenState {
   displayname: string;
   activeChatsList: object;
-  // activeChatsDetailsList: Array<object>;
   titles_lastMessages: Array<{}>;
 }
 
@@ -56,7 +55,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
   get_titles_lastMessages = (results) => {
     let return_list = [];
     for (let i of Object.keys(results)) {
-      return_list.push({title: results[i][0].val().title,
+      return_list.push({key: results[i][0].val().title,
                         lastMessage: results[i][0].val().lastMessage,
                         chatId: results[i][1]});
     }
@@ -64,9 +63,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
   }
 
   chat_details = (chats_list, this_) => {
-    let chat_promises = chats_list.map(function(key) {
-      return firebase.database().ref("chats").child(key).once("value");
-    });
+    let chat_promises = get_chat_details(chats_list);
     Promise.all(chat_promises).then(function (snapshots) {
       let results = [];
       snapshots.forEach(function(snapshot) {
@@ -91,7 +88,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
               <TouchableOpacity
                 style={styles.chatButton}
                 onPress={() => this.handleOnPress(item.chatId)}>
-                <Text style={styles.titleText}> {item.title} {"\n"}</Text>
+                <Text style={styles.titleText}> {item.key} {"\n"}</Text>
                 <Text style={styles.lastMessageText}> {item.lastMessage} </Text>
               </TouchableOpacity>
             }

@@ -299,13 +299,11 @@ export const active_chats = () => {
   });
 };
 
-export const get_chat_details = (chats_list: any) => {
-  return new Promise((resolve, reject) => {
-    let results = [];
-      fb_db.ref.child("chats").orderByKey().equalTo(chats_list).on("value", (snapshot) => {
-        results.push(snapshot.key);
-      });
+export const get_chat_details = (chats_list: Array<string>) => {
+  let chat_promises = chats_list.map(function(key) {
+    return firebase.database().ref("chats").child(key).once("value");
   });
+  return chat_promises;
 };
 
 // results
