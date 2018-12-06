@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import { KeyboardAvoidingView, StyleSheet, Button, View, Alert } from "react-native";
+import { KeyboardAvoidingView, StyleSheet, Button, View, Alert, BackHandler } from "react-native";
 import Wallpaper from "../components/Wallpaper";
 import SettingPicture from "../components/SettingPicture";
 import SettingName from "../components/SettingName";
@@ -60,6 +60,12 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
   }
 
   componentDidMount() {
+
+    BackHandler.addEventListener("hardwareBackPress", () => {
+      this.props.navigation.navigate("ActiveChatsScreen");
+      return true;
+    });
+
     if (firebase.auth()) {
 
       const user = firebase.auth().currentUser;
@@ -85,6 +91,10 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
         });
       });
     }
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener("hardwareBackPress", () => { return; });
   }
 
   public static navigationOptions = {
