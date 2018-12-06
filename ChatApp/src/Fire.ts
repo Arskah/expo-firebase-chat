@@ -48,7 +48,7 @@ export const init = () => {
 };
 
 // Create new chatroom
-export const chat_create = (name: string, username: string) => {
+export const chat_create = (name: string, uid: string) => {
   let postData = {
     title: name,
     lastMessage: "",
@@ -57,16 +57,16 @@ export const chat_create = (name: string, username: string) => {
   let updates = {};
   // Add
   updates[`/chats/${new_key}/`] = postData;
-  updates[`/members/${new_key}/${username}`] = true;
+  updates[`/members/${new_key}/${uid}`] = true;
   return fb_db.ref.update(updates);
 };
 
 // Add new user to chatroom
-export const chat_adduser = (chat_id: string, user_id: string, adder_id: string) => {
+export const chat_adduser = (chat_id: string, user_id: string, uid: string, adder_id: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let updates = {};
   let message = `User ${user_id} was added by ${adder_id}`;
-  updates[`/members/${chat_id}/${user_id}`] = true;
+  updates[`/members/${chat_id}/${uid}`] = true;
   updates[`/chats/${chat_id}/lastMessage/`] = message;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
@@ -116,11 +116,11 @@ export const chat_send = (chat_id: string, message: ChatMessage) => {
 };
 
 // Leave chatroom
-export const chat_leave = (chat_id: string, user_id: string) => {
+export const chat_leave = (chat_id: string, user_id: string, uid: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let message = `User ${user_id} left`;
   let updates = {};
-  updates[`/members/${chat_id}/${user_id}`] = false;
+  updates[`/members/${chat_id}/${uid}`] = false;
   updates[`/chats/${chat_id}/lastMessage/`] = message;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
@@ -205,7 +205,7 @@ export const user_create = (username: string, email: string, password: string) =
             // TODO: Not sure if .on() is the correct method...
             // If we see missing chatrooms after new chat room creation this may be the issue
             fb_db.ref.child("chats").on("value", (snapshot) => {
-              updates["members/" + snapshot.key + `/${username}`] = false;
+              updates["members/" + snapshot.key + `/${user.user.uid}`] = false;
             });
             fb_db.ref.update(updates);
             update_user(username, user.user);
@@ -291,12 +291,11 @@ export const get_user_by_email = async (email: string) => {
 
 // Get all chat rooms user is active in
 export const active_chats = () => {
-  let username = firebase.auth().currentUser.displayName;
+  let uid = firebase.auth().currentUser.uid;
   return new Promise((resolve, reject) => {
-    const user_id_promise =  fb_db.ref.child("members").orderByChild(username)
+    const user_id_promise =  fb_db.ref.child("members").orderByChild(uid)
       .equalTo(true).once("value", function(snapshot) {
         let results = [];
-        // console.log(snapshot);
         snapshot.forEach((data) => {
           results.push(data.key);
                 });

@@ -128,7 +128,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
               this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, messages),
               }));
-            })
+            });
           }
         }
       });
