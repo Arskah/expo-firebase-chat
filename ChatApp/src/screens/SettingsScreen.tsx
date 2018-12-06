@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import { KeyboardAvoidingView, StyleSheet, Button, View, Alert, BackHandler } from "react-native";
+import GestureRecognizer from "react-native-swipe-gestures";
 import Wallpaper from "../components/Wallpaper";
 import SettingPicture from "../components/SettingPicture";
 import SettingName from "../components/SettingName";
@@ -233,29 +234,46 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     }
   }
 
+  onSwipeLeft() {
+    this.props.navigation.navigate("ActiveChatsScreen");
+  }
+
   render() {
+    const config = {
+      velocityThreshold: 0.3,
+      directionalOffsetThreshold: 80,
+    };
     return (
     <Wallpaper>
-      <KeyboardAvoidingView behavior="padding" style={styles.container}>
-        <SettingPicture
-          visible={this.state.dialogPictureVisible}
-          image={this.state.mutable_image}
-          handlePush={this.showPictureDialog}
-          handleCancel={this.handlePictureCancel}
-          pickCamera={this.pickFromCamera}
-          pickGallery={this.pickFromGallery}/>
-        <SettingName
-          displayname={this.state.mutable_displayname}
-          dialogVisible={this.state.dialogNameVisible}
-          showDialog={this.showNameDialog}
-          handleCancel={this.handleNameCancel}
-          handleSubmit={this.handleNameSubmit}
-          handleChange={this.handleNameChange}/>
-        <SettingResolution resolution={this.state.mutable_resolution} handleChange={this.handleResolutionChange}/>
-      </KeyboardAvoidingView>
-      <SettingSave handleClick={this.handleSave}></SettingSave>
-      <Button title="Sign out" onPress={this.logOutButton}>
-      </Button>
+      <GestureRecognizer
+          onSwipeLeft={() => this.onSwipeLeft()}
+          config={config}
+          style={{
+            backgroundColor: "transparent",
+            flex: 1,
+          }}
+      >
+        <KeyboardAvoidingView behavior="padding" style={styles.container}>
+          <SettingPicture
+            visible={this.state.dialogPictureVisible}
+            image={this.state.mutable_image}
+            handlePush={this.showPictureDialog}
+            handleCancel={this.handlePictureCancel}
+            pickCamera={this.pickFromCamera}
+            pickGallery={this.pickFromGallery}/>
+          <SettingName
+            displayname={this.state.mutable_displayname}
+            dialogVisible={this.state.dialogNameVisible}
+            showDialog={this.showNameDialog}
+            handleCancel={this.handleNameCancel}
+            handleSubmit={this.handleNameSubmit}
+            handleChange={this.handleNameChange}/>
+          <SettingResolution resolution={this.state.mutable_resolution} handleChange={this.handleResolutionChange}/>
+        </KeyboardAvoidingView>
+        <SettingSave handleClick={this.handleSave}></SettingSave>
+        <Button title="Sign out" onPress={this.logOutButton}>
+        </Button>
+      </GestureRecognizer>
     </Wallpaper>
     );
   }

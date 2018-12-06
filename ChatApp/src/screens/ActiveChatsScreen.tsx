@@ -101,7 +101,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
     return (
       <Wallpaper>
         <GestureRecognizer
-          onSwipeLeft={(state) => this.onSwipeRight()}
+          onSwipeRight={() => this.onSwipeRight()}
           config={config}
           style={{
             backgroundColor: "transparent",
@@ -156,10 +156,5 @@ const styles = StyleSheet.create({
   lastMessageText: {
     height: 25,
     fontSize: 16,
-  },
-  settingsButton: {
-    flex: 1,
-    alignItems: "flex-end",
-    padding: 40,
   },
 });
