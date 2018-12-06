@@ -1,8 +1,7 @@
 import firebase, { User } from "firebase";
 import { Alert } from "react-native";
 import { ENV } from "../environment";
-import { FileSystem } from "expo";
-import { array } from "prop-types";
+import { Permissions, Notifications } from "expo";
 
 /*
   - /chats/
@@ -25,6 +24,10 @@ import { array } from "prop-types";
       - message_id
         - author (displayName)
         - message
+  - /push_keys/
+    - user_id
+      - token
+      - token...
 */
 
 let fb_app: firebase.app.App;
@@ -272,6 +275,12 @@ export const user_login_email = (email: string, passwd: string) => {
       // let errorCode = error.code;
       const errorMessage = error.message;
       Alert.alert(errorMessage);
+    })
+    .then((user) => {
+      // Make sure push notifications are saved for the logged in user
+      if (user) {
+        update_expo_push_notification(user.user.uid);
+      }
     });
 };
 
@@ -352,3 +361,33 @@ export const profile_picture_set = () => {
 // -------------
 // DISPLAY_NAME
 // RESOLUTION
+
+// Expo push notification token. We save them (if using multiple devices) with firebase.User.user.uid in to /push_keys/
+async function update_expo_push_notification(user_id: string) {
+  const { status: existingStatus } = await Permissions.getAsync(
+    Permissions.NOTIFICATIONS,
+  );
+  let finalStatus = existingStatus;
+  // only ask if permissions have not already been determined, because
+  // iOS won't necessarily prompt the user a second time.
+  if (existingStatus !== "granted") {
+    // Android remote notification permissions are granted during the app
+    // install, so this will only ask on iOS
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    finalStatus = status;
+  }
+  // Stop here if the user did not grant permissions
+  if (finalStatus !== "granted") {
+    return;
+  }
+  // Get the token that uniquely identifies this device
+  let token = await Notifications.getExpoPushTokenAsync();
+  let postData = {
+    token: token,
+  };
+  // Also set user membership in all chats as false
+  let new_key = fb_db.ref.child(`push_keys/${user_id}`).push().key;
+  let updates = {};
+  updates[`/push_keys/${user_id}/${new_key}`] = postData;
+  return fb_db.ref.update(updates);
+}
