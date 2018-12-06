@@ -20,6 +20,7 @@
     },
     "android": {
       "package": "com.mcc.awesomechatapp",
+      "googleServicesFile": "./google-services.json",
       "versionCode": 1,
       "icon": "./src/assets/icons/app-icon.png",
       "adaptiveIcon": {
