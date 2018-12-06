@@ -55,9 +55,9 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
   get_titles_lastMessages = (results) => {
     let return_list = [];
     for (let i of Object.keys(results)) {
-      return_list.push({key: results[i][0].val().title,
+      return_list.push({title: results[i][0].val().title,
                         lastMessage: results[i][0].val().lastMessage,
-                        chatId: results[i][1]});
+                        key: results[i][1]});
     }
     this.setState({titles_lastMessages: return_list});
   }
@@ -87,8 +87,8 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             renderItem = {({item}) =>
               <TouchableOpacity
                 style={styles.chatButton}
-                onPress={() => this.handleOnPress(item["chatId"])}>
-                <Text style={styles.titleText}> {item["key"]} {"\n"}</Text>
+                onPress={() => this.handleOnPress(item["key"])}>
+                <Text style={styles.titleText}> {item["title"]} {"\n"}</Text>
                 <Text style={styles.lastMessageText}> {item["lastMessage"]} </Text>
               </TouchableOpacity>
             }
