@@ -62,11 +62,12 @@ export const chat_create = (name: string, uid: string) => {
 };
 
 // Add new user to chatroom
-export const chat_adduser = (chat_id: string, user_id: string, uid: string, adder_id: string) => {
+export const chat_adduser = (chat_id: string, user_id: string, adder_id: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let updates = {};
   let message = `User ${user_id} was added by ${adder_id}`;
-  updates[`/members/${chat_id}/${uid}`] = true;
+  updates[`/members/${chat_id}/${user_id}/member`] = true;
+  updates[`/members/${chat_id}/${user_id}/added`] = new_key;
   updates[`/chats/${chat_id}/lastMessage/`] = message;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
