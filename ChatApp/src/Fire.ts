@@ -2,8 +2,6 @@ import firebase, { User } from "firebase";
 import { Alert } from "react-native";
 import { ENV } from "../environment";
 import { Permissions, Notifications } from "expo";
-import { FileSystem } from "expo";
-import { array } from "prop-types";
 import { SystemMessage } from "react-native-gifted-chat";
 import path from "react-native-path";
 
@@ -314,7 +312,6 @@ export const user_create = (username: string, email: string, password: string) =
   get_user(username)
   .then((user_profile) => {
     // Check if username is free
-    console.log(user_profile);
     if (!user_profile) {
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .catch((error) => {
@@ -322,7 +319,6 @@ export const user_create = (username: string, email: string, password: string) =
           Alert.alert(errorMessage);
         })
         .then((user) => {
-          console.log(user);
           if (user) {
             // Create userprofile on authentication success
             let postData = {
