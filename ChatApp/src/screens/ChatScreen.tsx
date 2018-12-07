@@ -75,9 +75,8 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       // Load messages before starting the chat in order
       get_old_chat_messages(this.state.chat_id)
       .then(messages => {
-        console.log(messages);
         if (messages) {
-          this.setState({messages: messages.reverse()});
+          this.setState({messages: messages.sort(this.sortByDate)});
         }
       });
 
@@ -86,7 +85,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       .then(new_messages => {
         if (this.state.messages.findIndex(m => m._id === new_messages[0]._id) === -1) {
           this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, new_messages),
+            messages: GiftedChat.append(previousState.messages, new_messages).sort(this.sortByDate),
           }));
         }
       });
@@ -99,6 +98,12 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   componentDidUnMount() {
     this.state.dbref.off("child_added");
     BackHandler.removeEventListener("hardwareBackPress", () => { return; });
+  }
+
+  sortByDate = (a, b) => {
+    let date1 = new Date(a.createdAt).getTime();
+    let date2 = new Date(b.createdAt).getTime();
+    return date1 < date2 ? 1 : (date2 < date1 ? -1 : 0);
   }
 
   onSend(messages = []) {
@@ -178,7 +183,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             messages: GiftedChat.append(previousState.messages, messages),
           }));
 
-          const url = await image_upload_chat(this.state.chat_id, resized_uri);
+          const url = await image_upload_chat(this.state.chat_id, resized_uri, this.state.resolution);
 
           message.image = url;
 
@@ -221,7 +226,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         messages: GiftedChat.append(previousState.messages, messages),
       }));
 
-      const url = await image_upload_chat(this.state.chat_id, resized_uri);
+      const url = await image_upload_chat(this.state.chat_id, resized_uri, this.state.resolution);
 
       message.image = url;
 

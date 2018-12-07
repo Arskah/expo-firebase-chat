@@ -4,6 +4,7 @@ import { ENV } from "../environment";
 import { FileSystem } from "expo";
 import { array } from "prop-types";
 import { SystemMessage } from "react-native-gifted-chat";
+import path from "react-native-path";
 
 /*
   - /chats/
@@ -30,6 +31,7 @@ import { SystemMessage } from "react-native-gifted-chat";
 
 let fb_app: firebase.app.App;
 let fb_db: firebase.database.Reference;
+let fb_storage: firebase.storage.Reference;
 
 // tslint:disable-next-line:max-line-length
 const defaultPicture = "https://firebasestorage.googleapis.com/v0/b/mcc-fall-2018-g13.appspot.com/o/robot-prod.png?alt=media&token=1088c6f3-b0e8-4fde-845e-a77095c33f15";
@@ -138,8 +140,7 @@ export const chat_leave = (chat_id: string, user_id: string) => {
   return fb_db.ref.update(updates);
 };
 
-export const get_old_chat_messages = (chat_id: string) => {
-  console.log("Messages for chat: ", chat_id);
+export const get_old_chat_messages = async (chat_id: string) => {
   return new Promise<any[]>((resolve, reject) => {
     fb_db.ref.child("messages").child(chat_id).once("value", (snapshot) => {
       let messages = [];
@@ -147,7 +148,8 @@ export const get_old_chat_messages = (chat_id: string) => {
       if (!snapshot) {
         resolve(undefined);
       }
-      snapshot.forEach(child => {
+      let promises = [];
+      snapshot.forEach( child => {
         if (child && child.val() && child.val()["_id"]) {
           let message: ChatMessage;
           let systemMessage: SystemMessage;
@@ -157,19 +159,29 @@ export const get_old_chat_messages = (chat_id: string) => {
             messages.push(systemMessage);
           } else {
             message = child.val();
-            messages.push(message);
+            if (!message.image) {
+              messages.push(message);
+            } else {
+              let promise = image_get(message.image)
+              .then(image => {
+                message.image = image;
+                messages.push(message);
+              });
+              promises.push(promise);
+            }
           }
         }
         /* tslint:enable:no-string-literal */
-
       });
-      resolve(messages);
+      Promise.all(promises)
+      .then(() => {
+        resolve(messages);
+      });
     });
   });
 };
 
 export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessage]) => {
-  console.log("Messages for chat: ", chat_id);
   return new Promise<any[]>((resolve, reject) => {
     let start_key = get_new_key("messages");
     fb_db.ref.child("messages").child(chat_id).orderByKey().startAt(start_key).on("child_added", (child) => {
@@ -209,13 +221,18 @@ export const chat_images = (chat_id: string, sort?: string) => {
 };
 
 // get image with given resolution
-export const image_get_raw = (image_url: string, resolution: string) => {
+export const image_get_raw = (image_path: string, resolution: string) => {
   return;
 };
 
 // same as above but with settings mandated resolution
-export const image_get = (image_url: string) => {
-  return;
+export const image_get = async (image_path: string) => {
+  // console.log("Image get was called");
+  // console.log(path.basename(image_path))
+  if (image_path.startsWith("chat_pictures")) {
+    return firebase.storage().ref(image_path).parent.child("high").getDownloadURL();
+  }
+  return image_path;
 };
 
 // upload image to firebase => get image url
@@ -224,18 +241,19 @@ export const image_upload = async (image_path: string, folder: string, name: str
   const blob = await urlToBlob(image_path);
   const ref = firebase.storage().ref(folder).child(name);
   const result = await ref.put(blob);
-  return result.ref.getDownloadURL();
+  console.log(result.ref.fullPath);
+  return result.ref;
 
 };
 
-export const image_upload_chat = async (chat_id: string, image_path: string) => {
-  const result = await image_upload(image_path, "chat_pictures/" + chat_id, Date());
-  return result;
+export const image_upload_chat = async (chat_id: string, image_path: string, resolution: "full" | "high" | "low") => {
+  const result = await image_upload(image_path, `chat_pictures/${chat_id}/${Date()}`, resolution);
+  return result.fullPath;
 };
 
 export const image_upload_profile = async (user_id: string, image_path: string) => {
   const result = await image_upload(image_path, "profile_pictures", user_id);
-  return result;
+  return result.getDownloadURL();
 };
 
 function urlToBlob(url: string) {
@@ -320,7 +338,7 @@ interface UserProfile {
 }
 
 export const user_login = (username: string, passwd: string) => {
-  const user_promise = get_user(username)
+  get_user(username)
     .then((user: firebase.database.DataSnapshot) => {
     if (user) {
       user_login_email(user.val().email, passwd);
@@ -339,7 +357,7 @@ export const user_login_email = (email: string, passwd: string) => {
     });
 };
 
-export const get_user = async (username: string, method?: "displayName" | "email") => {
+export const get_user = (username: string, method?: "displayName" | "email") => {
   if (!method) {
     method = "displayName";
   }
@@ -354,7 +372,7 @@ export const get_user = async (username: string, method?: "displayName" | "email
   });
 };
 
-export const get_user_by_email = async (email: string) => {
+export const get_user_by_email = (email: string) => {
   return new Promise((resolve, reject) => {
     firebase.database().ref().child("users").orderByChild("email")
       .equalTo(email).on("value", (snapshot) => {
