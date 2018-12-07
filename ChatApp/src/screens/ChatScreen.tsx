@@ -6,7 +6,7 @@ import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key } from "
 import { image_upload_chat, get_old_chat_messages, get_new_chat_messages } from "../Fire";
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
-import { ImagePicker, Permissions } from "expo";
+import { ImagePicker, Permissions, ImageManipulator } from "expo";
 
 
 export interface ChatScreenProps {
@@ -21,6 +21,7 @@ export interface ChatScreenState {
   dbref: any,
   visible: boolean,
   avatar: string,
+  resolution: "full" | "high" | "low",
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
@@ -38,6 +39,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       dbref: firebase.database().ref("messages").child(chat_id),
       visible: false,
       avatar: undefined,
+      resolution: undefined,
     };
   }
 
@@ -63,6 +65,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           displayName: response.val().displayName,
           user_id: response.key,
           avatar: response.val().picture,
+          resolution: response.val().resolution,
         });
       });
       // Load messages before starting the chat in order
@@ -76,10 +79,12 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
 
       // Load only messages that have come after the creation of start_key
       get_new_chat_messages(this.state.chat_id, this.state.messages)
-      .then(messages => {
-        this.setState(previousState => ({
-          messages: GiftedChat.append(previousState.messages, messages),
-        }));
+      .then(new_messages => {
+        if (this.state.messages.findIndex(m => m._id === new_messages[0]._id) === -1) {
+          this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, new_messages),
+          }));
+        }
       });
 
     } else {
@@ -95,8 +100,36 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   onSend(messages = []) {
     let msg = messages[0];
     if (msg) {
-      msg._id = undefined;
+      msg._id = get_new_key("messages");
       chat_send(this.state.chat_id, msg);
+      this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, msg),
+      }));
+    }
+  }
+
+  image_resize = async (uri: string, orig_width: number, orig_height: number) => {
+
+    if(this.state.resolution === "full"){
+      console.log("Didn't resize because resolution was full");
+      return uri;
+    } else if (this.state.resolution === "high"){
+        if (orig_width > 1280 || orig_height > 960) {
+
+          const manipResult = await ImageManipulator.manipulate(uri, [{resize:{width:1280,height: 960}}])
+          console.log("Resized image to width: ",manipResult.width, " height: ", manipResult.height);
+          return manipResult.uri;
+        } else {
+          return uri;
+        }
+    } else {
+      if (orig_width > 640 || orig_height > 480) {
+        const manipResult = await ImageManipulator.manipulate(uri, [{resize:{width:640,height: 480}}])
+        console.log("Resized image to width: ",manipResult.width, " height: ", manipResult.height);
+        return manipResult.uri;
+      } else {
+        return uri;
+      }
     }
   }
 
@@ -111,8 +144,9 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             allowsEditing: true,
           },
         );
-        if (!result.cancelled) {
-  
+        if (result.cancelled !== true) {
+          
+          const resized_uri = await this.image_resize(result.uri, result.width, result.height)
           let new_key = get_new_key("messages");
           let user: UserChatMessage = {
             _id: this.state.user_id,
@@ -124,7 +158,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             _id: new_key,
             createdAt: new Date(),
             user: user,
-            image: result.uri,
+            image: resized_uri,
           };
           let messages = [];
           messages.push(message);
@@ -132,7 +166,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             messages: GiftedChat.append(previousState.messages, messages),
           }));
   
-          const url = await image_upload_chat(this.state.chat_id, result.uri);
+          const url = await image_upload_chat(this.state.chat_id, resized_uri);
   
           message.image = url;
   
@@ -155,6 +189,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
 
     if (!result.cancelled) {
 
+      const resized_uri = await this.image_resize(result.uri, result.width, result.height)
       let new_key = get_new_key("messages");
       let user: UserChatMessage = {
         _id: this.state.user_id,
@@ -166,7 +201,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         _id: new_key,
         createdAt: new Date(),
         user: user,
-        image: result.uri,
+        image: resized_uri,
       };
       let messages = [];
       messages.push(message);
@@ -174,7 +209,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         messages: GiftedChat.append(previousState.messages, messages),
       }));
 
-      const url = await image_upload_chat(this.state.chat_id, result.uri);
+      const url = await image_upload_chat(this.state.chat_id, resized_uri);
 
       message.image = url;
 
