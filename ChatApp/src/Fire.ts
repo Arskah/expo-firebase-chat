@@ -69,8 +69,8 @@ export const chat_adduser = (chat_id: string, user_id: string, adder_id: string)
     _id: new_key,
     text: `User ${user_id} was added by ${adder_id}`,
     createdAt: new Date(),
-    system: true
-  }
+    system: true,
+  };
   updates[`/members/${chat_id}/${user_id}/member`] = true;
   updates[`/members/${chat_id}/${user_id}/added`] = new_key;
   updates[`/chats/${chat_id}/lastMessage/`] = message.text;
@@ -128,8 +128,8 @@ export const chat_leave = (chat_id: string, user_id: string, uid: string) => {
     _id: new_key,
     text: `User ${user_id} left`,
     createdAt: new Date(),
-    system: true
-  }
+    system: true,
+  };
   let updates = {};
   updates[`/members/${chat_id}/${uid}`] = false;
   updates[`/chats/${chat_id}/lastMessage/`] = message.text;
@@ -386,9 +386,9 @@ export const active_chats = () => {
     const user_id_promise =  fb_db.ref.child("members").orderByChild(uid).once("value", function(snapshot) {
         let results = [];
         snapshot.forEach((data) => {
-          console.log(data.val()[uid])
-          if(data.val()[uid].member){
-            results.push(data.key);     
+          console.log(data.val()[uid]);
+          if (data.val()[uid].member) {
+            results.push(data.key);
           }
         });
         resolve(results);
