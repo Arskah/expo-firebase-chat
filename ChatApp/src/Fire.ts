@@ -3,6 +3,7 @@ import { Alert } from "react-native";
 import { ENV } from "../environment";
 import { FileSystem } from "expo";
 import { array } from "prop-types";
+import { SystemMessage } from "react-native-gifted-chat";
 
 /*
   - /chats/
@@ -62,12 +63,18 @@ export const chat_create = (name: string, uid: string) => {
 };
 
 // Add new user to chatroom
-export const chat_adduser = (chat_id: string, user_id: string, uid: string, adder_id: string) => {
+export const chat_adduser = (chat_id: string, user_id: string, adder_id: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let updates = {};
-  let message = `User ${user_id} was added by ${adder_id}`;
-  updates[`/members/${chat_id}/${uid}`] = true;
-  updates[`/chats/${chat_id}/lastMessage/`] = message;
+  let message = {
+    _id: new_key,
+    text: `User ${user_id} was added by ${adder_id}`,
+    createdAt: new Date(),
+    system: true,
+  };
+  updates[`/members/${chat_id}/${user_id}/member`] = true;
+  updates[`/members/${chat_id}/${user_id}/added`] = new_key;
+  updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 };
@@ -116,12 +123,17 @@ export const chat_send = (chat_id: string, message: ChatMessage) => {
 };
 
 // Leave chatroom
-export const chat_leave = (chat_id: string, user_id: string, uid: string) => {
+export const chat_leave = (chat_id: string, user_id: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
-  let message = `User ${user_id} left`;
+  let message = {
+    _id: new_key,
+    text: `User ${user_id} left`,
+    createdAt: new Date(),
+    system: true,
+  };
   let updates = {};
-  updates[`/members/${chat_id}/${uid}`] = false;
-  updates[`/chats/${chat_id}/lastMessage/`] = message;
+  updates[`/members/${chat_id}/${user_id}`] = false;
+  updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 };
@@ -138,22 +150,15 @@ export const get_old_chat_messages = (chat_id: string) => {
       snapshot.forEach(child => {
         if (child && child.val() && child.val()["_id"]) {
           let message: ChatMessage;
-          let userObject: UserChatMessage;
+          let systemMessage: SystemMessage;
 
-          userObject = {
-            _id: child.val()["user"]["_id"],
-            name: child.val()["user"]["name"],
-            avatar: child.val()["user"]["avatar"],
-          };
-
-          message = {
-            _id: child.val()["_id"],
-            createdAt: child.val()["createdAt"],
-            text: child.val()["text"],
-            user: userObject,
-            image: child.val()["image"],
-          };
-          messages.push(message);
+          if (child.val().system) {
+            systemMessage = child.val();
+            messages.push(systemMessage);
+          } else {
+            message = child.val();
+            messages.push(message);
+          }
         }
         /* tslint:enable:no-string-literal */
 
@@ -173,34 +178,27 @@ export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessag
 
       if (child && child.val() && child.val()["_id"]) {
 
-        let message: ChatMessage;
-        let userObject: UserChatMessage;
+          let message: ChatMessage;
+          let systemMessage: SystemMessage;
 
-        userObject = {
-          _id: child.val()["user"]["_id"],
-          name: child.val()["user"]["name"],
-          avatar: child.val()["user"]["avatar"],
-        };
+          if (child.val().system) {
+            systemMessage = child.val();
+            messages.push(systemMessage);
+            resolve(messages);
+          } else {
+            message = child.val();
+            messages.push(message);
+            get_user(message.user.name)
+            .then((response: firebase.database.DataSnapshot) => {
+              if (response && response.val()) {
+                message.user.avatar = response.val().picture;
+              }
+              messages.push(message);
 
-        message = {
-          _id: child.val()["_id"],
-          createdAt: child.val()["createdAt"],
-          text: child.val()["text"],
-          user: userObject,
-          image: child.val()["image"],
-        };
-    /* tslint:enable:no-string-literal */
-        get_user(userObject.name)
-        .then((response: firebase.database.DataSnapshot) => {
-          if (response && response.val()) {
-            message.user.avatar = response.val().picture;
+              resolve(messages);
+            });
           }
-          messages.push(message);
-
-          resolve(messages);
-        });
-
-      }
+        }
     });
   });
 };
@@ -372,12 +370,14 @@ export const get_user_by_email = async (email: string) => {
 export const active_chats = () => {
   let uid = firebase.auth().currentUser.uid;
   return new Promise((resolve, reject) => {
-    const user_id_promise =  fb_db.ref.child("members").orderByChild(uid)
-      .equalTo(true).once("value", function(snapshot) {
+    const user_id_promise =  fb_db.ref.child("members").orderByChild(uid).once("value", function(snapshot) {
         let results = [];
         snapshot.forEach((data) => {
-          results.push(data.key);
-                });
+          console.log(data.val()[uid]);
+          if (data.val()[uid].member) {
+            results.push(data.key);
+          }
+        });
         resolve(results);
       });
   });

@@ -238,6 +238,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     this.setState({ visible: false });
   }
 
+  renderSystemMessage = (message) => {
+    return;
+  }
+
   render() {
     return (
       <View style={{flex: 1}}>
@@ -251,6 +255,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           renderAccessory={() => <Button title={"Add a picture"} onPress={this.showDialog}></Button>}
           showUserAvatar = {true}
           imageStyle={undefined}
+          // renderSystemMessage={this.renderSystemMessage}
         />
         <Dialog.Container visible={this.state.visible}>
           <Dialog.Title>Pick a picture from</Dialog.Title>

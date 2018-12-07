@@ -3,7 +3,7 @@ import { BackHandler, View, Text, StyleSheet, FlatList, TouchableOpacity } from 
 import GestureRecognizer from "react-native-swipe-gestures";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
-import { active_chats, get_chat_details, ChatDetailsItem } from "../Fire";
+import { active_chats, get_chat_details } from "../Fire";
 import * as firebase from "firebase";
 import Wallpaper from "../components/Wallpaper";
 
