@@ -21,8 +21,8 @@ init();
 // chat_send("-LSbVSWNMpzDZFF_j01_", "Testiviesti", "Arska").then(() => {
 //   chat_adduser("-LSbVSWNMpzDZFF_j01_", "Tommi", "Arska");
 // });
+// chat_leave("-LSe5HK1RmYMWmcoac1o", "0JybQioRAhfFFxjhqjQbam6jIBG2");
 // chat_adduser("-LSe5HK1RmYMWmcoac1o", "0JybQioRAhfFFxjhqjQbam6jIBG2", "TjNGYAWdWmVWIvG2j8LMUfx5YAm2");
-// chat_leave("-LSbVSWNMpzDZFF_j01_", "Tommi");
 
 // create our app"s navigation stack
 const App = createSwitchNavigator(
