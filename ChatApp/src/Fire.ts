@@ -291,6 +291,7 @@ export const user_create = (username: string, email: string, password: string) =
             });
             fb_db.ref.update(updates);
             update_user(username, user.user);
+            update_expo_push_notification(user.user.uid);
           }
         });
     } else {
