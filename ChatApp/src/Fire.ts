@@ -172,36 +172,34 @@ export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessag
       /* tslint:disable:no-string-literal */
 
       if (child && child.val() && child.val()["_id"]) {
-        if (old_messages.findIndex(m => m._id === child.val()["_id"]) === -1) {
-          let message: ChatMessage;
-          let userObject: UserChatMessage;
+        
+        let message: ChatMessage;
+        let userObject: UserChatMessage;
 
-          userObject = {
-            _id: child.val()["user"]["_id"],
-            name: child.val()["user"]["name"],
-            avatar: child.val()["user"]["avatar"],
-          };
+        userObject = {
+          _id: child.val()["user"]["_id"],
+          name: child.val()["user"]["name"],
+          avatar: child.val()["user"]["avatar"],
+        };
 
-          message = {
-            _id: child.val()["_id"],
-            createdAt: child.val()["createdAt"],
-            text: child.val()["text"],
-            user: userObject,
-            image: child.val()["image"],
-          };
-      /* tslint:enable:no-string-literal */
-          get_user(userObject.name)
-          .then((response: firebase.database.DataSnapshot) => {
-            if (response && response.val()) {
-              message.user.avatar = response.val().picture;
-            }
-            messages.push(message);
+        message = {
+          _id: child.val()["_id"],
+          createdAt: child.val()["createdAt"],
+          text: child.val()["text"],
+          user: userObject,
+          image: child.val()["image"],
+        };
+    /* tslint:enable:no-string-literal */
+        get_user(userObject.name)
+        .then((response: firebase.database.DataSnapshot) => {
+          if (response && response.val()) {
+            message.user.avatar = response.val().picture;
+          }
+          messages.push(message);
 
-            resolve(messages);
-          });
-        } else {
-          resolve(undefined);
-        }
+          resolve(messages);
+        });
+
       }
     });
   });
