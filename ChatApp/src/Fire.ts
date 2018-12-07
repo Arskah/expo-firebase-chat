@@ -172,7 +172,7 @@ export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessag
       /* tslint:disable:no-string-literal */
 
       if (child && child.val() && child.val()["_id"]) {
-        
+
         let message: ChatMessage;
         let userObject: UserChatMessage;
 
