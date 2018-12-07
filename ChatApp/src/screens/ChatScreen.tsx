@@ -2,11 +2,16 @@ import React, { Children } from "react";
 import { ImageStyle, View, Platform, Text, Button, Alert, BackHandler} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
-import { chat_send, get_user, ChatMessage, UserChatMessage, get_chat_messages, get_new_key } from "../Fire";
+import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key } from "../Fire";
+import { image_upload_chat, get_old_chat_messages, get_new_chat_messages } from "../Fire";
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
-import { ImagePicker, Permissions } from "expo";
-import {image_upload_chat} from "../Fire";
+import { ImagePicker, Permissions, ImageManipulator } from "expo";
+
+const HIGH_WIDTH = 1280;
+const HIGH_HEIGHT = 960;
+const LOW_WIDTH = 640;
+const LOW_HEIGHT = 480;
 
 export interface ChatScreenProps {
   navigation: any
@@ -20,6 +25,7 @@ export interface ChatScreenState {
   dbref: any,
   visible: boolean,
   avatar: string,
+  resolution: "full" | "high" | "low",
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
@@ -37,6 +43,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       dbref: firebase.database().ref("messages").child(chat_id),
       visible: false,
       avatar: undefined,
+      resolution: undefined,
     };
   }
 
@@ -62,74 +69,25 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           displayName: response.val().displayName,
           user_id: response.key,
           avatar: response.val().picture,
+          resolution: response.val().resolution,
         });
       });
       // Load messages before starting the chat in order
-      this.state.dbref.once("value", (snapshot) => {
-        let messages = [];
-        /* tslint:disable:no-string-literal */
-        snapshot.forEach(child => {
-          if (child && child.val() && child.val()["_id"]) {
-
-            let message: ChatMessage;
-            let userObject: UserChatMessage;
-
-            userObject = {
-              _id: child.val()["user"]["_id"],
-              name: child.val()["user"]["name"],
-              avatar: child.val()["user"]["avatar"],
-            };
-
-            message = {
-              _id: child.val()["_id"],
-              createdAt: child.val()["createdAt"],
-              text: child.val()["text"],
-              user: userObject,
-              image: child.val()["image"],
-            };
-            messages.push(message);
-          }
-          /* tslint:enable:no-string-literal */
-        });
-        this.setState({messages: messages.reverse()});
+      get_old_chat_messages(this.state.chat_id)
+      .then(messages => {
+        console.log(messages);
+        if (messages) {
+          this.setState({messages: messages.reverse()});
+        }
       });
+
       // Load only messages that have come after the creation of start_key
-      let start_key = get_new_key("messages");
-      this.state.dbref.orderByKey().startAt(start_key).on("child_added", (child) => {
-        let messages = [];
-        /* tslint:disable:no-string-literal */
-
-        if (child && child.val() && child.val()["_id"]) {
-          if (this.state.messages.findIndex(m => m._id === child.val()["_id"]) === -1) {
-            let message: ChatMessage;
-            let userObject: UserChatMessage;
-
-            userObject = {
-              _id: child.val()["user"]["_id"],
-              name: child.val()["user"]["name"],
-              avatar: child.val()["user"]["avatar"],
-            };
-
-            message = {
-              _id: child.val()["_id"],
-              createdAt: child.val()["createdAt"],
-              text: child.val()["text"],
-              user: userObject,
-              image: child.val()["image"],
-            };
-        /* tslint:enable:no-string-literal */
-            get_user(userObject.name)
-            .then((response: firebase.database.DataSnapshot) => {
-              if (response && response.val()) {
-                message.user.avatar = response.val().picture;
-              }
-              messages.push(message);
-
-              this.setState(previousState => ({
-                messages: GiftedChat.append(previousState.messages, messages),
-              }));
-            });
-          }
+      get_new_chat_messages(this.state.chat_id, this.state.messages)
+      .then(new_messages => {
+        if (this.state.messages.findIndex(m => m._id === new_messages[0]._id) === -1) {
+          this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, new_messages),
+          }));
         }
       });
 
@@ -146,47 +104,84 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   onSend(messages = []) {
     let msg = messages[0];
     if (msg) {
-      msg._id = undefined;
+      msg._id = get_new_key("messages");
       chat_send(this.state.chat_id, msg);
+      this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, msg),
+      }));
     }
   }
 
+  image_resize = async (uri: string, orig_width: number, orig_height: number) => {
+
+    if (this.state.resolution === "full") {
+      console.log("Didn't resize because resolution was full");
+      return uri;
+    } else if (this.state.resolution === "high") {
+        if (orig_width > HIGH_WIDTH || orig_height > HIGH_HEIGHT) {
+          let manipResult;
+          if (orig_width / HIGH_WIDTH >= orig_height / HIGH_HEIGHT) {
+            manipResult = await ImageManipulator.manipulate(uri, [{resize: {width: HIGH_WIDTH}}]);
+          } else {
+            manipResult = await ImageManipulator.manipulate(uri, [{resize: {height: HIGH_HEIGHT}}]);
+          }
+          return manipResult.uri;
+        } else {
+          return uri;
+        }
+    } else {
+      if (orig_width > LOW_WIDTH || orig_height > LOW_HEIGHT) {
+        let manipResult;
+        if (orig_width / LOW_WIDTH >= orig_height / LOW_HEIGHT) {
+          manipResult = await ImageManipulator.manipulate(uri, [{resize: {width: LOW_WIDTH}}]);
+        } else {
+          manipResult = await ImageManipulator.manipulate(uri, [{resize: {height: LOW_HEIGHT}}]);
+        }
+        return manipResult.uri;
+      } else {
+        return uri;
+      }
+    }
+  }
+  /* tslint:disable:no-shadowed-variable */
   pickFromCamera = async () => {
     this.setState({ visible: false});
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
       if (status === "granted") {
+        /* tslint:enable:no-shadowed-variable */
         let result = await ImagePicker.launchCameraAsync(
           {
             allowsEditing: true,
           },
         );
-        if (!result.cancelled) {
-  
+        if (result.cancelled !== true) {
+
+          const resized_uri = await this.image_resize(result.uri, result.width, result.height);
           let new_key = get_new_key("messages");
           let user: UserChatMessage = {
             _id: this.state.user_id,
             name: this.state.displayName,
             avatar: this.state.avatar,
           };
-  
+
           let message: ChatMessage = {
             _id: new_key,
             createdAt: new Date(),
             user: user,
-            image: result.uri,
+            image: resized_uri,
           };
           let messages = [];
           messages.push(message);
           this.setState(previousState => ({
             messages: GiftedChat.append(previousState.messages, messages),
           }));
-  
-          const url = await image_upload_chat(this.state.chat_id, result.uri);
-  
+
+          const url = await image_upload_chat(this.state.chat_id, resized_uri);
+
           message.image = url;
-  
+
           chat_send(this.state.chat_id, message)
           .catch(error => console.log(error));
         }
@@ -204,8 +199,9 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       allowsEditing: true,
     });
 
-    if (!result.cancelled) {
+    if (result.cancelled !== true) {
 
+      const resized_uri = await this.image_resize(result.uri, result.width, result.height);
       let new_key = get_new_key("messages");
       let user: UserChatMessage = {
         _id: this.state.user_id,
@@ -217,7 +213,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         _id: new_key,
         createdAt: new Date(),
         user: user,
-        image: result.uri,
+        image: resized_uri,
       };
       let messages = [];
       messages.push(message);
@@ -225,7 +221,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         messages: GiftedChat.append(previousState.messages, messages),
       }));
 
-      const url = await image_upload_chat(this.state.chat_id, result.uri);
+      const url = await image_upload_chat(this.state.chat_id, resized_uri);
 
       message.image = url;
 
@@ -242,6 +238,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     this.setState({ visible: false });
   }
 
+  renderSystemMessage = (message) => {
+    return;
+  }
+
   render() {
     return (
       <View style={{flex: 1}}>
@@ -254,7 +254,8 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           }}
           renderAccessory={() => <Button title={"Add a picture"} onPress={this.showDialog}></Button>}
           showUserAvatar = {true}
-          // imageStyle={new ImageStyle()}
+          imageStyle={undefined}
+          // renderSystemMessage={this.renderSystemMessage}
         />
         <Dialog.Container visible={this.state.visible}>
           <Dialog.Title>Pick a picture from</Dialog.Title>

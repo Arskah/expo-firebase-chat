@@ -119,19 +119,19 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
   }
 
   pickFromCamera = async () => {
+    /* tslint:disable:no-shadowed-variable */
     this.setState({ dialogPictureVisible: false});
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     if (status === "granted") {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
       if (status === "granted") {
-        
+        /* tslint:enable:no-shadowed-variable */
         let result = await ImagePicker.launchCameraAsync(
           {
             allowsEditing: true,
             aspect: [4, 3],
           },
         );
-  
         // console.log(result);
         if (!result.cancelled) {
           // @ts-ignore

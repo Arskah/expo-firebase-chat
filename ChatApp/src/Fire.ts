@@ -2,6 +2,9 @@ import firebase, { User } from "firebase";
 import { Alert } from "react-native";
 import { ENV } from "../environment";
 import { Permissions, Notifications } from "expo";
+import { FileSystem } from "expo";
+import { array } from "prop-types";
+import { SystemMessage } from "react-native-gifted-chat";
 
 /*
   - /chats/
@@ -51,7 +54,7 @@ export const init = () => {
 };
 
 // Create new chatroom
-export const chat_create = (name: string, username: string) => {
+export const chat_create = (name: string, uid: string) => {
   let postData = {
     title: name,
     lastMessage: "",
@@ -60,7 +63,7 @@ export const chat_create = (name: string, username: string) => {
   let updates = {};
   // Add
   updates[`/chats/${new_key}/`] = postData;
-  updates[`/members/${new_key}/${username}`] = true;
+  updates[`/members/${new_key}/${uid}`] = true;
   return fb_db.ref.update(updates);
 };
 
@@ -68,9 +71,15 @@ export const chat_create = (name: string, username: string) => {
 export const chat_adduser = (chat_id: string, user_id: string, adder_id: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let updates = {};
-  let message = `User ${user_id} was added by ${adder_id}`;
-  updates[`/members/${chat_id}/${user_id}`] = true;
-  updates[`/chats/${chat_id}/lastMessage/`] = message;
+  let message = {
+    _id: new_key,
+    text: `User ${user_id} was added by ${adder_id}`,
+    createdAt: new Date(),
+    system: true,
+  };
+  updates[`/members/${chat_id}/${user_id}/member`] = true;
+  updates[`/members/${chat_id}/${user_id}/added`] = new_key;
+  updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 };
@@ -121,23 +130,80 @@ export const chat_send = (chat_id: string, message: ChatMessage) => {
 // Leave chatroom
 export const chat_leave = (chat_id: string, user_id: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
-  let message = `User ${user_id} left`;
+  let message = {
+    _id: new_key,
+    text: `User ${user_id} left`,
+    createdAt: new Date(),
+    system: true,
+  };
   let updates = {};
   updates[`/members/${chat_id}/${user_id}`] = false;
-  updates[`/chats/${chat_id}/lastMessage/`] = message;
+  updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 };
 
-export const get_chat_messages = async (chat_id: string) => {
-
-  return new Promise((resolve, reject) => {
-    firebase.database().ref().child("users").orderByChild(method)
-      .equalTo(username).on("value", (snapshot) => {
-        snapshot.forEach((data) => {
-          resolve(data);
-        });
+export const get_old_chat_messages = (chat_id: string) => {
+  console.log("Messages for chat: ", chat_id);
+  return new Promise<any[]>((resolve, reject) => {
+    fb_db.ref.child("messages").child(chat_id).once("value", (snapshot) => {
+      let messages = [];
+      /* tslint:disable:no-string-literal */
+      if (!snapshot) {
         resolve(undefined);
+      }
+      snapshot.forEach(child => {
+        if (child && child.val() && child.val()["_id"]) {
+          let message: ChatMessage;
+          let systemMessage: SystemMessage;
+
+          if (child.val().system) {
+            systemMessage = child.val();
+            messages.push(systemMessage);
+          } else {
+            message = child.val();
+            messages.push(message);
+          }
+        }
+        /* tslint:enable:no-string-literal */
+
+      });
+      resolve(messages);
+    });
+  });
+};
+
+export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessage]) => {
+  console.log("Messages for chat: ", chat_id);
+  return new Promise<any[]>((resolve, reject) => {
+    let start_key = get_new_key("messages");
+    fb_db.ref.child("messages").child(chat_id).orderByKey().startAt(start_key).on("child_added", (child) => {
+      let messages = [];
+      /* tslint:disable:no-string-literal */
+
+      if (child && child.val() && child.val()["_id"]) {
+
+          let message: ChatMessage;
+          let systemMessage: SystemMessage;
+
+          if (child.val().system) {
+            systemMessage = child.val();
+            messages.push(systemMessage);
+            resolve(messages);
+          } else {
+            message = child.val();
+            messages.push(message);
+            get_user(message.user.name)
+            .then((response: firebase.database.DataSnapshot) => {
+              if (response && response.val()) {
+                message.user.avatar = response.val().picture;
+              }
+              messages.push(message);
+
+              resolve(messages);
+            });
+          }
+        }
     });
   });
 };
@@ -221,7 +287,7 @@ export const user_create = (username: string, email: string, password: string) =
             // TODO: Not sure if .on() is the correct method...
             // If we see missing chatrooms after new chat room creation this may be the issue
             fb_db.ref.child("chats").on("value", (snapshot) => {
-              updates["members/" + snapshot.key + `/${username}`] = false;
+              updates["members/" + snapshot.key + `/${user.user.uid}`] = false;
             });
             fb_db.ref.update(updates);
             update_user(username, user.user);
@@ -313,27 +379,26 @@ export const get_user_by_email = async (email: string) => {
 
 // Get all chat rooms user is active in
 export const active_chats = () => {
-  let username = firebase.auth().currentUser.displayName;
+  let uid = firebase.auth().currentUser.uid;
   return new Promise((resolve, reject) => {
-    const user_id_promise =  fb_db.ref.child("members").orderByChild(username)
-      .equalTo(true).once("value", function(snapshot) {
+    const user_id_promise =  fb_db.ref.child("members").orderByChild(uid).once("value", function(snapshot) {
         let results = [];
-        // console.log(snapshot);
         snapshot.forEach((data) => {
-          results.push(data.key);
-                });
+          console.log(data.val()[uid]);
+          if (data.val()[uid].member) {
+            results.push(data.key);
+          }
+        });
         resolve(results);
       });
   });
 };
 
-export const get_chat_details = (chats_list: any) => {
-  return new Promise((resolve, reject) => {
-    let results = [];
-      fb_db.ref.child("chats").orderByKey().equalTo(chats_list).on("value", (snapshot) => {
-        results.push(snapshot.key);
-      });
+export const get_chat_details = (chats_list: Array<string>) => {
+  let chat_promises = chats_list.map(function(key) {
+    return firebase.database().ref("chats").child(key).once("value");
   });
+  return chat_promises;
 };
 
 // results
