@@ -1,5 +1,6 @@
 import React, {Component} from "react";
-import { KeyboardAvoidingView, StyleSheet, Button, View, Alert, BackHandler } from "react-native";
+import { KeyboardAvoidingView, StyleSheet, Button, View, Alert, BackHandler, PermissionsAndroid } from "react-native";
+import GestureRecognizer from "react-native-swipe-gestures";
 import Wallpaper from "../components/Wallpaper";
 import SettingPicture from "../components/SettingPicture";
 import SettingName from "../components/SettingName";
@@ -118,22 +119,29 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
   }
 
   pickFromCamera = async () => {
+    /* tslint:disable:no-shadowed-variable */
     this.setState({ dialogPictureVisible: false});
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     if (status === "granted") {
-      let result = await ImagePicker.launchCameraAsync(
-        {
-          allowsEditing: true,
-          aspect: [4, 3],
-        },
-      );
-
-      // console.log(result);
-      if (!result.cancelled) {
-        // @ts-ignore
-        this.setState({mutable_image: result.uri});
-    }
-      // console.log(this.state.mutable_image);
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status === "granted") {
+        /* tslint:enable:no-shadowed-variable */
+        let result = await ImagePicker.launchCameraAsync(
+          {
+            allowsEditing: true,
+            aspect: [4, 3],
+          },
+        );
+        // console.log(result);
+        if (!result.cancelled) {
+          // @ts-ignore
+          this.setState({mutable_image: result.uri});
+        }
+      } else {
+        Alert.alert("You can't take pictures without CAMERA permissions");
+      }
+    } else {
+      Alert.alert("You can't take pictures without CAMERA_ROLL permissions");
     }
   }
 
@@ -233,29 +241,46 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
     }
   }
 
+  onSwipeLeft() {
+    this.props.navigation.navigate("ActiveChatsScreen");
+  }
+
   render() {
+    const config = {
+      velocityThreshold: 0.3,
+      directionalOffsetThreshold: 80,
+    };
     return (
     <Wallpaper>
-      <KeyboardAvoidingView behavior="padding" style={styles.container}>
-        <SettingPicture
-          visible={this.state.dialogPictureVisible}
-          image={this.state.mutable_image}
-          handlePush={this.showPictureDialog}
-          handleCancel={this.handlePictureCancel}
-          pickCamera={this.pickFromCamera}
-          pickGallery={this.pickFromGallery}/>
-        <SettingName
-          displayname={this.state.mutable_displayname}
-          dialogVisible={this.state.dialogNameVisible}
-          showDialog={this.showNameDialog}
-          handleCancel={this.handleNameCancel}
-          handleSubmit={this.handleNameSubmit}
-          handleChange={this.handleNameChange}/>
-        <SettingResolution resolution={this.state.mutable_resolution} handleChange={this.handleResolutionChange}/>
-      </KeyboardAvoidingView>
-      <SettingSave handleClick={this.handleSave}></SettingSave>
-      <Button title="Sign out" onPress={this.logOutButton}>
-      </Button>
+      <GestureRecognizer
+          onSwipeLeft={() => this.onSwipeLeft()}
+          config={config}
+          style={{
+            backgroundColor: "transparent",
+            flex: 1,
+          }}
+      >
+        <KeyboardAvoidingView behavior="padding" style={styles.container}>
+          <SettingPicture
+            visible={this.state.dialogPictureVisible}
+            image={this.state.mutable_image}
+            handlePush={this.showPictureDialog}
+            handleCancel={this.handlePictureCancel}
+            pickCamera={this.pickFromCamera}
+            pickGallery={this.pickFromGallery}/>
+          <SettingName
+            displayname={this.state.mutable_displayname}
+            dialogVisible={this.state.dialogNameVisible}
+            showDialog={this.showNameDialog}
+            handleCancel={this.handleNameCancel}
+            handleSubmit={this.handleNameSubmit}
+            handleChange={this.handleNameChange}/>
+          <SettingResolution resolution={this.state.mutable_resolution} handleChange={this.handleResolutionChange}/>
+        </KeyboardAvoidingView>
+        <SettingSave handleClick={this.handleSave}></SettingSave>
+        <Button title="Sign out" onPress={this.logOutButton}>
+        </Button>
+      </GestureRecognizer>
     </Wallpaper>
     );
   }

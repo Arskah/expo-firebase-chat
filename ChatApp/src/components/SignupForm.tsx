@@ -29,7 +29,7 @@ class SignupForm extends React.Component<SignupFormProps, SignupFormState> {
   componentDidMount() {
     user_state_change((user) => {
       if (user) {
-        this.props.navigation.navigate("SettingsScreen");
+        this.props.navigation.navigate("ActiveChatsScreen");
       }
     });
   }

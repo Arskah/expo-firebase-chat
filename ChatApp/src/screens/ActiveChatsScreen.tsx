@@ -1,10 +1,10 @@
 import * as React from "react";
 import { BackHandler, View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import GestureRecognizer from "react-native-swipe-gestures";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 import { active_chats, get_chat_details, ChatDetailsItem } from "../Fire";
 import * as firebase from "firebase";
-import { object } from "prop-types";
 import Wallpaper from "../components/Wallpaper";
 
 export interface ActiveChatsScreenProps {
@@ -84,9 +84,25 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
     this.props.navigation.navigate("ChatScreen", {chat_id: chat_id});
   }
 
+  onSwipeRight() {
+    this.props.navigation.navigate("SettingsScreen");
+  }
+
   render() {
+    const config = {
+      velocityThreshold: 0.3,
+      directionalOffsetThreshold: 80,
+    };
     return (
       <Wallpaper>
+        <GestureRecognizer
+          onSwipeRight={() => this.onSwipeRight()}
+          config={config}
+          style={{
+            backgroundColor: "transparent",
+            flex: 1,
+          }}
+        >
         <View style = {styles.container}>
           <FlatList
             data = {this.state.titles_lastMessages}
@@ -100,8 +116,8 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             }
           />
         </View>
+        </GestureRecognizer>
       </Wallpaper>
-
     );
   }
 }
@@ -125,6 +141,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "space-between",
     alignItems: "center",
+    flex: 3,
   },
   titleText: {
     height: 25,
