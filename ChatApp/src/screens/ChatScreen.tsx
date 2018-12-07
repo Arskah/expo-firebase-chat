@@ -166,8 +166,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
 
           const resized_uri = await this.image_resize(result.uri, result.width, result.height);
           let new_key = get_new_key("messages");
+          console.log(firebase.auth().currentUser);
           let user: UserChatMessage = {
             _id: this.state.user_id,
+            auth_id: firebase.auth().currentUser.uid,
             name: this.state.displayName,
             avatar: this.state.avatar,
           };
@@ -211,6 +213,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       let new_key = get_new_key("messages");
       let user: UserChatMessage = {
         _id: this.state.user_id,
+        auth_id: firebase.auth().currentUser.uid,
         name: this.state.displayName,
         avatar: this.state.avatar,
       };
@@ -256,6 +259,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           onSend={messages => this.onSend(messages)}
           user={{
             _id: this.state.user_id,
+            auth_id: firebase.auth().currentUser.uid,
             name: this.state.displayName,
           }}
           renderAccessory={() => <Button title={"Add a picture"} onPress={this.showDialog}></Button>}

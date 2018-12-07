@@ -132,7 +132,7 @@ export const get_chat_members = async (chat_id: string) => {
   });
 }
 
-export const get_chat_push_tokens = (chat_id: string) => {
+export const get_chat_push_tokens = (chat_id: string, sender_id: string) => {
   return new Promise<Array<string>>((resolve, reject) => {
     get_chat_members(chat_id)
     .then((members: database.DataSnapshot) => {
@@ -141,10 +141,14 @@ export const get_chat_push_tokens = (chat_id: string) => {
         database().ref(`push_keys/${data.key}`).on("value", (snapshot_tokens: database.DataSnapshot) => {
           snapshot_tokens.forEach((data_push) => {
             console.info(data_push.val().token);
-            tokens.push(data_push.val().token);
+            console.info(sender_id);
+            if (data_push.val() !== sender_id) {
+              tokens.push(data_push.val().token);
+            }
             // Next line is just to please Typescript
             return false;
           });
+          console.info(tokens);
           resolve(tokens);
         });
       // Next line is just to please Typescript
@@ -163,10 +167,11 @@ exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
   const message = snapshot.val();
   // We have either text or images, so...
   const text = message.text ? message.text: "New image";
-  // const sender_id = message.user._id;
+  const sender_id = message.user.auth_id;
+  console.error(sender_id);
   get_chat(context.params.chat_id).then((chat: database.DataSnapshot) => {
     const chat_name = chat.val().title;
-    get_chat_push_tokens(context.params.chat_id).then((tokens: string[]) => {
+    get_chat_push_tokens(context.params.chat_id, sender_id).then((tokens: string[]) => {
       console.info(tokens);
       send_push(chat_name, text, {}, tokens);
     })

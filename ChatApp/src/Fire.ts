@@ -96,6 +96,7 @@ export interface ChatMessage {
 
 export interface UserChatMessage {
   _id: string,
+  auth_id: string,
   name: string,
   avatar?: string,
 }
