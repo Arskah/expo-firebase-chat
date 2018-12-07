@@ -3,7 +3,7 @@ import { BackHandler, View, Text, StyleSheet, FlatList, TouchableOpacity } from 
 import GestureRecognizer from "react-native-swipe-gestures";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
-import { active_chats } from "../Fire";
+import { active_chats, get_chat_details, ChatDetailsItem } from "../Fire";
 import * as firebase from "firebase";
 import Wallpaper from "../components/Wallpaper";
 
@@ -14,8 +14,7 @@ export interface ActiveChatsScreenProps {
 export interface ActiveChatsScreenState {
   displayname: string;
   activeChatsList: object;
-  // activeChatsDetailsList: Array<object>;
-  titles_lastMessages: Array<{}>;
+  titles_lastMessages: Array<object>;
 }
 
 export default class ActiveChatsScreen extends React.Component<ActiveChatsScreenProps, ActiveChatsScreenState> {
@@ -25,7 +24,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
     this.state = {
       displayname: "",
       activeChatsList: undefined,
-      titles_lastMessages: [],
+      titles_lastMessages: undefined,
       };
   }
 
@@ -60,9 +59,9 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
   get_titles_lastMessages = (results) => {
     let return_list = [];
     for (let i of Object.keys(results)) {
-      return_list.push({key: results[i][0].val().title,
+      return_list.push({title: results[i][0].val().title,
                         lastMessage: results[i][0].val().lastMessage,
-                        chatId: results[i][1]});
+                        key: results[i][1]});
     }
     if (this._isMounted) {
       this.setState({titles_lastMessages: return_list});
@@ -70,9 +69,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
   }
 
   chat_details = (chats_list, this_) => {
-    let chat_promises = chats_list.map(function(key) {
-      return firebase.database().ref("chats").child(key).once("value");
-    });
+    let chat_promises = get_chat_details(chats_list);
     Promise.all(chat_promises).then(function (snapshots) {
       let results = [];
       snapshots.forEach(function(snapshot) {
@@ -112,9 +109,9 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             renderItem = {({item}) =>
               <TouchableOpacity
                 style={styles.chatButton}
-                onPress={() => this.handleOnPress(item.chatId)}>
-                <Text style={styles.titleText}> {item.key} {"\n"}</Text>
-                <Text style={styles.lastMessageText}> {item.lastMessage} </Text>
+                onPress={() => this.handleOnPress(item["key"])}>
+                <Text style={styles.titleText}> {item["title"]} {"\n"}</Text>
+                <Text style={styles.lastMessageText}> {item["lastMessage"]} </Text>
               </TouchableOpacity>
             }
           />
