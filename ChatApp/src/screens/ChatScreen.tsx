@@ -100,8 +100,11 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   onSend(messages = []) {
     let msg = messages[0];
     if (msg) {
-      msg._id = undefined;
+      msg._id = get_new_key("messages");
       chat_send(this.state.chat_id, msg);
+      this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, msg),
+      }));
     }
   }
 
@@ -112,6 +115,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       return uri;
     } else if (this.state.resolution === "high"){
         if (orig_width > 1280 || orig_height > 960) {
+
           const manipResult = await ImageManipulator.manipulate(uri, [{resize:{width:1280,height: 960}}])
           console.log("Resized image to width: ",manipResult.width, " height: ", manipResult.height);
           return manipResult.uri;
