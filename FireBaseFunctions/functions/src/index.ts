@@ -1,8 +1,13 @@
 import * as functions from 'firebase-functions';
 import { database, initializeApp } from 'firebase-admin';
 import axios from 'axios';
-
+import {tmpdir} from 'os';
+import {join, dirname, basename} from 'path';
+import * as sharp from "sharp";
+import * as fs from "fs-extra";
+const gcs = require("@google-cloud/storage");
 initializeApp();
+
 
 const ExpoURL = "https://expo.io/--/api/v2/push/send";
 type PushMessage = {
@@ -167,4 +172,47 @@ exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
     console.error(err);
   })
   return true;
+});
+
+exports.newChatImage = functions.storage.object().onFinalize( async object => {
+
+  const bucket = gcs.bucket(object.bucket);
+  const filePath = object.name;
+  const fileName = basename(filePath);
+  const bucketDir = dirname(filePath);
+
+  console.log("Filename is: ",fileName);
+  const workingDir = join(tmpdir(),'images');
+  const tmpFilePath = join(workingDir, 'source.png');
+
+  if(!object.contentType.includes("image") || fileName.includes("resized-")) {
+    console.log("exiting");
+    return;
+  }
+
+  await fs.ensureDir(workingDir);
+
+  await bucket.file(filePath).download({
+    destination: tmpFilePath
+  });
+
+  const sizes = [[640,480],[1280,960]]
+
+  const uploadPromises = sizes.map(async (width,height) => {
+
+    const resizedName = `resized-${width}_${fileName}`;
+    const resizedPath = join(workingDir, resizedName);
+    
+    await sharp(resizedPath)
+      .resize(width, height)
+      .toFile(resizedPath);
+
+    return bucket.upload(resizedPath, {
+      destination: join(bucketDir, resizedName)
+    });
+  });
+
+  await Promise.all(uploadPromises);
+  return fs.remove(workingDir);
+
 });

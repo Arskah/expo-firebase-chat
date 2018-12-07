@@ -386,7 +386,7 @@ export const active_chats = () => {
         let results = [];
         snapshot.forEach((data) => {
           console.log(data.val()[uid]);
-          if (data.val()[uid].member) {
+          if (data.val()[uid] && data.val()[uid].member) {
             results.push(data.key);
           }
         });
