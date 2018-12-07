@@ -205,9 +205,18 @@ export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessag
               if (response && response.val()) {
                 message.user.avatar = response.val().picture;
               }
-              messages.push(message);
-
-              resolve(messages);
+              if (message.image) {
+                image_get(message.image)
+                .then(image => {
+                  message.image = image;
+                  messages.push(message);
+                });
+                messages.push(message);
+                resolve(messages);
+              } else {
+                messages.push(message);
+                resolve(messages);
+              }
             });
           }
         }
