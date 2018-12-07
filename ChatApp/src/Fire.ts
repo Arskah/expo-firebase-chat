@@ -373,12 +373,14 @@ export const get_user_by_email = async (email: string) => {
 export const active_chats = () => {
   let uid = firebase.auth().currentUser.uid;
   return new Promise((resolve, reject) => {
-    const user_id_promise =  fb_db.ref.child("members").orderByChild(uid)
-      .equalTo(true).once("value", function(snapshot) {
+    const user_id_promise =  fb_db.ref.child("members").orderByChild(uid).once("value", function(snapshot) {
         let results = [];
         snapshot.forEach((data) => {
-          results.push(data.key);
-                });
+          console.log(data.val()[uid])
+          if(data.val()[uid].member){
+            results.push(data.key);     
+          }
+        });
         resolve(results);
       });
   });
