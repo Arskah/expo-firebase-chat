@@ -90,30 +90,9 @@ type PushMessage = {
   channelId?: string
 }
 
-exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
-  .onCreate((snapshot, context) => {
-    // Get an object representing the document
-    const message = snapshot.val();
-    // We have either text or images, so...
-    const text = message.text ? message.text: "New image";
-    const sender_id = message.user._id;
-    database().ref(`members/${context.params.chat_id}/`).orderByKey()
-    .on("value", (snapshot_tokens) => {
-      database().ref(`chats/${context.params.chat_id}`).orderByKey()
-      .on("value", (snapshot_chats) => {
-        const chat_name = snapshot_chats.val().title;
-        let tokens: string[] = [];
-        snapshot_tokens.forEach((data) => {
-          tokens.push(data.key);
-        });
-        send_push(chat_name, text, {}, tokens);
-      });
-    });
-  });
-
 export const send_push = (title: string, message: string, data: Object, tokens: string[]) => {
   tokens.forEach(token => {
-    let push: PushMessage = {
+    const push: PushMessage = {
       to: token,
       title: title,
       body: message,
@@ -122,3 +101,26 @@ export const send_push = (title: string, message: string, data: Object, tokens: 
     axios.post(ExpoURL, push);
   });
 }
+
+exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
+  .onCreate((snapshot, context) => {
+    // Get an object representing the document
+    const message = snapshot.val();
+    // We have either text or images, so...
+    const text = message.text ? message.text: "New image";
+    const sender_id = message.user._id;
+    database().ref(`chats/${context.params.chat_id}`).orderByKey().on("value", (snapshot_chats) => {
+      const chat_name = snapshot_chats.val().title;
+      database().ref(`members/${context.params.chat_id}`).orderByKey().equalTo(true).on("value", (snapshot_tokens) => {
+        const tokens: string[] = [];
+        snapshot_tokens.forEach((data) => {
+          if (data.key !== sender_id)
+            tokens.push(data.key);
+            // Next line is just to please Typescript
+            // https://stackoverflow.com/questions/39845758/argument-of-type-snap-datasnapshot-void-is-not-assignable-to-parameter-o
+            return false;
+        });
+        send_push(chat_name, text, {}, tokens);
+      });
+    });
+  });
