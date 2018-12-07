@@ -373,8 +373,7 @@ export const active_chats = () => {
     const user_id_promise =  fb_db.ref.child("members").orderByChild(uid).once("value", function(snapshot) {
         let results = [];
         snapshot.forEach((data) => {
-          console.log(data.val()[uid]);
-          if (data.val()[uid].member) {
+          if (data.val()[uid] && data.val()[uid].member) {
             results.push(data.key);
           }
         });
