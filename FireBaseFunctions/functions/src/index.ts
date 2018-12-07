@@ -1,5 +1,4 @@
 import * as functions from 'firebase-functions';
-import { Message } from 'firebase-functions/lib/providers/pubsub';
 import { database, initializeApp } from 'firebase-admin';
 import axios from 'axios';
 
@@ -105,32 +104,67 @@ export const send_push = (title: string, message: string, data: Object, tokens: 
   });
 }
 
-exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
-  .onCreate((snapshot, context) => {
-    // Get an object representing the document
-    const message = snapshot.val();
-    // We have either text or images, so...
-    const text = message.text ? message.text: "New image";
-    const sender_id = message.user._id;
-    database().ref(`chats/${context.params.chat_id}`).orderByKey().on("value", (snapshot_chats) => {
-      const chat_name = snapshot_chats.val().title;
-      database().ref(`members/${context.params.chat_id}`).orderByKey().on("value", (snapshot_tokens) => {
-        snapshot_tokens.forEach((data) => {
-          if (data.key !== sender_id) {
-            database().ref(`push_keys/${data.key}`).on("value", (snapshot_push) => {
-              const tokens: string[] = [];
-              snapshot_push.forEach((data_push) => {
-                tokens.push(data_push.val().token);
-                // Next line is just to please Typescript
-                return false;
-              })
-              send_push(chat_name, text, {}, tokens);
-            });
-          }
-          // Next line is just to please Typescript
-          // https://stackoverflow.com/questions/39845758/argument-of-type-snap-datasnapshot-void-is-not-assignable-to-parameter-o
-          return false;
-        });
-      });
+export const get_chat = async (chat_id: string) => {
+  return new Promise<database.DataSnapshot>((resolve, reject) => {
+    database().ref(`chats/${chat_id}`).orderByKey().on("value", (snapshot) => {
+      resolve(snapshot);
+    })
+  });
+}
+
+export const get_chat_members = async (chat_id: string) => {
+  return new Promise<database.DataSnapshot>((resolve, reject) => {
+    database().ref(`members/${chat_id}`).orderByKey().on("value", (snapshot) => {
+      resolve(snapshot);
     });
   });
+}
+
+export const get_chat_push_tokens = (chat_id: string) => {
+  return new Promise<Array<string>>((resolve, reject) => {
+    get_chat_members(chat_id)
+    .then((members: database.DataSnapshot) => {
+      const tokens: string[] = [];
+      members.forEach((data) => {
+        database().ref(`push_keys/${data.key}`).on("value", (snapshot_tokens: database.DataSnapshot) => {
+          snapshot_tokens.forEach((data_push) => {
+            console.info(data_push.val().token);
+            tokens.push(data_push.val().token);
+            // Next line is just to please Typescript
+            return false;
+          });
+          resolve(tokens);
+        });
+      // Next line is just to please Typescript
+      return false;
+      });
+    })
+    .catch((err) => {
+      reject(err);
+    });
+  });
+};
+
+exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
+.onCreate((snapshot, context) => {
+  // Get an object representing the document
+  const message = snapshot.val();
+  // We have either text or images, so...
+  const text = message.text ? message.text: "New image";
+  // const sender_id = message.user._id;
+  get_chat(context.params.chat_id).then((chat: database.DataSnapshot) => {
+    const chat_name = chat.val().title;
+    get_chat_push_tokens(context.params.chat_id).then((tokens: string[]) => {
+      console.info(tokens);
+      send_push(chat_name, text, {}, tokens);
+    })
+    .catch((err) => {
+      console.error("Error in get_chat_push_tokens");
+      console.error(err);
+    });
+  })
+  .catch(err => {
+    console.error(err);
+  })
+  return true;
+});
