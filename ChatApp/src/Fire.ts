@@ -65,10 +65,15 @@ export const chat_create = (name: string, uid: string) => {
 export const chat_adduser = (chat_id: string, user_id: string, adder_id: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let updates = {};
-  let message = `User ${user_id} was added by ${adder_id}`;
+  let message = {
+    _id: new_key,
+    text: `User ${user_id} was added by ${adder_id}`,
+    createdAt: new Date(),
+    system: true
+  }
   updates[`/members/${chat_id}/${user_id}/member`] = true;
   updates[`/members/${chat_id}/${user_id}/added`] = new_key;
-  updates[`/chats/${chat_id}/lastMessage/`] = message;
+  updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 };
@@ -119,10 +124,15 @@ export const chat_send = (chat_id: string, message: ChatMessage) => {
 // Leave chatroom
 export const chat_leave = (chat_id: string, user_id: string, uid: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
-  let message = `User ${user_id} left`;
+  let message = {
+    _id: new_key,
+    text: `User ${user_id} left`,
+    createdAt: new Date(),
+    system: true
+  }
   let updates = {};
   updates[`/members/${chat_id}/${uid}`] = false;
-  updates[`/chats/${chat_id}/lastMessage/`] = message;
+  updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 };
