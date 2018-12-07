@@ -8,6 +8,11 @@ import firebase from "firebase";
 import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions, ImageManipulator } from "expo";
 
+const HIGH_WIDTH = HIGH_WIDTH;
+const HIGH_HEIGHT = HIGH_HEIGHT;
+const LOW_WIDTH = 640;
+const LOW_HEIGHT = 480;
+
 
 export interface ChatScreenProps {
   navigation: any
@@ -110,22 +115,32 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
 
   image_resize = async (uri: string, orig_width: number, orig_height: number) => {
 
+    console.log("Original width: ",orig_width, " height: ",orig_height, " ratio: ", orig_width/orig_height)
     if(this.state.resolution === "full"){
       console.log("Didn't resize because resolution was full");
       return uri;
     } else if (this.state.resolution === "high"){
-        if (orig_width > 1280 || orig_height > 960) {
-
-          const manipResult = await ImageManipulator.manipulate(uri, [{resize:{width:1280,height: 960}}])
-          console.log("Resized image to width: ",manipResult.width, " height: ", manipResult.height);
+        if (orig_width > HIGH_WIDTH || orig_height > HIGH_HEIGHT) {
+          let manipResult;
+          if(orig_width/HIGH_WIDTH >= orig_height/HIGH_HEIGHT){
+            manipResult = await ImageManipulator.manipulate(uri, [{resize:{width:HIGH_WIDTH}}]);
+          } else {
+            manipResult = await ImageManipulator.manipulate(uri, [{resize:{height:HIGH_HEIGHT}}]);
+          }
+          console.log("Resized image to width: ",manipResult.width, " height: ", manipResult.height, " ratio: ", manipResult.width/manipResult.height);
           return manipResult.uri;
         } else {
           return uri;
         }
     } else {
-      if (orig_width > 640 || orig_height > 480) {
-        const manipResult = await ImageManipulator.manipulate(uri, [{resize:{width:640,height: 480}}])
-        console.log("Resized image to width: ",manipResult.width, " height: ", manipResult.height);
+      if (orig_width > LOW_WIDTH || orig_height > LOW_HEIGHT) {
+        let manipResult;
+        if(orig_width/LOW_WIDTH >= orig_height/LOW_HEIGHT){
+          manipResult = await ImageManipulator.manipulate(uri, [{resize:{width:LOW_WIDTH}}]);
+        } else {
+          manipResult = await ImageManipulator.manipulate(uri, [{resize:{height:LOW_HEIGHT}}]);
+        }
+        console.log("Resized image to width: ",manipResult.width, " height: ", manipResult.height, " ratio: ", manipResult.width/manipResult.height);
         return manipResult.uri;
       } else {
         return uri;
