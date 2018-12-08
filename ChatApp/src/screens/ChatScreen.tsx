@@ -29,7 +29,7 @@ export interface ChatScreenState {
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
-  constructor(props: any) {
+  constructor(props: ChatScreenProps) {
     super(props);
     const chat_id = this.props.navigation.getParam("chat_id", undefined);
     if (!chat_id) {
@@ -47,12 +47,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   componentDidMount() {
-
     BackHandler.addEventListener("hardwareBackPress", () => {
       this.props.navigation.navigate("ActiveChatsScreen");
       return true;
     });
-
     if (firebase.auth()) {
 
       const user = firebase.auth().currentUser;
@@ -251,7 +249,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             auth_id: firebase.auth().currentUser.uid,
             name: this.state.displayName,
           }}
-          renderAccessory={() => <ChatRenderAccessory onImageCamera={this.pickFromCamera} onImageGallery={this.pickFromGallery} />}
+          renderAccessory={() => <ChatRenderAccessory
+                                  onImageCamera={this.pickFromCamera}
+                                  onImageGallery={this.pickFromGallery}
+                                  chat_id={this.state.chat_id} />}
           showUserAvatar = {true}
           imageStyle={undefined}
         />
