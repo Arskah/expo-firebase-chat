@@ -130,16 +130,16 @@ export const chat_send = (chat_id: string, message: ChatMessage) => {
 };
 
 // Leave chatroom
-export const chat_leave = (chat_id: string, user_id: string) => {
+export const chat_leave = (chat_id: string, user_id: string, user_name: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let message = {
     _id: new_key,
-    text: `User ${user_id} left`,
+    text: `User ${user_name} left`,
     createdAt: new Date(),
     system: true,
   };
   let updates = {};
-  updates[`/members/${chat_id}/${user_id}`] = false;
+  updates[`/members/${chat_id}/${user_id}/member`] = false;
   updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
@@ -334,7 +334,7 @@ export const user_create = (username: string, email: string, password: string) =
             // TODO: Not sure if .on() is the correct method...
             // If we see missing chatrooms after new chat room creation this may be the issue
             fb_db.ref.child("chats").on("value", (snapshot) => {
-              updates["members/" + snapshot.key + `/${user.user.uid}`] = false;
+              updates["members/" + snapshot.key + `/${user.user.uid}/member`] = false;
             });
             fb_db.ref.update(updates);
             update_user(username, user.user);
