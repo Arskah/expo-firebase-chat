@@ -6,11 +6,6 @@ import {join, dirname, basename} from 'path';
 import * as sharp from "sharp";
 import * as fs from "fs-extra";
 
-// Imports the Google Cloud client library
-const vision = require('@google-cloud/vision');
-// Creates a client
-const client = new vision.ImageAnnotatorClient();
-
 const {Storage} = require("@google-cloud/storage");
 const gcs = new Storage();
 
@@ -21,7 +16,8 @@ const LOW_HEIGHT = 480;
 
 initializeApp();
 
-
+const GC_URL = "https://vision.googleapis.com/v1/images:annotate";
+const GC_API_QUERY = `?key=${functions.config().gc.key}`;
 const ExpoURL = "https://expo.io/--/api/v2/push/send";
 type PushMessage = {
   /**
@@ -180,9 +176,7 @@ exports.newChatImage = functions.storage.object().onFinalize( async object => {
   const filePath = object.name;
   const fileName = basename(filePath);
   const bucketDir = dirname(filePath);
-  console.log(basename(bucketDir));
 
-  //console.log("Filename is: ",filePath);
   if(fileName === "low") {
     console.log("Already created low");
     return;
@@ -250,22 +244,52 @@ exports.NewImageLabel = functions.storage.object().onFinalize(async object => {
   const filePath = object.name;
   const fileName = basename(filePath);
   const bucketDir = dirname(filePath);
-  console.log(basename(bucketDir));
 
-  // Performs label detection on the image file
-  client
-    .labelDetection(filePath)
-    .then(results => {
-      const labels = results[0].labelAnnotations;
+  const workingDir = join(tmpdir(), 'images');
+  const tmpFilePath = join(workingDir, basename(bucketDir));
 
-      console.log('Labels:');
-      labels.forEach(label => console.log(label.description));
-    })
-    .catch(err => {
-      console.error('ERROR:', err);
+  await fs.ensureDir(workingDir);
+
+  await bucket.file(filePath).download({
+    destination: tmpFilePath
+  });
+
+  // Read the file into memory.
+  const imageFile = fs.readFileSync(tmpFilePath);
+  // Convert the image data to a Buffer and base64 encode it.
+  // We basically send a cloud function local copy of the file for ML.
+  const encoded = Buffer.from(imageFile).toString('base64');
+
+  const response = await axios.post(GC_URL + GC_API_QUERY, 
+    {
+      requests: [
+        {
+          image: {
+            content: `${encoded}`,
+          },
+          features: [
+            {
+              type: "LABEL_DETECTION",
+              maxResults: 1,
+            }
+          ]
+        }
+      ]
+    }
+  );
+  const label = response.data.responses[0];
+  console.info(label);
+
+  if (label.labelAnnotations && label.labelAnnotations[0]) {
+    const updates = {};
+    updates[`/image_labels/${encodeURIComponent(filePath)}`] = label.labelAnnotations[0];
+    return database().ref().update(updates);
+  } else {
+    // Error
+    console.error("Failed to get response for file")
+  }
+  fs.remove(workingDir)
+    .then(() => {
+      console.log("Removed succesfully");
     });
 });
-
-
-
-
