@@ -3,7 +3,7 @@ import { View, Platform, Button, Alert, BackHandler} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
 import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key } from "../Fire";
-import { image_upload_chat, get_old_chat_messages, get_new_chat_messages } from "../Fire";
+import { image_upload_chat, get_old_chat_messages, get_new_chat_messages, chat_leave } from "../Fire";
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions, ImageManipulator } from "expo";
@@ -23,6 +23,7 @@ export interface ChatScreenState {
   displayName: string,
   user_id: string,
   chat_id: string,
+  uid: string,
   dbref: any,
   avatar: string,
   resolution: "full" | "high" | "low",
@@ -40,6 +41,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       displayName: undefined,
       user_id: undefined,
       chat_id: chat_id,
+      uid: undefined,
       dbref: firebase.database().ref("messages").child(chat_id),
       avatar: undefined,
       resolution: undefined,
@@ -65,6 +67,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         this.setState({
           displayName: response.val().displayName,
           user_id: response.key,
+          uid: user.uid,
           avatar: response.val().picture,
           resolution: response.val().resolution,
         });
@@ -248,6 +251,11 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     return;
   }
 
+  leaveChat = () => {
+    chat_leave(this.state.chat_id, this.state.uid, this.state.displayName);
+    this.props.navigation.navigate("ActiveChatsScreen");
+  }
+
   render() {
     return (
       <View style={{flex: 1}}>
@@ -259,13 +267,17 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             auth_id: firebase.auth().currentUser.uid,
             name: this.state.displayName,
           }}
-          renderAccessory={() => <ChatRenderAccessory
-                                  onImageCamera={this.pickFromCamera}
-                                  onImageGallery={this.pickFromGallery}
-                                  chat_id={this.state.chat_id} />}
+          renderAccessory={() => 
+            <ChatRenderAccessory
+              onImageCamera={this.pickFromCamera}
+              onImageGallery={this.pickFromGallery}
+              chat_id={this.state.chat_id} 
+              onLeave={this.leaveChat}
+              />}
           showUserAvatar = {true}
           imageStyle={undefined}
         />
+        {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
       </View>
     );
   }

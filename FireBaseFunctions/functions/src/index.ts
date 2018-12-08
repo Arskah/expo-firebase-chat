@@ -122,7 +122,7 @@ const get_chat = (chat_id: string) => {
 }
 
 const get_chat_members = (chat_id: string) => {
-  return database().ref(`members/${chat_id}`).orderByKey().once("value");
+  return database().ref(`members/${chat_id}`).orderByChild("member").equalTo(true).once("value");
 }
 
 const get_push_keys_of_user = (key: string) => {
@@ -163,7 +163,7 @@ exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
     const message = snapshot.val();
     // We have either text or images, so...
     const text = message.text ? message.text : "New image";
-    const sender_id = message.user.auth_id;
+    const sender_id = message.system ? undefined : message.user.auth_id;
     send_push_notification(text, sender_id, context.params.chat_id)
       .catch((err) => console.error(err));
     return true;

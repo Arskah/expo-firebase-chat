@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, Platform, StyleSheet, Button, Text } from "react-native";
+import { View, Platform, StyleSheet, Button, Text, Alert } from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import Dialog from "react-native-dialog";
 import { withNavigation } from "react-navigation";
@@ -11,27 +11,35 @@ export interface ChatRenderAccessoryProps {
   onImageGallery: any;
   navigation: any;
   chat_id: string;
+  onLeave: any;
 }
 export interface ChatRenderAccessoryState {
-  DialogVisible: boolean;
+  PictureDialogVisible: boolean;
+  LeaveDialogVisible: boolean;
 }
 
 class ChatRenderAccessory extends React.Component<ChatRenderAccessoryProps, ChatRenderAccessoryState> {
   constructor(props: ChatRenderAccessoryProps) {
     super(props);
     this.state = {
-      DialogVisible: false,
+      PictureDialogVisible: false,
+      LeaveDialogVisible: false,
     };
     this.handleImageCamera = this.handleImageCamera.bind(this);
     this.handleImageGallery = this.handleImageGallery.bind(this);
   }
 
-  showDialog = () => {
-    this.setState({ DialogVisible: true });
+  showPictureDialog = () => {
+    this.setState({ PictureDialogVisible: true });
   }
 
+  showLeaveDialog = () => {
+    this.setState({ LeaveDialogVisible: true });
+  }
+
+
   handleDialogCancel = () => {
-    this.setState({ DialogVisible: false });
+    this.setState({ PictureDialogVisible: false, LeaveDialogVisible: false });
   }
 
   showGallery = () => {
@@ -39,28 +47,38 @@ class ChatRenderAccessory extends React.Component<ChatRenderAccessoryProps, Chat
   }
 
   handleImageCamera = () => {
-    this.setState({ DialogVisible: false });
+    this.setState({ PictureDialogVisible: false });
     this.props.onImageCamera();
   }
 
   handleImageGallery = () => {
-    this.setState({ DialogVisible: false});
+    this.setState({ PictureDialogVisible: false});
     this.props.onImageGallery();
+  }
+
+  handleDialogLeave = () => {
+    this.setState({ LeaveDialogVisible: false});
+    this.props.onLeave();
   }
 
   render() {
     return (
       <View style={styles.chatRenderAccessory}>
-        <Button title={"Add a picture"} onPress={this.showDialog} />
-        <Dialog.Container visible={this.state.DialogVisible}>
+        <Button title={"Add a picture"} onPress={this.showPictureDialog} />
+        <Dialog.Container visible={this.state.PictureDialogVisible}>
           <Dialog.Title>Pick a picture from</Dialog.Title>
           <Dialog.Button label="Gallery" onPress={this.handleImageGallery} />
           <Dialog.Button label="Camera" onPress={this.handleImageCamera} />
           <Dialog.Button label="Cancel" onPress={this.handleDialogCancel} />
         </Dialog.Container>
-          {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
+        <Dialog.Container visible={this.state.LeaveDialogVisible}>
+          <Dialog.Title>Are you sure you want to leave this group?</Dialog.Title>
+          <Dialog.Button label="Yes, let me out" onPress={this.handleDialogLeave} />
+          <Dialog.Button label="No, I'm good here" onPress={this.handleDialogCancel} />
+        </Dialog.Container>
         <Button title={"Show gallery"} onPress={this.showGallery}>
         </Button>
+        <Button title={"Leave chat"} onPress={this.showLeaveDialog} />
       </View>
     );
   }
