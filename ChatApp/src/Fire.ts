@@ -230,9 +230,37 @@ export const get_new_chat_messages = (chat_id: string, resolution: string) => {
   });
 };
 
-// retrieve list of images on given chat
-export const chat_images = (chat_id: string, sort?: string) => {
-  return;
+// retrieve list of 'ChatMessage's of all messages with image
+export const chat_images = async (chat_id: string, resolution: string) => {
+  const all_messages = await get_old_chat_messages(chat_id, resolution);
+  const images = await all_messages.filter((element: ChatMessage) => {
+    return element.image;
+  });
+  return images;
+};
+
+export interface GalleryImage {
+  image: string;
+  created: string;
+  author: string;
+  label: string;
+}
+
+export const get_gallery_images = async (chat_id: string, resolution: string) => {
+  const image_messages = await chat_images(chat_id, resolution);
+  // We basically change the array type here, removeing all unneeded data.
+  await Promise.all(image_messages.map(async (elem) => {
+    const image_path = await image_get_raw(elem.image, resolution);
+    let label: string;
+    const item: GalleryImage = {
+      image: image_path,
+      created: elem.createdAt,
+      author: elem.author,
+      label: elem.label,
+    };
+    return item;
+  }));
+  return image_messages;
 };
 
 // get image with given resolution
