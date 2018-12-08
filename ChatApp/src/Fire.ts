@@ -63,8 +63,9 @@ export const chat_create = (name: string, uid: string) => {
   let updates = {};
   // Add
   updates[`/chats/${new_key}/`] = postData;
-  updates[`/members/${new_key}/${uid}`] = true;
-  return fb_db.ref.update(updates);
+  updates[`/members/${new_key}/${uid}/member`] = true;
+  console.log(updates);
+  return [fb_db.ref.update(updates), updates];
 };
 
 // Add new user to chatroom
@@ -437,7 +438,7 @@ export const active_chats = () => {
         });
         resolve(results);
       });
-  });
+    });
 };
 
 export const get_chat_details = (chats_list: Array<string>) => {

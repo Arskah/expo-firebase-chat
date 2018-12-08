@@ -34,6 +34,7 @@
     "react-native-image-picker": "^0.27.1",
     "react-native-keyboard-spacer": "^0.4.1",
     "react-native-path": "0.0.5",
+    "react-native-popup-menu": "^0.14.2",
     "react-native-router-flux": "^4.0.5",
     "react-native-swipe-gestures": "^1.0.3",
     "react-navigation": "2.18.2",

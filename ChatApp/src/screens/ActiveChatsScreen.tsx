@@ -6,6 +6,7 @@ import Layout from "../constants/Layout";
 import { active_chats, get_chat_details } from "../Fire";
 import * as firebase from "firebase";
 import Wallpaper from "../components/Wallpaper";
+import DropdownMenu from "../components/DropdownMenu";
 
 export interface ActiveChatsScreenProps {
   navigation: any;
@@ -115,6 +116,8 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             }
           />
         </View>
+        <DropdownMenu />
+
         </GestureRecognizer>
       </Wallpaper>
     );
