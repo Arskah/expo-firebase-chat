@@ -71,7 +71,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           avatar: response.val().picture,
           resolution: response.val().resolution,
         });
-      
+
         // Load messages before starting the chat in order
         get_old_chat_messages(this.state.chat_id, response.val().resolution)
         .then(messages => {

@@ -166,8 +166,8 @@ export const get_old_chat_messages = async (chat_id: string, resolution: string)
             if (!message.image) {
               messages.push(message);
             } else {
-              console.log("Should call?")
-              let promise = image_get_raw(message.image,resolution)
+              console.log("Should call?");
+              let promise = image_get_raw(message.image, resolution)
               .then(image => {
                 message.image = image;
                 messages.push(message);
@@ -239,23 +239,23 @@ export const image_get_raw = async (image_path: string, resolution: string) => {
 
   console.log("Image get ", image_path, " ", resolution);
   if (image_path.startsWith("chat_pictures")) {
-    if (resolution === "full"){
+    if (resolution === "full") {
       return firebase.storage().ref(image_path).getDownloadURL();
-    } else if (resolution === "high"){
-      if (path.basename(image_path) === "full"){
+    } else if (resolution === "high") {
+      if (path.basename(image_path) === "full") {
         return firebase.storage().ref(image_path).parent.child("HIGH").getDownloadURL();
       } else {
         return firebase.storage().ref(image_path).getDownloadURL();
-      } 
-    } else { //resolution === "low"
-      if (path.basename(image_path) === "low"){
+      }
+    } else { // resolution === "low"
+      if (path.basename(image_path) === "low") {
         return firebase.storage().ref(image_path).getDownloadURL();
       } else {
         return firebase.storage().ref(image_path).parent.child("LOW").getDownloadURL();
       }
     }
     // return firebase.storage().ref(image_path).parent.child("high").getDownloadURL();
-    
+
    }
    return image_path;
 };
