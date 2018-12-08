@@ -173,23 +173,28 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             avatar: this.state.avatar,
           };
 
-          let message: ChatMessage = {
+          let messageLocal: ChatMessage = {
             _id: new_key,
             createdAt: new Date(),
             user: user,
             image: resized_uri,
           };
           let messages = [];
-          messages.push(message);
+          messages.push(messageLocal);
           this.setState(previousState => ({
             messages: GiftedChat.append(previousState.messages, messages),
           }));
 
           const url = await image_upload_chat(this.state.chat_id, resized_uri, this.state.resolution);
 
-          message.image = url;
+          let messageServer: ChatMessage = {
+            _id: new_key,
+            createdAt: new Date(),
+            user: user,
+            image: url,
+          };
 
-          chat_send(this.state.chat_id, message)
+          chat_send(this.state.chat_id, messageServer)
           .catch(error => console.log(error));
         }
       } else {
@@ -217,23 +222,28 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         avatar: this.state.avatar,
       };
 
-      let message: ChatMessage = {
+      let messageLocal: ChatMessage = {
         _id: new_key,
         createdAt: new Date(),
         user: user,
         image: resized_uri,
       };
       let messages = [];
-      messages.push(message);
+      messages.push(messageLocal);
       this.setState(previousState => ({
         messages: GiftedChat.append(previousState.messages, messages),
       }));
 
       const url = await image_upload_chat(this.state.chat_id, resized_uri, this.state.resolution);
 
-      message.image = url;
+      let messageServer: ChatMessage = {
+        _id: new_key,
+        createdAt: new Date(),
+        user: user,
+        image: url,
+      };
 
-      chat_send(this.state.chat_id, message)
+      chat_send(this.state.chat_id, messageServer)
       .catch(error => console.log(error));
     }
   }
