@@ -5,7 +5,6 @@ import Layout from "../constants/Layout";
 import { Menu, MenuProvider, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import { withNavigation } from "react-navigation";
 import firebase from "firebase";
-import { chat_create } from "../Fire";
 import CreateChatDialog from "./CreateChatDialog";
 
 export interface DropdownMenuProps {
@@ -22,8 +21,21 @@ class DropdownMenu extends React.Component<DropdownMenuProps, DropdownMenuState>
       dialogVisible: false,
     };
   }
+
+  isMounted = false;
+
+  componentDidMount() {
+    this.isMounted = true;
+  }
+
+  componentWillUnmount() {
+    this.isMounted = false;
+  }
+
   handleCancel = () =>  {
-    this.setState({dialogVisible: false});
+    if (this.isMounted) {
+      this.setState({dialogVisible: false});
+    }
   }
 
   handleOnPress = (value) => {
@@ -34,12 +46,9 @@ class DropdownMenu extends React.Component<DropdownMenuProps, DropdownMenuState>
         // An error happened.
       });
     }
-
     if (value === "createChat") {
       this.setState({dialogVisible: true});
     }
-
-    // this.navigation.navigate()
   }
 
   render() {

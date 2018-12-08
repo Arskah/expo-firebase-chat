@@ -16,7 +16,6 @@ export interface ActiveChatsScreenState {
   displayname: string;
   activeChatsList: object;
   titles_lastMessages: Array<object>;
-  render: string;
 }
 
 export default class ActiveChatsScreen extends React.Component<ActiveChatsScreenProps, ActiveChatsScreenState> {
@@ -27,7 +26,6 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
       displayname: "",
       activeChatsList: undefined,
       titles_lastMessages: undefined,
-      render: "",
       };
   }
 
@@ -89,9 +87,6 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
 
   onSwipeRight() {
     this.props.navigation.navigate("SettingsScreen");
-  }
-  reRender() {
-    this.setState({render: "render"});
   }
 
   render() {

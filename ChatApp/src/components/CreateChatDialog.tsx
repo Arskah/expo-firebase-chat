@@ -1,12 +1,14 @@
 import * as React from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert} from "react-native";
+import { View, Text, StyleSheet, Alert} from "react-native";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
+import { withNavigation } from "react-navigation";
 import Dialog from "react-native-dialog";
 import firebase from "firebase";
 import { chat_create } from "../Fire";
 
 export interface CreateChatDialogProps {
+  navigation: any;
   dialogVisible: boolean;
   handleCancel: any;
 }
@@ -29,10 +31,13 @@ class CreateChatDialog extends React.Component<CreateChatDialogProps, CreateChat
 
   createPressed = () => {
     let uid = firebase.auth().currentUser.uid;
-    let this_ = this;
-    chat_create(this.chatTitle, uid).then(function () {
+    let createdPromise, new_chat;
+    [createdPromise, new_chat] = chat_create(this.chatTitle, uid);
+    createdPromise.then(() => {
       Alert.alert("Chat", "Chat created successfully");
-      this_.props.handleCancel();
+      this.props.handleCancel();
+      let tmp_chat_id = Object.keys(new_chat)[0].split("/")[2];
+      this.props.navigation.navigate("ChatScreen", {chat_id: tmp_chat_id});
     });
   }
 
@@ -67,4 +72,4 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
 });
-export default CreateChatDialog;
+export default withNavigation(CreateChatDialog);

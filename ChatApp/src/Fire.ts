@@ -62,7 +62,7 @@ export const chat_create = (name: string, uid: string) => {
   updates[`/chats/${new_key}/`] = postData;
   updates[`/members/${new_key}/${uid}/member`] = true;
   console.log(updates);
-  return fb_db.ref.update(updates);
+  return [fb_db.ref.update(updates), updates];
 };
 
 // Add new user to chatroom
