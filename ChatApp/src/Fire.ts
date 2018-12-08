@@ -3,7 +3,6 @@ import { Alert } from "react-native";
 import { ENV } from "../environment";
 import { Permissions, Notifications } from "expo";
 import { SystemMessage } from "react-native-gifted-chat";
-import path from "react-native-path";
 
 /*
   - /chats/
