@@ -5,7 +5,14 @@ import {tmpdir} from 'os';
 import {join, dirname, basename} from 'path';
 import * as sharp from "sharp";
 import * as fs from "fs-extra";
-const gcs = require("@google-cloud/storage");
+const {Storage} = require("@google-cloud/storage");
+const gcs = new Storage();
+
+const HIGH_WIDTH = 1280;
+const HIGH_HEIGHT = 960;
+const LOW_WIDTH = 640;
+const LOW_HEIGHT = 480;
+
 initializeApp();
 
 
@@ -180,15 +187,29 @@ exports.newChatImage = functions.storage.object().onFinalize( async object => {
   const filePath = object.name;
   const fileName = basename(filePath);
   const bucketDir = dirname(filePath);
+  console.log(basename(bucketDir));
 
-  console.log("Filename is: ",fileName);
-  const workingDir = join(tmpdir(),'images');
-  const tmpFilePath = join(workingDir, 'source.png');
-
-  if(!object.contentType.includes("image") || fileName.includes("resized-")) {
-    console.log("exiting");
+  //console.log("Filename is: ",filePath);
+  if(fileName === "low") {
+    console.log("Already created low");
+    return;
+  } else if (fileName === "LOW") {
+    console.log("Already created LOW");
+    return;
+  } else if (fileName === "HIGH") {
+    console.log("Already created HIGH");
     return;
   }
+
+  console.log("This shouldn't be low, LOW or HIGH: ",fileName);
+
+  if(!object.contentType.includes("image")) {
+    console.log("exiting because not an image");
+    return;
+  }
+
+  const workingDir = join(tmpdir(),'images');
+  const tmpFilePath = join(workingDir, basename(bucketDir));
 
   await fs.ensureDir(workingDir);
 
@@ -196,23 +217,36 @@ exports.newChatImage = functions.storage.object().onFinalize( async object => {
     destination: tmpFilePath
   });
 
-  const sizes = [[640,480],[1280,960]]
+  let sizes = [{width:LOW_WIDTH, height:LOW_HEIGHT, name: "LOW"},{width:HIGH_WIDTH, height:HIGH_HEIGHT, name: "HIGH"}];
+  if(fileName === "high"){
+    sizes = [{width:LOW_WIDTH, height:LOW_HEIGHT, name: "LOW"}];
+  }
 
-  const uploadPromises = sizes.map(async (width,height) => {
+  const uploadPromises = sizes.map(async size => {
 
-    const resizedName = `resized-${width}_${fileName}`;
+    const resizedName = size.name;
     const resizedPath = join(workingDir, resizedName);
     
-    await sharp(resizedPath)
-      .resize(width, height)
+    await sharp(tmpFilePath)
+      .resize(size.width, size.height,{
+        fit: 'inside',
+      })
       .toFile(resizedPath);
 
     return bucket.upload(resizedPath, {
-      destination: join(bucketDir, resizedName)
+      destination: join(bucketDir, resizedName),
+      metadata: {
+        contentType: object.contentType,
+      }
     });
   });
 
   await Promise.all(uploadPromises);
-  return fs.remove(workingDir);
+  fs.remove(workingDir)
+  .then(() => {
+    console.log("Removed succesfully");
+    return;
+  })
+
 
 });

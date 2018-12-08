@@ -63,7 +63,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         value = user.email;
         method = "email";
       }
-      get_user(value, method)
+      const userPromise = get_user(value, method)
       .then((response: firebase.database.DataSnapshot) => {
         this.setState({
           displayName: response.val().displayName,
@@ -71,23 +71,24 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           avatar: response.val().picture,
           resolution: response.val().resolution,
         });
-      });
-      // Load messages before starting the chat in order
-      get_old_chat_messages(this.state.chat_id)
-      .then(messages => {
-        if (messages) {
-          this.setState({messages: messages.sort(this.sortByDate)});
-        }
-      });
+      
+        // Load messages before starting the chat in order
+        get_old_chat_messages(this.state.chat_id, response.val().resolution)
+        .then(messages => {
+          if (messages) {
+            this.setState({messages: messages.sort(this.sortByDate)});
+          }
+        });
 
       // Load only messages that have come after the creation of start_key
-      get_new_chat_messages(this.state.chat_id, this.state.messages)
-      .then(new_messages => {
-        if (this.state.messages.findIndex(m => m._id === new_messages[0]._id) === -1) {
-          this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, new_messages).sort(this.sortByDate),
-          }));
-        }
+        get_new_chat_messages(this.state.chat_id, response.val().resolution)
+        .then(new_messages => {
+          if (this.state.messages.findIndex(m => m._id === new_messages[0]._id) === -1) {
+            this.setState(previousState => ({
+              messages: GiftedChat.append(previousState.messages, new_messages).sort(this.sortByDate),
+            }));
+          }
+        });
       });
 
     } else {
