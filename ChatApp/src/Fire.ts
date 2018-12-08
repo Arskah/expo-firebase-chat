@@ -418,7 +418,7 @@ export const get_user_by_email = (email: string) => {
     firebase.database().ref().child("users").orderByChild("email")
       .equalTo(email).on("value", (snapshot) => {
         snapshot.forEach((data) => {
-          resolve(data.val());
+          resolve(data);
         });
         resolve(undefined);
     });

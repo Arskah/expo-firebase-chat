@@ -8,6 +8,7 @@ import LoginScreen from "./screens/LoginScreen";
 import ChatScreen from "./screens/ChatScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import ActiveChatsScreen from "./screens/ActiveChatsScreen";
+import GalleryScreen from "./screens/GalleryScreen";
 import { init } from "./Fire";
 
 // Initialize Firebase
@@ -23,6 +24,7 @@ const App = createSwitchNavigator(
     ChatScreen,
     SettingsScreen,
     ActiveChatsScreen,
+    GalleryScreen,
   },
   {
     initialRouteName: "LandingScreen",
