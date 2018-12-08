@@ -5,6 +5,7 @@ import {tmpdir} from 'os';
 import {join, dirname, basename} from 'path';
 import * as sharp from "sharp";
 import * as fs from "fs-extra";
+
 const {Storage} = require("@google-cloud/storage");
 const gcs = new Storage();
 
@@ -103,7 +104,7 @@ type PushMessage = {
   channelId?: string
 }
 
-export const send_push = (title: string, message: string, data: Object, tokens: string[]) => {
+const send_push = (title: string, message: string, data: Object, tokens: string[]) => {
   tokens.forEach(token => {
     const push: PushMessage = {
       to: token,
@@ -116,74 +117,56 @@ export const send_push = (title: string, message: string, data: Object, tokens: 
   });
 }
 
-export const get_chat = async (chat_id: string) => {
-  return new Promise<database.DataSnapshot>((resolve, reject) => {
-    database().ref(`chats/${chat_id}`).orderByKey().on("value", (snapshot) => {
-      resolve(snapshot);
-    })
-  });
+const get_chat = (chat_id: string) => {
+  return database().ref(`chats/${chat_id}`).orderByKey().once("value");
 }
 
-export const get_chat_members = async (chat_id: string) => {
-  return new Promise<database.DataSnapshot>((resolve, reject) => {
-    database().ref(`members/${chat_id}`).orderByKey().on("value", (snapshot) => {
-      resolve(snapshot);
-    });
-  });
+const get_chat_members = (chat_id: string) => {
+  return database().ref(`members/${chat_id}`).orderByKey().once("value");
 }
 
-export const get_chat_push_tokens = (chat_id: string, sender_id: string) => {
-  return new Promise<Array<string>>((resolve, reject) => {
-    get_chat_members(chat_id)
-    .then((members: database.DataSnapshot) => {
-      const tokens: string[] = [];
-      members.forEach((data) => {
-        database().ref(`push_keys/${data.key}`).on("value", (snapshot_tokens: database.DataSnapshot) => {
-          snapshot_tokens.forEach((data_push) => {
-            console.info(data_push.val().token);
-            console.info(sender_id);
-            if (data_push.val() !== sender_id) {
-              tokens.push(data_push.val().token);
-            }
-            // Next line is just to please Typescript
-            return false;
-          });
-          console.info(tokens);
-          resolve(tokens);
-        });
-      // Next line is just to please Typescript
-      return false;
-      });
-    })
-    .catch((err) => {
-      reject(err);
+const get_push_keys_of_user = (key: string) => {
+  return database().ref(`/push_keys/${key}`).orderByKey().once("value");
+}
+
+const send_push_notification = async (text: string, sender_id: string, chat_id: string) => {
+  // Get chat title
+  const chat = await get_chat(chat_id);
+  const chat_name: string = chat.val().title;
+  // Get tokens for the push notification
+  const chat_members = await get_chat_members(chat_id);
+  const tokens: Promise<any>[] = [];
+  chat_members.forEach((member: database.DataSnapshot) => {
+    if (member.key !== sender_id) {
+      tokens.push(get_push_keys_of_user(member.key));
+    };
+    return false;
     });
-  });
-};
+
+  Promise.all(tokens).then((resolved_tokens: database.DataSnapshot[]) => {
+    const token_strings: string[] = [];
+    for (let i = 0; i < resolved_tokens.length; i++) {
+      const obj = resolved_tokens[i].val();
+      if (obj) {
+        for (const key of Object.keys(obj)) {
+          token_strings.push(obj[key].token);
+        }
+      }
+    }
+    send_push(chat_name, text, {}, token_strings);
+  }).catch((err) => console.error(err));
+}
 
 exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
-.onCreate((snapshot, context) => {
-  // Get an object representing the document
-  const message = snapshot.val();
-  // We have either text or images, so...
-  const text = message.text ? message.text: "New image";
-  const sender_id = message.user.auth_id;
-  console.error(sender_id);
-  get_chat(context.params.chat_id).then((chat: database.DataSnapshot) => {
-    const chat_name = chat.val().title;
-    get_chat_push_tokens(context.params.chat_id, sender_id).then((tokens: string[]) => {
-      console.info(tokens);
-      send_push(chat_name, text, {}, tokens);
-    })
-    .catch((err) => {
-      console.error("Error in get_chat_push_tokens");
-      console.error(err);
-    });
-  })
-  .catch(err => {
-    console.error(err);
-  })
-  return true;
+  .onCreate((snapshot, context) => {
+    // Get an object representing the document
+    const message = snapshot.val();
+    // We have either text or images, so...
+    const text = message.text ? message.text : "New image";
+    const sender_id = message.user.auth_id;
+    send_push_notification(text, sender_id, context.params.chat_id)
+      .catch((err) => console.error(err));
+    return true;
 });
 
 exports.newChatImage = functions.storage.object().onFinalize( async object => {
