@@ -73,7 +73,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         });
 
         // Load messages before starting the chat in order
-        get_old_chat_messages(this.state.chat_id, response.val().resolution)
+        get_old_chat_messages(this.state.chat_id, response.val().resolution, user.uid)
         .then(messages => {
           if (messages) {
             this.setState({messages: messages.sort(this.sortByDate)});

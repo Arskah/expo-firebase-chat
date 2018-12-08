@@ -64,6 +64,7 @@ export const chat_create = (name: string, uid: string) => {
   // Add
   updates[`/chats/${new_key}/`] = postData;
   updates[`/members/${new_key}/${uid}/member`] = true;
+  updates[`/members/${new_key}/${uid}/added`] = fb_db.ref.child("messages").push().key;
   console.log(updates);
   return [fb_db.ref.update(updates), updates];
 };
@@ -139,49 +140,68 @@ export const chat_leave = (chat_id: string, user_id: string) => {
     system: true,
   };
   let updates = {};
-  updates[`/members/${chat_id}/${user_id}`] = false;
+  updates[`/members/${chat_id}/${user_id}/member`] = false;
   updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
 };
 
-export const get_old_chat_messages = async (chat_id: string, resolution: string) => {
+export const get_old_chat_messages = async (chat_id: string, resolution: string, uid: string) => {
   return new Promise<any[]>((resolve, reject) => {
-    fb_db.ref.child("messages").child(chat_id).once("value", (snapshot) => {
-      let messages = [];
-      /* tslint:disable:no-string-literal */
+    console.log("User id: ",uid)
+    fb_db.ref.child("members").child(chat_id).orderByKey().equalTo(uid).once("value", snapshot =>{
+
       if (!snapshot) {
         resolve(undefined);
       }
-      let promises = [];
-      snapshot.forEach( child => {
-        if (child && child.val() && child.val()["_id"]) {
-          let message: ChatMessage;
-          let systemMessage: SystemMessage;
+      console.log("Snapshot: ",snapshot);
 
-          if (child.val().system) {
-            systemMessage = child.val();
-            messages.push(systemMessage);
-          } else {
-            message = child.val();
-            if (!message.image) {
-              messages.push(message);
-            } else {
-              console.log("Should call?");
-              let promise = image_get_raw(message.image, resolution)
-              .then(image => {
-                message.image = image;
-                messages.push(message);
-              });
-              promises.push(promise);
-            }
-          }
+      snapshot.forEach( child => {
+        let start_key;
+        if(child && child.val() && child.val().added){
+          start_key = child.val().added;
+
+        } else {
+          start_key = fb_db.ref.child("messages").push().key;
         }
-        /* tslint:enable:no-string-literal */
-      });
-      Promise.all(promises)
-      .then(() => {
-        resolve(messages);
+
+        fb_db.ref.child("messages").child(chat_id).orderByKey().startAt(start_key).once("value", (snapshot) => {
+          let messages = [];
+          /* tslint:disable:no-string-literal */
+          if (!snapshot) {
+            resolve(undefined);
+          }
+          let promises = [];
+          snapshot.forEach( child => {
+            if (child && child.val() && child.val()["_id"]) {
+              let message: ChatMessage;
+              let systemMessage: SystemMessage;
+
+              if (child.val().system) {
+                systemMessage = child.val();
+                messages.push(systemMessage);
+              } else {
+                message = child.val();
+                if (!message.image) {
+                  messages.push(message);
+                } else {
+                  console.log("Should call?");
+                  let promise = image_get_raw(message.image, resolution)
+                  .then(image => {
+                    message.image = image;
+                    messages.push(message);
+                  });
+                  promises.push(promise);
+                }
+              }
+            }
+            /* tslint:enable:no-string-literal */
+          });
+          Promise.all(promises)
+          .then(() => {
+            resolve(messages);
+          });
+        });
       });
     });
   });
@@ -334,7 +354,7 @@ export const user_create = (username: string, email: string, password: string) =
             // TODO: Not sure if .on() is the correct method...
             // If we see missing chatrooms after new chat room creation this may be the issue
             fb_db.ref.child("chats").on("value", (snapshot) => {
-              updates["members/" + snapshot.key + `/${user.user.uid}`] = false;
+              updates["members/" + snapshot.key + `/${user.user.uid}/member`] = false;
             });
             fb_db.ref.update(updates);
             update_user(username, user.user);
