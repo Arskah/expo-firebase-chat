@@ -80,7 +80,6 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
   }
 
   handleOnPress = (chat_id) => {
-    console.log(chat_id);
     this.props.navigation.navigate("ChatScreen", {chat_id: chat_id});
   }
 

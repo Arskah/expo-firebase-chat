@@ -207,7 +207,6 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
         if (this.state.image !== this.state.mutable_image) {
           image_upload_profile(this.state.id, this.state.mutable_image)
           .then(res => {
-            console.log("Image upload returned url: " + res);
             this.setState({
               image: this.state.mutable_image,
             });

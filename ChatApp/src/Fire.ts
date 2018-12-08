@@ -1,8 +1,7 @@
 import firebase, { User } from "firebase";
 import { Alert } from "react-native";
 import { ENV } from "../environment";
-import { FileSystem } from "expo";
-import { array } from "prop-types";
+import { Permissions, Notifications } from "expo";
 import { SystemMessage } from "react-native-gifted-chat";
 import path from "react-native-path";
 
@@ -27,6 +26,10 @@ import path from "react-native-path";
       - message_id
         - author (displayName)
         - message
+  - /push_keys/
+    - user_id
+      - token
+      - token...
 */
 
 let fb_app: firebase.app.App;
@@ -91,6 +94,7 @@ export interface ChatMessage {
 
 export interface UserChatMessage {
   _id: string,
+  auth_id: string,
   name: string,
   avatar?: string,
 }
@@ -140,7 +144,7 @@ export const chat_leave = (chat_id: string, user_id: string) => {
   return fb_db.ref.update(updates);
 };
 
-export const get_old_chat_messages = async (chat_id: string) => {
+export const get_old_chat_messages = async (chat_id: string, resolution: string) => {
   return new Promise<any[]>((resolve, reject) => {
     fb_db.ref.child("messages").child(chat_id).once("value", (snapshot) => {
       let messages = [];
@@ -162,7 +166,8 @@ export const get_old_chat_messages = async (chat_id: string) => {
             if (!message.image) {
               messages.push(message);
             } else {
-              let promise = image_get(message.image)
+              console.log("Should call?");
+              let promise = image_get_raw(message.image, resolution)
               .then(image => {
                 message.image = image;
                 messages.push(message);
@@ -181,7 +186,7 @@ export const get_old_chat_messages = async (chat_id: string) => {
   });
 };
 
-export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessage]) => {
+export const get_new_chat_messages = (chat_id: string, resolution: string) => {
   return new Promise<any[]>((resolve, reject) => {
     let start_key = get_new_key("messages");
     fb_db.ref.child("messages").child(chat_id).orderByKey().startAt(start_key).on("child_added", (child) => {
@@ -206,7 +211,7 @@ export const get_new_chat_messages = (chat_id: string, old_messages: [ChatMessag
                 message.user.avatar = response.val().picture;
               }
               if (message.image) {
-                image_get(message.image)
+                image_get_raw(message.image, resolution)
                 .then(image => {
                   message.image = image;
                   messages.push(message);
@@ -230,8 +235,29 @@ export const chat_images = (chat_id: string, sort?: string) => {
 };
 
 // get image with given resolution
-export const image_get_raw = (image_path: string, resolution: string) => {
-  return;
+export const image_get_raw = async (image_path: string, resolution: string) => {
+
+  console.log("Image get ", image_path, " ", resolution);
+  if (image_path.startsWith("chat_pictures")) {
+    if (resolution === "full") {
+      return firebase.storage().ref(image_path).getDownloadURL();
+    } else if (resolution === "high") {
+      if (path.basename(image_path) === "full") {
+        return firebase.storage().ref(image_path).parent.child("HIGH").getDownloadURL();
+      } else {
+        return firebase.storage().ref(image_path).getDownloadURL();
+      }
+    } else { // resolution === "low"
+      if (path.basename(image_path) === "low") {
+        return firebase.storage().ref(image_path).getDownloadURL();
+      } else {
+        return firebase.storage().ref(image_path).parent.child("LOW").getDownloadURL();
+      }
+    }
+    // return firebase.storage().ref(image_path).parent.child("high").getDownloadURL();
+
+   }
+   return image_path;
 };
 
 // same as above but with settings mandated resolution
@@ -239,14 +265,14 @@ export const image_get = async (image_path: string) => {
   // console.log("Image get was called");
   // console.log(path.basename(image_path))
   if (image_path.startsWith("chat_pictures")) {
-    return firebase.storage().ref(image_path).parent.child("high").getDownloadURL();
+   // return firebase.storage().ref(image_path).parent.child("high").getDownloadURL();
+   return firebase.storage().ref(image_path).getDownloadURL();
   }
   return image_path;
 };
 
 // upload image to firebase => get image url
 export const image_upload = async (image_path: string, folder: string, name: string) => {
-
   const blob = await urlToBlob(image_path);
   const ref = firebase.storage().ref(folder).child(name);
   const result = await ref.put(blob);
@@ -285,7 +311,6 @@ export const user_create = (username: string, email: string, password: string) =
   get_user(username)
   .then((user_profile) => {
     // Check if username is free
-    console.log(user_profile);
     if (!user_profile) {
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .catch((error) => {
@@ -293,7 +318,6 @@ export const user_create = (username: string, email: string, password: string) =
           Alert.alert(errorMessage);
         })
         .then((user) => {
-          console.log(user);
           if (user) {
             // Create userprofile on authentication success
             let postData = {
@@ -313,6 +337,7 @@ export const user_create = (username: string, email: string, password: string) =
             });
             fb_db.ref.update(updates);
             update_user(username, user.user);
+            update_expo_push_notification(user.user.uid);
           }
         });
     } else {
@@ -363,6 +388,12 @@ export const user_login_email = (email: string, passwd: string) => {
       // let errorCode = error.code;
       const errorMessage = error.message;
       Alert.alert(errorMessage);
+    })
+    .then((user) => {
+      // Make sure push notifications are saved for the logged in user
+      if (user) {
+        update_expo_push_notification(user.user.uid);
+      }
     });
 };
 
@@ -441,3 +472,43 @@ export const profile_picture_set = () => {
 // -------------
 // DISPLAY_NAME
 // RESOLUTION
+
+// Expo push notification token. We save them (if using multiple devices) with firebase.User.user.uid in to /push_keys/
+export const update_expo_push_notification = async (user_id: string) => {
+  const { status: existingStatus } = await Permissions.getAsync(
+    Permissions.NOTIFICATIONS,
+  );
+  let finalStatus = existingStatus;
+  // only ask if permissions have not already been determined, because
+  // iOS won't necessarily prompt the user a second time.
+  if (existingStatus !== "granted") {
+    // Android remote notification permissions are granted during the app
+    // install, so this will only ask on iOS
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    finalStatus = status;
+  }
+  // Stop here if the user did not grant permissions
+  if (finalStatus !== "granted") {
+    return;
+  }
+  // Get the token that uniquely identifies this device
+  let token = await Notifications.getExpoPushTokenAsync();
+  let postData = {
+    token: token,
+  };
+  // Firebase does not allow [] characters... So we encode the keys
+  let encoded_key = encode_push_key(token);
+  let updates = {};
+  updates[`/push_keys/${user_id}/${encoded_key}`] = postData;
+  return fb_db.ref.update(updates);
+};
+
+// Assume every key starts with ExponentPushToken[ and ends in ]. We just parse these.
+const encode_push_key = (decoded: string) => {
+  let regex = /ExponentPushToken\[(.*)\]/;
+  return decoded.match(regex)[1];
+};
+
+const decode_push_key = (encoded: string) => {
+  return "ExponentPushToken[".concat(encoded).concat("]");
+};
