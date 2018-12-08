@@ -6,6 +6,11 @@ import {join, dirname, basename} from 'path';
 import * as sharp from "sharp";
 import * as fs from "fs-extra";
 
+// Imports the Google Cloud client library
+const vision = require('@google-cloud/vision');
+// Creates a client
+const client = new vision.ImageAnnotatorClient();
+
 const {Storage} = require("@google-cloud/storage");
 const gcs = new Storage();
 
@@ -238,3 +243,29 @@ exports.newChatImage = functions.storage.object().onFinalize( async object => {
 
 
 });
+
+exports.NewImageLabel = functions.storage.object().onFinalize(async object => {
+
+  const bucket = gcs.bucket(object.bucket);
+  const filePath = object.name;
+  const fileName = basename(filePath);
+  const bucketDir = dirname(filePath);
+  console.log(basename(bucketDir));
+
+  // Performs label detection on the image file
+  client
+    .labelDetection(filePath)
+    .then(results => {
+      const labels = results[0].labelAnnotations;
+
+      console.log('Labels:');
+      labels.forEach(label => console.log(label.description));
+    })
+    .catch(err => {
+      console.error('ERROR:', err);
+    });
+});
+
+
+
+
