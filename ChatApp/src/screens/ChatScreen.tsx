@@ -1,5 +1,5 @@
-import React, { Children } from "react";
-import { ImageStyle, View, Platform, Text, Button, Alert, BackHandler} from "react-native";
+import React from "react";
+import { View, Platform, Button, Alert, BackHandler} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
 import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key } from "../Fire";
@@ -7,6 +7,7 @@ import { image_upload_chat, get_old_chat_messages, get_new_chat_messages } from 
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions, ImageManipulator } from "expo";
+import ChatRenderAccessory from "../components/ChatRenderAccessory";
 
 const HIGH_WIDTH = 1280;
 const HIGH_HEIGHT = 960;
@@ -23,7 +24,6 @@ export interface ChatScreenState {
   user_id: string,
   chat_id: string,
   dbref: any,
-  visible: boolean,
   avatar: string,
   resolution: "full" | "high" | "low",
 }
@@ -41,7 +41,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       user_id: undefined,
       chat_id: chat_id,
       dbref: firebase.database().ref("messages").child(chat_id),
-      visible: false,
       avatar: undefined,
       resolution: undefined,
     };
@@ -124,24 +123,24 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       console.log("Didn't resize because resolution was full");
       return uri;
     } else if (this.state.resolution === "high") {
-        if (orig_width > HIGH_WIDTH || orig_height > HIGH_HEIGHT) {
-          let manipResult;
-          if (orig_width / HIGH_WIDTH >= orig_height / HIGH_HEIGHT) {
-            manipResult = await ImageManipulator.manipulate(uri, [{resize: {width: HIGH_WIDTH}}]);
-          } else {
-            manipResult = await ImageManipulator.manipulate(uri, [{resize: {height: HIGH_HEIGHT}}]);
-          }
-          return manipResult.uri;
+      if (orig_width > HIGH_WIDTH || orig_height > HIGH_HEIGHT) {
+        let manipResult;
+        if (orig_width / HIGH_WIDTH >= orig_height / HIGH_HEIGHT) {
+          manipResult = await ImageManipulator.manipulate(uri, [{ resize: { width: HIGH_WIDTH } }]);
         } else {
-          return uri;
+          manipResult = await ImageManipulator.manipulate(uri, [{ resize: { height: HIGH_HEIGHT } }]);
         }
+        return manipResult.uri;
+      } else {
+        return uri;
+      }
     } else {
       if (orig_width > LOW_WIDTH || orig_height > LOW_HEIGHT) {
         let manipResult;
         if (orig_width / LOW_WIDTH >= orig_height / LOW_HEIGHT) {
-          manipResult = await ImageManipulator.manipulate(uri, [{resize: {width: LOW_WIDTH}}]);
+          manipResult = await ImageManipulator.manipulate(uri, [{ resize: { width: LOW_WIDTH } }]);
         } else {
-          manipResult = await ImageManipulator.manipulate(uri, [{resize: {height: LOW_HEIGHT}}]);
+          manipResult = await ImageManipulator.manipulate(uri, [{ resize: { height: LOW_HEIGHT } }]);
         }
         return manipResult.uri;
       } else {
@@ -149,9 +148,9 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       }
     }
   }
+
   /* tslint:disable:no-shadowed-variable */
   pickFromCamera = async () => {
-    this.setState({ visible: false});
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
@@ -190,7 +189,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           message.image = url;
 
           chat_send(this.state.chat_id, message)
-          .catch(error => console.log(error));
+            .catch(error => console.log(error));
         }
       } else {
         Alert.alert("You can't take pictures without CAMERA permissions");
@@ -201,7 +200,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   pickFromGallery = async () => {
-    this.setState({ visible: false});
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
     });
@@ -234,16 +232,8 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       message.image = url;
 
       chat_send(this.state.chat_id, message)
-      .catch(error => console.log(error));
+        .catch(error => console.log(error));
     }
-  }
-
-  showDialog = () => {
-    this.setState({ visible: true });
-  }
-
-  handleCancel = () => {
-    this.setState({ visible: false });
   }
 
   renderSystemMessage = (message) => {
@@ -261,18 +251,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             auth_id: firebase.auth().currentUser.uid,
             name: this.state.displayName,
           }}
-          renderAccessory={() => <Button title={"Add a picture"} onPress={this.showDialog}></Button>}
+          renderAccessory={() => <ChatRenderAccessory onImageCamera={this.pickFromCamera} onImageGallery={this.pickFromGallery} />}
           showUserAvatar = {true}
           imageStyle={undefined}
-          // renderSystemMessage={this.renderSystemMessage}
         />
-        <Dialog.Container visible={this.state.visible}>
-          <Dialog.Title>Pick a picture from</Dialog.Title>
-          <Dialog.Button label="Gallery" onPress={this.pickFromGallery} />
-          <Dialog.Button label="Camera" onPress={this.pickFromCamera} />
-          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
-        </Dialog.Container>
-        {Platform.OS === "android" ? <KeyboardSpacer /> : undefined }
       </View>
     );
   }
