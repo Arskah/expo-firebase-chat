@@ -273,7 +273,6 @@ export const image_get = async (image_path: string) => {
 
 // upload image to firebase => get image url
 export const image_upload = async (image_path: string, folder: string, name: string) => {
-
   const blob = await urlToBlob(image_path);
   const ref = firebase.storage().ref(folder).child(name);
   const result = await ref.put(blob);
@@ -505,11 +504,11 @@ export const update_expo_push_notification = async (user_id: string) => {
 };
 
 // Assume every key starts with ExponentPushToken[ and ends in ]. We just parse these.
-export const encode_push_key = (decoded: string) => {
+const encode_push_key = (decoded: string) => {
   let regex = /ExponentPushToken\[(.*)\]/;
   return decoded.match(regex)[1];
 };
 
-export const decode_push_key = (encoded: string) => {
+const decode_push_key = (encoded: string) => {
   return "ExponentPushToken[".concat(encoded).concat("]");
 };
