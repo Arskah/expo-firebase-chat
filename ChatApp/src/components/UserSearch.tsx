@@ -63,6 +63,23 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
     }
   }
 
+  handlePress = async (item) => {
+    if (firebase.auth()){
+      let user = firebase.auth().currentUser;
+      let promise = chat_adduser(item.key, this.state.selectedUser.key, this.state.selectedUser.displayName, user.uid, user.displayName);
+      promise
+      .then(response => {
+        console.log(response);
+        if(!response){
+          Alert.alert("User already in the chat");
+        } else {
+          Alert.alert(`${this.state.selectedUser.displayName} was added to chat ${item.title}`);
+        }
+      })
+    };
+  }
+
+
   render() {
     return (
       <View style={styles.container}>  
@@ -92,12 +109,7 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
             renderItem = {({item}) =>
               <TouchableOpacity
                 style={styles.chatButton}
-                onPress={() => {
-                  if (firebase.auth()){
-                    chat_adduser(item.key, this.state.selectedUser.key, firebase.auth().currentUser.uid)};
-                    Alert.alert(`Added user ${this.state.selectedUser.displayName} to chat ${item.title}`)
-                  }
-                  }> 
+                onPress={() => this.handlePress(item)}> 
                 <Text style={{marginLeft:"auto", marginRight:"auto"}}>{item.title} </Text>
               </TouchableOpacity>
             }
