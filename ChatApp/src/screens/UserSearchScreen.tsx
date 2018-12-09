@@ -3,26 +3,25 @@ import {BackHandler, View} from "react-native";
 import UserSearch from "../components/UserSearch";
 import SignupForm from "../components/SignupForm";
 import Wallpaper from "../components/Wallpaper";
-import { Font, AppLoading } from 'expo'
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'
+import { Font, AppLoading } from "expo";
 import CustomHeader from "../components/CustomHeader";
 
 export interface SignupScreenProps {
   navigation: any
 }
-export interface SignupScreenState { 
+export interface SignupScreenState {
   fonts: boolean
 }
 export default class SignupScreen extends Component<SignupScreenProps, SignupScreenState> {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
-      fonts: false
-    }
+      fonts: false,
+    };
   }
   async componentWillMount() {
-    await Font.loadAsync({"MaterialCommunityIcons": require('@expo/vector-icons/fonts/MaterialCommunityIcons.ttf')}, ) 
-    this.setState({ fonts: true })
+    await Font.loadAsync({"MaterialCommunityIcons": require("@expo/vector-icons/fonts/MaterialCommunityIcons.ttf")} );
+    this.setState({ fonts: true });
   }
 
   componentDidMount() {

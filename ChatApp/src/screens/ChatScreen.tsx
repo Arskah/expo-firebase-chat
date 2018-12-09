@@ -60,13 +60,13 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       loading: true,
       overlayVisible: false,
       selectedAvatar: undefined,
-      selectedName: undefined
+      selectedName: undefined,
     };
   }
 
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", () => {
-      if(!this.state.overlayVisible){
+      if (!this.state.overlayVisible) {
         this.props.navigation.navigate("ActiveChatsScreen");
         return true;
       } else {
@@ -97,9 +97,9 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         get_old_chat_messages(this.state.chat_id, response.val().resolution, user.uid)
         .then(messages => {
           if (messages) {
-            var promises = messages.map(m => update_message_info(m,this.state.chat_id))
+            let promises = messages.map(m => update_message_info(m, this.state.chat_id));
             Promise.all(promises).then(results => {
-              this.setState({messages: results.filter(r => r).sort(this.sortByDate), loading:false});
+              this.setState({messages: results.filter(r => r).sort(this.sortByDate), loading: false});
             });
           }
         });
@@ -108,18 +108,20 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         let start_key = get_new_key("messages");
         fb_db.ref.child("messages").child(this.state.chat_id).orderByKey().startAt(start_key).on("child_added", (child) => {
           /* tslint:disable:no-string-literal */
-          //console.log("Message in new messages: ",child.val());
-          if(child && child.val()){
+          if (child && child.val()) {
             let message_container = [];
             let new_message = child.val();
             if (new_message.system || new_message.user._id !== user.uid) {
               update_message_info(new_message, this.state.chat_id)
               .then(updated_message => {
                 console.log(updated_message);
+                //@ts-ignore
                 if (updated_message.image) {
+                  //@ts-ignore
                   image_get_raw(updated_message.image, this.state.resolution)
                   .then(image => {
                     console.log(image);
+                    //@ts-ignore
                     updated_message.image = image;
                     message_container.push(new_message);
                     this.setState(previousState => ({
@@ -137,7 +139,6 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             }
           }
         });
-        
       });
 
     } else {
@@ -306,21 +307,21 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   render() {
-    if(!this.state.loading){
+    if (!this.state.loading) {
       return (
         <Wallpaper>
         <View style={{flex: 1}}>
         <CustomHeader text={this.state.title} navigation={this.props.navigation} />
-        <Overlay 
+        <Overlay
           isVisible={this.state.overlayVisible}
           width="auto"
           height="auto"
           >
           <Card
-          title={this.state.selectedName} 
-          titleStyle={{fontSize:20, color:"#000"}}
+          title={this.state.selectedName}
+          titleStyle={{fontSize: 20, color: "#000"}}
           image={{uri: this.state.selectedAvatar}}
-          imageStyle={{width:150}}
+          imageStyle={{width: 150}}
           />
         </Overlay>
 
@@ -332,11 +333,11 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
               name: this.state.displayName,
               avatar: this.state.avatar,
             }}
-            renderAccessory={() => 
+            renderAccessory={() =>
               <ChatRenderAccessory
                 onImageCamera={this.pickFromCamera}
                 onImageGallery={this.pickFromGallery}
-                chat_id={this.state.chat_id} 
+                chat_id={this.state.chat_id}
                 onLeave={this.leaveChat}
                 />}
             showUserAvatar = {true}
@@ -346,7 +347,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
                 selectedAvatar: user.avatar,
                 selectedName: user.name,
                 overlayVisible: true,
-              })
+              });
             }}
           />
           {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
@@ -354,7 +355,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         </Wallpaper>
       );
     } else {
-      return(<LoadingIcon image={loading_image}></LoadingIcon>)
+      return(<LoadingIcon image={loading_image}></LoadingIcon>);
     }
   }
 }

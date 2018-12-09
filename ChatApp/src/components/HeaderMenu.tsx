@@ -1,17 +1,17 @@
 import * as React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
+import {Icon} from "react-native-elements";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 
-export interface HeaderMenuProps {}
+export interface HeaderMenuProps {handlePress: any,}
 export interface HeaderMenuState {}
 
 class HeaderMenu extends React.Component<HeaderMenuProps, HeaderMenuState> {
+
   render() {
     return (
-      <Text style={styles.headerMenu }>
-        Header Menu
-      </Text>
+      <Icon name={"menu"} color={"#fff"} onPress={this.props.handlePress}></Icon>
     );
   }
 }

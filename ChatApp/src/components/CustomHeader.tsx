@@ -5,6 +5,7 @@ import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 import {Font} from "expo";
 import HeaderHome from "../components/HeaderHome";
+import HeaderMenu from "../components/HeaderMenu";
 
 export interface CustomHeaderProps {
   text: string,
@@ -31,11 +32,15 @@ class CustomHeader extends React.Component<CustomHeaderProps, CustomHeaderState>
     this.props.navigation.navigate("ActiveChatsScreen");
   }
 
+  handleMenuPress = () => {
+    this.props.navigation.toggleDrawer();
+  }
+
   render() {
     if (this.state.fonts) {
       return (
         <Header
-          leftComponent={{ icon: 'menu', color: '#fff' }}
+          //leftComponent={<HeaderMenu handlePress={this.handleMenuPress}/>}
           centerComponent={{ text: this.props.text, style: { color: '#fff' } }}
           rightComponent={<HeaderHome handlePress={this.handleHomePress}/>}
         />

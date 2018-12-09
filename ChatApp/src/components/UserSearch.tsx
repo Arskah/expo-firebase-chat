@@ -74,6 +74,7 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
   handlePress = async (item) => {
     if (firebase.auth()){
       let user = firebase.auth().currentUser;
+      //@ts-ignore
       let promise = chat_adduser(item.key, this.state.selectedUser.key, this.state.selectedUser.displayName, user.uid, user.displayName);
       promise
       .then(response => {
@@ -81,6 +82,7 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
         if(!response){
           Alert.alert("User already in the chat");
         } else {
+          //@ts-ignore
           Alert.alert(`${this.state.selectedUser.displayName} was added to chat ${item.title}`);
         }
       })
@@ -104,12 +106,14 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
               <TouchableOpacity
                 style={styles.chatButton}
                 onPress={() => {this.setState({selectedUser: item})}}> 
+                //@ts-ignore
                 <Text> {item.displayName}: {item.email} </Text>
               </TouchableOpacity>
             }
           />
       { this.state.selectedUser !== null && 
       <View>
+      //@ts-ignore
       <Text style={styles.title} >Add {this.state.selectedUser.displayName} to Group</Text>
       <FlatList
             style={{maxHeight:300}}
@@ -118,6 +122,7 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
               <TouchableOpacity
                 style={styles.chatButton}
                 onPress={() => this.handlePress(item)}> 
+                //@ts-ignore
                 <Text style={{marginLeft:"auto", marginRight:"auto"}}>{item.title} </Text>
               </TouchableOpacity>
             }
