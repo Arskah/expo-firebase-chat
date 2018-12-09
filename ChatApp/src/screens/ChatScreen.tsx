@@ -43,7 +43,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   constructor(props: ChatScreenProps) {
     super(props);
     const chat_id = this.props.navigation.getParam("chat_id", undefined);
-    const chat_title = this.props.navigation.getParam("chat_title", undefined);
+    const chat_title = this.props.navigation.getParam("chat_title", "");
     if (!chat_id) {
       this.props.navigation.navigate("ActiveChatsScreen");
     }

@@ -37,7 +37,7 @@ class CreateChatDialog extends React.Component<CreateChatDialogProps, CreateChat
       Alert.alert("Chat", "Chat created successfully");
       this.props.handleCancel();
       let tmp_chat_id = Object.keys(new_chat)[0].split("/")[2];
-      this.props.navigation.navigate("ChatScreen", {chat_id: tmp_chat_id});
+      this.props.navigation.navigate("ChatScreen", {chat_id: tmp_chat_id, chat_title: this.chatTitle});
     });
   }
 
