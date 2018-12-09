@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Platform, Alert, BackHandler, Image, Text} from "react-native";
+import { View, Platform, Alert, BackHandler, Image, Text, Button} from "react-native";
+import { Overlay, Card } from "react-native-elements";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
 import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key, fb_db, image_get_raw, update_expo_push_notification } from "../Fire";
@@ -33,6 +34,9 @@ export interface ChatScreenState {
   avatar: string,
   resolution: "full" | "high" | "low",
   loading: boolean,
+  overlayVisible: boolean,
+  selectedAvatar: string,
+  selectedName: string,
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
@@ -54,13 +58,21 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       avatar: undefined,
       resolution: undefined,
       loading: true,
+      overlayVisible: false,
+      selectedAvatar: undefined,
+      selectedName: undefined
     };
   }
 
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", () => {
-      this.props.navigation.navigate("ActiveChatsScreen");
-      return true;
+      if(!this.state.overlayVisible){
+        this.props.navigation.navigate("ActiveChatsScreen");
+        return true;
+      } else {
+        this.setState({overlayVisible: false});
+        return true;
+      }
     });
     if (firebase.auth()) {
 
@@ -299,6 +311,19 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         <Wallpaper>
         <View style={{flex: 1}}>
         <CustomHeader text={this.state.title} navigation={this.props.navigation} />
+        <Overlay 
+          isVisible={this.state.overlayVisible}
+          width="auto"
+          height="auto"
+          >
+          <Card
+          title={this.state.selectedName} 
+          titleStyle={{fontSize:20, color:"#000"}}
+          image={{uri: this.state.selectedAvatar}}
+          imageStyle={{width:150}}
+          />
+        </Overlay>
+
           <GiftedChat
             messages={this.state.messages}
             onSend={messages => this.onSend(messages)}
@@ -317,7 +342,11 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
             showUserAvatar = {true}
             imageStyle={undefined}
             onPressAvatar={(user) => {
-              Alert.alert(`User: ${user.name}`)
+              this.setState({
+                selectedAvatar: user.avatar,
+                selectedName: user.name,
+                overlayVisible: true,
+              })
             }}
           />
           {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
