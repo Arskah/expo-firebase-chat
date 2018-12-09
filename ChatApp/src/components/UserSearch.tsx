@@ -43,6 +43,7 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
     if (this.state.searchText.length>1){
       user_search(this.state.searchText).then((users)=>{
         this.setState({
+          selectedUser: null,
           users: users,
         })
       })
@@ -64,8 +65,10 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
 
   render() {
     return (
-      <View style={{flex: 1}}>  
+      <View style={styles.container}>  
+      <Text style={styles.title}>Search users</Text>
       <SearchBar
+        style={styles.searchButton}
         onChangeText={(text) => this.setState({searchText:text})}
         onSubmitEditing={this.searchUsers}
         placeholder='Search user'/>
@@ -80,10 +83,11 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
               </TouchableOpacity>
             }
           />
-      { this.state.selectedUser && 
+      { this.state.selectedUser !== null && 
       <View>
-      <Text>Add {this.state.selectedUser ? this.state.selectedUser.displayName: "None"} to Group</Text>
+      <Text style={styles.title} >Add {this.state.selectedUser.displayName} to Group</Text>
       <FlatList
+            style={{maxHeight:300}}
             data = {this.state.availableChats}
             renderItem = {({item}) =>
               <TouchableOpacity
@@ -94,7 +98,7 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
                     Alert.alert(`Added user ${this.state.selectedUser.displayName} to chat ${item.title}`)
                   }
                   }> 
-                <Text>{item.title} </Text>
+                <Text style={{marginLeft:"auto", marginRight:"auto"}}>{item.title} </Text>
               </TouchableOpacity>
             }
           />
@@ -110,10 +114,28 @@ const DEVICE_WIDTH = Layout.window.width;
 const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
+  searchButton: {
+    marginTop: 10,
+    height:60,
+  },
+  container: {
+    marginTop: 20
+  },
+  title: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginTop: 25,
+    marginBottom: 25,
+    fontSize: 16,
+    fontWeight: "bold"
+  },
   chatButton: {
+    marginTop: 16,
     padding: 8,
     fontSize: 14,
     height:40,
+    backgroundColor: "#bb77bb",
+    marginLeft:20,
     width: DEVICE_WIDTH - 50,
     alignItems: "flex-start",
     borderWidth: 1,
