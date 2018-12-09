@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Platform, Button, Alert, BackHandler} from "react-native";
+import { View, Platform, Button, Alert, BackHandler, Image, Text} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
 import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key } from "../Fire";
@@ -8,6 +8,8 @@ import firebase from "firebase";
 import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions, ImageManipulator } from "expo";
 import ChatRenderAccessory from "../components/ChatRenderAccessory";
+import LoadingIcon from "../components/LoadingIcon";
+let loading_image = require("../assets/icons/loading.gif");
 
 const HIGH_WIDTH = 1280;
 const HIGH_HEIGHT = 960;
@@ -27,6 +29,7 @@ export interface ChatScreenState {
   dbref: any,
   avatar: string,
   resolution: "full" | "high" | "low",
+  loading: boolean,
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
@@ -45,6 +48,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       dbref: firebase.database().ref("messages").child(chat_id),
       avatar: undefined,
       resolution: undefined,
+      loading: true,
     };
   }
 
@@ -76,7 +80,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         get_old_chat_messages(this.state.chat_id, response.val().resolution, user.uid)
         .then(messages => {
           if (messages) {
-            this.setState({messages: messages.sort(this.sortByDate)});
+            this.setState({messages: messages.sort(this.sortByDate), loading:false});
           }
         });
 
@@ -257,28 +261,33 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   render() {
-    return (
-      <View style={{flex: 1}}>
-        <GiftedChat
-          messages={this.state.messages}
-          onSend={messages => this.onSend(messages)}
-          user={{
-            _id: this.state.user_id,
-            auth_id: firebase.auth().currentUser.uid,
-            name: this.state.displayName,
-          }}
-          renderAccessory={() => 
-            <ChatRenderAccessory
-              onImageCamera={this.pickFromCamera}
-              onImageGallery={this.pickFromGallery}
-              chat_id={this.state.chat_id} 
-              onLeave={this.leaveChat}
-              />}
-          showUserAvatar = {true}
-          imageStyle={undefined}
-        />
-        {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
-      </View>
-    );
+    if(!this.state.loading){
+      console.log(this.state.loading);
+      return (
+        <View style={{flex: 1}}>
+          <GiftedChat
+            messages={this.state.messages}
+            onSend={messages => this.onSend(messages)}
+            user={{
+              _id: this.state.user_id,
+              auth_id: firebase.auth().currentUser.uid,
+              name: this.state.displayName,
+            }}
+            renderAccessory={() => 
+              <ChatRenderAccessory
+                onImageCamera={this.pickFromCamera}
+                onImageGallery={this.pickFromGallery}
+                chat_id={this.state.chat_id} 
+                onLeave={this.leaveChat}
+                />}
+            showUserAvatar = {true}
+            imageStyle={undefined}
+          />
+          {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
+        </View>
+      );
+    } else {
+      return(<LoadingIcon image={loading_image}></LoadingIcon>)
+    }
   }
 }
