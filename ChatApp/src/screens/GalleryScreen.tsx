@@ -29,7 +29,7 @@ export default class GalleryScreen extends React.Component<GalleryScreenProps, G
 
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", () => {
-      this.props.navigation.navigate("ChatScreen", {chat_id: this.chat_id});
+      this.props.navigation.navigate("ChatScreen", {chat_id: this.chat_id, chat_title: this.props.navigation.getParam("chat_title","")});
       return true;
     });
     if (firebase.auth()) {

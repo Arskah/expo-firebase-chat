@@ -12,6 +12,7 @@ export interface ChatRenderAccessoryProps {
   navigation: any;
   chat_id: string;
   onLeave: any;
+  chat_title: string;
 }
 export interface ChatRenderAccessoryState {
   PictureDialogVisible: boolean;
@@ -43,7 +44,7 @@ class ChatRenderAccessory extends React.Component<ChatRenderAccessoryProps, Chat
   }
 
   showGallery = () => {
-    this.props.navigation.navigate("GalleryScreen", { chat_id: this.props.chat_id });
+    this.props.navigation.navigate("GalleryScreen", { chat_id: this.props.chat_id, chat_title: this.props.chat_title });
   }
 
   handleImageCamera = () => {

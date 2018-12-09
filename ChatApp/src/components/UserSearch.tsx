@@ -106,14 +106,12 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
               <TouchableOpacity
                 style={styles.chatButton}
                 onPress={() => {this.setState({selectedUser: item})}}> 
-                //@ts-ignore
                 <Text> {item.displayName}: {item.email} </Text>
               </TouchableOpacity>
             }
           />
       { this.state.selectedUser !== null && 
       <View>
-      //@ts-ignore
       <Text style={styles.title} >Add {this.state.selectedUser.displayName} to Group</Text>
       <FlatList
             style={{maxHeight:300}}
@@ -122,7 +120,6 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
               <TouchableOpacity
                 style={styles.chatButton}
                 onPress={() => this.handlePress(item)}> 
-                //@ts-ignore
                 <Text style={{marginLeft:"auto", marginRight:"auto"}}>{item.title} </Text>
               </TouchableOpacity>
             }

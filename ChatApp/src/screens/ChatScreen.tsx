@@ -339,6 +339,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
                 onImageGallery={this.pickFromGallery}
                 chat_id={this.state.chat_id}
                 onLeave={this.leaveChat}
+                chat_title={this.state.title}
                 />}
             showUserAvatar = {true}
             imageStyle={undefined}
