@@ -10,6 +10,7 @@ import Layout from "../constants/Layout";
 import firebase, { database } from "firebase";
 import { ImagePicker, Permissions } from "expo";
 import {image_upload_profile, get_user, settings_set, update_user} from "../Fire";
+import CustomHeader from "../components/CustomHeader";
 // import ImagePicker from "react-native-image-picker";
 
 export interface SettingsScreenProps {
@@ -259,6 +260,7 @@ export default class SettingsScreen extends Component<SettingsScreenProps, Setti
             flex: 1,
           }}
       >
+      <CustomHeader text={"Settings"} navigation={this.props.navigation} />
         <KeyboardAvoidingView behavior="padding" style={styles.container}>
           <SettingPicture
             visible={this.state.dialogPictureVisible}

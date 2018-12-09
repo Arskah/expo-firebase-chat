@@ -4,13 +4,15 @@ import {Icon} from "react-native-elements";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 
-export interface HeaderHomeProps {}
+export interface HeaderHomeProps {
+  handlePress: any,
+}
 export interface HeaderHomeState {}
 
 class HeaderHome extends React.Component<HeaderHomeProps, HeaderHomeState> {
   render() {
     return (
-      <Icon name={"home"} color={"#fff"} onPress={() => {Alert.alert("Go home!")}}></Icon>
+      <Icon name={"home"} color={"#fff"} onPress={this.props.handlePress}></Icon>
     );
   }
 }
