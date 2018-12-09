@@ -95,26 +95,29 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           if(child && child.val()){
             let message_container = [];
             let new_message = child.val();
-            update_message_info(new_message, this.state.chat_id)
-            .then(updated_message => {
-              console.log(updated_message);
-              if (updated_message.image) {
-                image_get_raw(updated_message.image, this.state.resolution)
-                .then(image => {
-                  console.log(image);
-                  updated_message.image = image;
+            if (new_message.system || new_message.user._id !== user.uid) {
+              update_message_info(new_message, this.state.chat_id)
+              .then(updated_message => {
+                console.log(updated_message);
+                if (updated_message.image) {
+                  image_get_raw(updated_message.image, this.state.resolution)
+                  .then(image => {
+                    console.log(image);
+                    updated_message.image = image;
+                    message_container.push(new_message);
+                    this.setState(previousState => ({
+                      messages: GiftedChat.append(previousState.messages, message_container).sort(this.sortByDate),
+                    }));
+                  });
+                } else {
                   message_container.push(new_message);
                   this.setState(previousState => ({
                     messages: GiftedChat.append(previousState.messages, message_container).sort(this.sortByDate),
                   }));
-                });
-              } else {
-                message_container.push(new_message);
-                this.setState(previousState => ({
-                  messages: GiftedChat.append(previousState.messages, message_container).sort(this.sortByDate),
-                }));
-              }
-            });
+                }
+
+              });
+            }
           }
         });
         
@@ -297,6 +300,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
               _id: this.state.user_id,
               auth_id: firebase.auth().currentUser.uid,
               name: this.state.displayName,
+              avatar: this.state.avatar,
             }}
             renderAccessory={() => 
               <ChatRenderAccessory
