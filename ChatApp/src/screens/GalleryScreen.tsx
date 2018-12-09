@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
-import { View, Text, StyleSheet, BackHandler, Image, FlatList } from "react-native";
-import { GalleryImage, get_user_by_email, get_gallery_images } from "../Fire";
+import { View, Text, StyleSheet, BackHandler, Image, SectionList, Button } from "react-native";
+import { GalleryImage, get_user_by_email, get_gallery_images, get_user } from "../Fire";
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
 import firebase from "firebase";
@@ -23,7 +23,7 @@ export default class GalleryScreen extends React.Component<GalleryScreenProps, G
     this.state = {
       images: [],
       resolution: undefined,
-      sort: "recent",
+      sort: "author",
     };
   }
 
@@ -34,7 +34,7 @@ export default class GalleryScreen extends React.Component<GalleryScreenProps, G
     });
     if (firebase.auth()) {
       const user = firebase.auth().currentUser;
-      get_user_by_email(user.email)
+      get_user(user.email, "email")
         .then((response: firebase.database.DataSnapshot) => {
           return response.val().resolution;
         })
@@ -59,15 +59,24 @@ export default class GalleryScreen extends React.Component<GalleryScreenProps, G
 
   renderItem({ item }) {
     const image_source = item.image;
-    const text = item.text;
+    // const text = item.text;
     return (
       <View style={styles.list_item}>
         <Image source={{uri: image_source}} style={styles.image}></Image>
-        <Text style={styles.text}>{text}</Text>
       </View>
     );
   }
 
+  arrayToObject = (array, keyField) =>
+    array.reduce((obj, item) => {
+      obj[item[keyField]] = item
+      return obj
+    }, {})
+
+  handleOnPress = (sort_by) => {
+    this.setState({sort: sort_by});
+  }
+    
   render() {
     const { images, resolution, sort } = this.state;
     let image_text: Array<{
@@ -96,43 +105,115 @@ export default class GalleryScreen extends React.Component<GalleryScreenProps, G
         return  {
           key: index.toString(),
           image: elem.image,
-          text: elem.created,
+          text: elem.created.split("T")[0],
         };
       });
     }
+
+    let image_titles = image_text.map(element => {
+       return element.text;
+    });
+
+    let sectionData = image_titles.map(element => {
+      return {title: element, data: []};
+    });
+
+    let sectionDataObj = this.arrayToObject(sectionData, "title");
+    image_text.forEach(element => {
+      if (element){
+        sectionDataObj[element.text].data.push(element);  
+      }
+    });
+    let finalSections = [];
+    Object.keys(sectionDataObj).forEach(function(key) {
+      finalSections.push(sectionDataObj[key]);
+    });
+
+    console.log(finalSections);
     return (
-      <FlatList
-        contentContainerStyle={styles.list}
-        data={image_text}
-        renderItem={this.renderItem}
-      />
+      <View style={styles.container}>
+        <View style={styles.sortButtons}>
+          <Button 
+            style={styles.sortButton}
+            title= {"AUTHOR"}
+            onPress={() => this.handleOnPress("author")}
+          ></Button>
+          <Button
+            style={styles.sortButton}
+            title= {"LABEL"}
+            onPress={() => this.handleOnPress("label")}
+          ></Button>
+          <Button 
+            style={styles.sortButton}
+            title= {"CREATED"}
+            onPress={() => this.handleOnPress("created")}
+          ></Button>
+        </View>
+        <SectionList
+          contentContainerStyle={styles.list}
+          sections={finalSections}
+          renderItem={this.renderItem}
+          renderSectionHeader={({section}) => <Text style={styles.sectionHeader}>
+          {section.title} </Text>}
+        />
+        
+      </View>
     );
   }
 }
 
 const DEVICE_WIDTH = Layout.window.width;
-// const DEVICE_HEIGHT = Layout.window.height;
+const DEVICE_HEIGHT = Layout.window.height;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 22,
+    flexDirection: "column",
+  },
   list_item: {
     flex: 1,
     margin: 5,
-    minWidth: 170,
-    maxWidth: 223,
-    height: 304,
-    maxHeight: 304,
+    alignItems: "center",
+    // minWidth: 170,
+    // maxWidth: 223,
+    // height: 304,
+    // maxHeight: 304,
   },
   list: {
-    justifyContent: "center",
-    flexDirection: "row",
-    // flexWrap: "wrap",
+    // justifyContent: "flex-start",
+    flexDirection: "row" ,
+    alignItems: "stretch",
+    flexWrap: "wrap",
+    paddingTop: 20,
   },
   image: {
-    width: 170,
-    height: 304,
+    width: 150,
+    height: 150,
   },
   text: {
     padding: 20,
     color: Colors.black,
   },
+  sectionHeader: {
+    flex: 1,
+    paddingTop: 2,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingBottom: 2,
+    width: DEVICE_WIDTH,
+    fontSize: 14,
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(247,247,247,1.0)',
+  },
+  sortButton: {
+    width: DEVICE_WIDTH/3,
+    alignSelf: "center",
+
+  },
+  sortButtons: {
+    height: 25,
+    flexDirection: "row",
+    justifyContent: "center",
+  }
 });
