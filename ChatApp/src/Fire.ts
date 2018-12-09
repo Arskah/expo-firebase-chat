@@ -167,7 +167,6 @@ export const get_old_chat_messages = async (chat_id: string, resolution: string)
             if (!message.image) {
               messages.push(message);
             } else {
-              console.log("Should call?");
               let promise = image_get_raw(message.image, resolution)
               .then(image => {
                 message.image = image;
@@ -230,15 +229,46 @@ export const get_new_chat_messages = (chat_id: string, resolution: string) => {
   });
 };
 
-// retrieve list of images on given chat
-export const chat_images = (chat_id: string, sort?: string) => {
-  return;
+// retrieve list of 'ChatMessage's of all messages with image
+export const chat_images = async (chat_id: string, resolution: string) => {
+  const all_messages = await get_old_chat_messages(chat_id, resolution);
+  const images = await all_messages.filter((element: ChatMessage) => {
+    return element.image;
+  });
+  return images;
+};
+
+export interface GalleryImage {
+  image: string;
+  created: string;
+  author: string;
+  label: string;
+}
+
+const get_image_label = async (key: string) => {
+  return firebase.database().ref(`/image_labels/${key}`).once("value");
+};
+
+export const get_gallery_images = async (chat_id: string, resolution: string) => {
+  const image_messages = await chat_images(chat_id, resolution);
+  // We basically change the array type here, removing all unneeded data.
+  const res_images = await image_messages.map(async(elem) => {
+    const label_key = elem.image.slice(elem.image.indexOf("chat_pictures"), elem.image.indexOf("?alt"));
+    const snapshot = await get_image_label(label_key);
+    const item: GalleryImage = {
+      image: elem.image,
+      created: elem.createdAt,
+      author: elem.user.name,
+      label: snapshot.val().description,
+    };
+    return item;
+  });
+  const res = await Promise.all(res_images);
+  return res;
 };
 
 // get image with given resolution
 export const image_get_raw = async (image_path: string, resolution: string) => {
-
-  console.log("Image get ", image_path, " ", resolution);
   if (image_path.startsWith("chat_pictures")) {
     if (resolution === "full") {
       return firebase.storage().ref(image_path).getDownloadURL();
