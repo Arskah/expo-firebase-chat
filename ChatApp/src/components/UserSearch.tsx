@@ -4,6 +4,7 @@ import { BackHandler, FlatList, TouchableOpacity } from "react-native";
 import { SearchBar } from 'react-native-elements';
 import Colors from "../constants/Colors";
 import Layout from "../constants/Layout";
+import {Font} from "expo";
 import { user_search, active_chats, get_chat_details, chat_adduser } from "../Fire";
 import * as firebase from "firebase";
 
@@ -13,7 +14,7 @@ export interface UserSearchState {
   searchText: string,
   users: any,
   selectedUser?: Object
-  availableChats: any
+  availableChats: any,
 }
 
 
@@ -28,6 +29,13 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
       availableChats: [],
     };
   }
+
+  /*
+  async componentWillMount() {
+    await Font.loadAsync({'MaterialIcons': require('@expo/vector-icons/fonts/MaterialIcons.ttf')}) 
+    this.setState({ fonts: true })
+  }*/
+
   chat_details = (chats_list, this_) => {
     let chat_promises = get_chat_details(chats_list);
     Promise.all(chat_promises).then(function (snapshots) {
