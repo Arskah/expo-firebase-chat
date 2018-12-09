@@ -16,7 +16,8 @@ const LOW_HEIGHT = 480;
 
 initializeApp();
 
-
+const GC_URL = "https://vision.googleapis.com/v1/images:annotate";
+const GC_API_QUERY = `?key=${functions.config().gc.key}`;
 const ExpoURL = "https://expo.io/--/api/v2/push/send";
 type PushMessage = {
   /**
@@ -122,7 +123,7 @@ const get_chat = (chat_id: string) => {
 }
 
 const get_chat_members = (chat_id: string) => {
-  return database().ref(`members/${chat_id}`).orderByKey().once("value");
+  return database().ref(`members/${chat_id}`).orderByChild("member").equalTo(true).once("value");
 }
 
 const get_push_keys_of_user = (key: string) => {
@@ -163,7 +164,7 @@ exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
     const message = snapshot.val();
     // We have either text or images, so...
     const text = message.text ? message.text : "New image";
-    const sender_id = message.user.auth_id;
+    const sender_id = message.system ? undefined : message.user.auth_id;
     send_push_notification(text, sender_id, context.params.chat_id)
       .catch((err) => console.error(err));
     return true;
@@ -175,9 +176,7 @@ exports.newChatImage = functions.storage.object().onFinalize( async object => {
   const filePath = object.name;
   const fileName = basename(filePath);
   const bucketDir = dirname(filePath);
-  console.log(basename(bucketDir));
 
-  //console.log("Filename is: ",filePath);
   if(fileName === "low") {
     console.log("Already created low");
     return;
@@ -237,4 +236,60 @@ exports.newChatImage = functions.storage.object().onFinalize( async object => {
   })
 
 
+});
+
+exports.NewImageLabel = functions.storage.object().onFinalize(async object => {
+
+  const bucket = gcs.bucket(object.bucket);
+  const filePath = object.name;
+  const fileName = basename(filePath);
+  const bucketDir = dirname(filePath);
+
+  const workingDir = join(tmpdir(), 'images');
+  const tmpFilePath = join(workingDir, basename(bucketDir));
+
+  await fs.ensureDir(workingDir);
+
+  await bucket.file(filePath).download({
+    destination: tmpFilePath
+  });
+
+  // Read the file into memory.
+  const imageFile = fs.readFileSync(tmpFilePath);
+  // Convert the image data to a Buffer and base64 encode it.
+  // We basically send a cloud function local copy of the file for ML.
+  const encoded = Buffer.from(imageFile).toString('base64');
+
+  const response = await axios.post(GC_URL + GC_API_QUERY, 
+    {
+      requests: [
+        {
+          image: {
+            content: `${encoded}`,
+          },
+          features: [
+            {
+              type: "LABEL_DETECTION",
+              maxResults: 1,
+            }
+          ]
+        }
+      ]
+    }
+  );
+  const label = response.data.responses[0];
+  console.info(label);
+
+  if (label.labelAnnotations && label.labelAnnotations[0]) {
+    const updates = {};
+    updates[`/image_labels/${encodeURIComponent(filePath)}`] = label.labelAnnotations[0];
+    return database().ref().update(updates);
+  } else {
+    // Error
+    console.error("Failed to get response for file")
+  }
+  fs.remove(workingDir)
+    .then(() => {
+      console.log("Removed succesfully");
+    });
 });

@@ -130,16 +130,16 @@ export const chat_send = (chat_id: string, message: ChatMessage) => {
 };
 
 // Leave chatroom
-export const chat_leave = (chat_id: string, user_id: string) => {
+export const chat_leave = (chat_id: string, user_id: string, user_name: string) => {
   let new_key = fb_db.ref.child("messages").push().key;
   let message = {
     _id: new_key,
-    text: `User ${user_id} left`,
+    text: `User ${user_name} left`,
     createdAt: new Date(),
     system: true,
   };
   let updates = {};
-  updates[`/members/${chat_id}/${user_id}`] = false;
+  updates[`/members/${chat_id}/${user_id}/member`] = false;
   updates[`/chats/${chat_id}/lastMessage/`] = message.text;
   updates[`/messages/${chat_id}/${new_key}/`] = message;
   return fb_db.ref.update(updates);
@@ -167,7 +167,6 @@ export const get_old_chat_messages = async (chat_id: string, resolution: string)
             if (!message.image) {
               messages.push(message);
             } else {
-              console.log("Should call?");
               let promise = image_get_raw(message.image, resolution)
               .then(image => {
                 message.image = image;
@@ -230,15 +229,46 @@ export const get_new_chat_messages = (chat_id: string, resolution: string) => {
   });
 };
 
-// retrieve list of images on given chat
-export const chat_images = (chat_id: string, sort?: string) => {
-  return;
+// retrieve list of 'ChatMessage's of all messages with image
+export const chat_images = async (chat_id: string, resolution: string) => {
+  const all_messages = await get_old_chat_messages(chat_id, resolution);
+  const images = await all_messages.filter((element: ChatMessage) => {
+    return element.image;
+  });
+  return images;
+};
+
+export interface GalleryImage {
+  image: string;
+  created: string;
+  author: string;
+  label: string;
+}
+
+const get_image_label = async (key: string) => {
+  return firebase.database().ref(`/image_labels/${key}`).once("value");
+};
+
+export const get_gallery_images = async (chat_id: string, resolution: string) => {
+  const image_messages = await chat_images(chat_id, resolution);
+  // We basically change the array type here, removing all unneeded data.
+  const res_images = await image_messages.map(async(elem) => {
+    const label_key = elem.image.slice(elem.image.indexOf("chat_pictures"), elem.image.indexOf("?alt"));
+    const snapshot = await get_image_label(label_key);
+    const item: GalleryImage = {
+      image: elem.image,
+      created: elem.createdAt,
+      author: elem.user.name,
+      label: snapshot.val().description,
+    };
+    return item;
+  });
+  const res = await Promise.all(res_images);
+  return res;
 };
 
 // get image with given resolution
 export const image_get_raw = async (image_path: string, resolution: string) => {
-
-  console.log("Image get ", image_path, " ", resolution);
   if (image_path.startsWith("chat_pictures")) {
     if (resolution === "full") {
       return firebase.storage().ref(image_path).getDownloadURL();
@@ -334,7 +364,7 @@ export const user_create = (username: string, email: string, password: string) =
             // TODO: Not sure if .on() is the correct method...
             // If we see missing chatrooms after new chat room creation this may be the issue
             fb_db.ref.child("chats").on("value", (snapshot) => {
-              updates["members/" + snapshot.key + `/${user.user.uid}`] = false;
+              updates["members/" + snapshot.key + `/${user.user.uid}/member`] = false;
             });
             fb_db.ref.update(updates);
             update_user(username, user.user);
@@ -418,7 +448,7 @@ export const get_user_by_email = (email: string) => {
     firebase.database().ref().child("users").orderByChild("email")
       .equalTo(email).on("value", (snapshot) => {
         snapshot.forEach((data) => {
-          resolve(data.val());
+          resolve(data);
         });
         resolve(undefined);
     });
