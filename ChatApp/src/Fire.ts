@@ -33,7 +33,7 @@ import path from "react-native-path";
 */
 
 let fb_app: firebase.app.App;
-let fb_db: firebase.database.Reference;
+export let fb_db: firebase.database.Reference;
 let fb_storage: firebase.storage.Reference;
 
 // tslint:disable-next-line:max-line-length
@@ -206,46 +206,35 @@ export const get_old_chat_messages = async (chat_id: string, resolution: string,
   });
 };
 
-export const get_new_chat_messages = (chat_id: string, resolution: string) => {
-  return new Promise<any[]>((resolve, reject) => {
-    let start_key = get_new_key("messages");
-    fb_db.ref.child("messages").child(chat_id).orderByKey().startAt(start_key).on("child_added", (child) => {
-      let messages = [];
-      /* tslint:disable:no-string-literal */
+export const update_message_info = async (msg: any, chat_id: string) => {
+  return new Promise<ChatMessage | SystemMessage>((resolve, reject) => {
+  if(msg.system){
+    resolve(msg);
+  } 
 
-      if (child && child.val() && child.val()["_id"]) {
+  fb_db.ref.child("members").child(chat_id).orderByKey().equalTo(msg.user._id).once("value", snapshot =>{
+    if(!snapshot.exists()){
+      console.log("User doesn't belong to the chat");
+      resolve(undefined);
+    }
+  });
 
-          let message: ChatMessage;
-          let systemMessage: SystemMessage;
-
-          if (child.val().system) {
-            systemMessage = child.val();
-            messages.push(systemMessage);
-            resolve(messages);
-          } else {
-            message = child.val();
-            messages.push(message);
-            get_user(message.user.name)
-            .then((response: firebase.database.DataSnapshot) => {
-              if (response && response.val()) {
-                message.user.avatar = response.val().picture;
-              }
-              if (message.image) {
-                image_get_raw(message.image, resolution)
-                .then(image => {
-                  message.image = image;
-                  messages.push(message);
-                });
-                messages.push(message);
-                resolve(messages);
-              } else {
-                messages.push(message);
-                resolve(messages);
-              }
-            });
-          }
-        }
-    });
+  fb_db.ref.child("users").orderByKey().equalTo(msg.user._id).once("value", snapshot => {
+    if(!snapshot.exists()){
+      console.log("User doesn't exist");
+      resolve(undefined);
+    }
+    if(snapshot.val()){
+      let updated_message: ChatMessage;
+      updated_message = msg;
+      updated_message.user.name = snapshot.val()[msg.user._id].displayName;
+      console.log(snapshot.val()[msg.user._id].picture);
+      updated_message.user.avatar = snapshot.val()[msg.user._id].picture;
+      resolve(updated_message);
+    } else {
+      resolve(undefined);
+    }
+  });
   });
 };
 
@@ -289,6 +278,7 @@ export const get_gallery_images = async (chat_id: string, resolution: string, ui
 
 // get image with given resolution
 export const image_get_raw = async (image_path: string, resolution: string) => {
+  console.log("image get raw got a request");
   if (image_path.startsWith("chat_pictures")) {
     if (resolution === "full") {
       return firebase.storage().ref(image_path).getDownloadURL();
