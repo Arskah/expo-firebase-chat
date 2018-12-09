@@ -80,8 +80,8 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
     });
   }
 
-  handleOnPress = (chat_id) => {
-    this.props.navigation.navigate("ChatScreen", {chat_id: chat_id});
+  handleOnPress = (chat_id, chat_title) => {
+    this.props.navigation.navigate("ChatScreen", {chat_id: chat_id, chat_title: chat_title});
   }
 
   onSwipeRight() {
@@ -109,7 +109,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             renderItem = {({item}) =>
               <TouchableOpacity
                 style={styles.chatButton}
-                onPress={() => this.handleOnPress(item["key"])}>
+                onPress={() => this.handleOnPress(item["key"], item["title"])}>
                 <Text style={styles.titleText}> {item["title"]} {"\n"}</Text>
                 <Text style={styles.lastMessageText}> {item["lastMessage"]} </Text>
               </TouchableOpacity>
