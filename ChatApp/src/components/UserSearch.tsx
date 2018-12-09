@@ -64,7 +64,12 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
 
   render() {
     return (
-      <View style={{flex: 1}}>  
+      <View style={{flex: 1}}>
+      <Header
+      leftComponent={{ icon: 'menu', color: '#fff' }}
+      centerComponent={{ text: 'MY TITLE', style: { color: '#fff' } }}
+      rightComponent={{ icon: 'home', color: '#fff' }}
+    />  
       <SearchBar
         onChangeText={(text) => this.setState({searchText:text})}
         onSubmitEditing={this.searchUsers}

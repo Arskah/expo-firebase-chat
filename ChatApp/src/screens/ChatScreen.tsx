@@ -1,12 +1,13 @@
 import React from "react";
 import { View, Platform, Button, Alert, BackHandler, Image, Text} from "react-native";
+import {Header} from "react-native-elements";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
 import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key, fb_db, image_get_raw, update_expo_push_notification } from "../Fire";
-import { image_upload_chat, get_old_chat_messages, update_message_info, chat_leave } from "../Fire";
+import { image_upload_chat, get_old_chat_messages, update_message_info, chat_leave, get_chat_details } from "../Fire";
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
-import { ImagePicker, Permissions, ImageManipulator } from "expo";
+import { ImagePicker, Permissions, ImageManipulator, Font } from "expo";
 import ChatRenderAccessory from "../components/ChatRenderAccessory";
 import LoadingIcon from "../components/LoadingIcon";
 let loading_image = require("../assets/icons/loading.gif");
@@ -25,17 +26,20 @@ export interface ChatScreenState {
   displayName: string,
   user_id: string,
   chat_id: string,
+  title: string,
   uid: string,
   dbref: any,
   avatar: string,
   resolution: "full" | "high" | "low",
   loading: boolean,
+  fonts: boolean,
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
   constructor(props: ChatScreenProps) {
     super(props);
     const chat_id = this.props.navigation.getParam("chat_id", undefined);
+    const chat_title = this.props.navigation.getParam("chat_title", undefined);
     if (!chat_id) {
       this.props.navigation.navigate("ActiveChatsScreen");
     }
@@ -44,12 +48,19 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       displayName: undefined,
       user_id: undefined,
       chat_id: chat_id,
+      title: chat_title,
       uid: undefined,
       dbref: firebase.database().ref("messages").child(chat_id),
       avatar: undefined,
       resolution: undefined,
       loading: true,
+      fonts: false,
     };
+  }
+
+  async componentWillMount() {
+    await Font.loadAsync({'MaterialIcons': require('@expo/vector-icons/fonts/MaterialIcons.ttf')}) 
+    this.setState({ fonts: true })
   }
 
   componentDidMount() {
@@ -289,16 +300,19 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   render() {
-    if(!this.state.loading){
-      console.log(this.state.loading);
+    if(!this.state.loading && this.state.fonts){
       return (
         <View style={{flex: 1}}>
+        <Header
+          //leftComponent={{ icon: 'menu', color: '#fff' }}
+          centerComponent={{ text: this.state.title, style: { color: '#fff' } }}
+          //rightComponent={{ icon: 'home', color: '#fff' }}
+        />
           <GiftedChat
             messages={this.state.messages}
             onSend={messages => this.onSend(messages)}
             user={{
               _id: this.state.user_id,
-              auth_id: firebase.auth().currentUser.uid,
               name: this.state.displayName,
               avatar: this.state.avatar,
             }}
