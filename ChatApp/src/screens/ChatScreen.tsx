@@ -9,6 +9,7 @@ import { ImagePicker, Permissions, ImageManipulator, Font } from "expo";
 import ChatRenderAccessory from "../components/ChatRenderAccessory";
 import LoadingIcon from "../components/LoadingIcon";
 import CustomHeader from "../components/CustomHeader";
+import Wallpaper from "../components/Wallpaper";
 
 let loading_image = require("../assets/icons/loading.gif");
 
@@ -295,6 +296,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   render() {
     if(!this.state.loading){
       return (
+        <Wallpaper>
         <View style={{flex: 1}}>
         <CustomHeader text={this.state.title} />
           <GiftedChat
@@ -320,6 +322,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           />
           {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
         </View>
+        </Wallpaper>
       );
     } else {
       return(<LoadingIcon image={loading_image}></LoadingIcon>)

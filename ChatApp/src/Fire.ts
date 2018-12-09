@@ -70,20 +70,30 @@ export const chat_create = (name: string, uid: string) => {
 };
 
 // Add new user to chatroom
-export const chat_adduser = (chat_id: string, user_id: string, adder_id: string) => {
-  let new_key = fb_db.ref.child("messages").push().key;
-  let updates = {};
-  let message = {
-    _id: new_key,
-    text: `User ${user_id} was added by ${adder_id}`,
-    createdAt: new Date(),
-    system: true,
-  };
-  updates[`/members/${chat_id}/${user_id}/member`] = true;
-  updates[`/members/${chat_id}/${user_id}/added`] = new_key;
-  updates[`/chats/${chat_id}/lastMessage/`] = message.text;
-  updates[`/messages/${chat_id}/${new_key}/`] = message;
-  return fb_db.ref.update(updates);
+export const chat_adduser = async (chat_id: string, user_id: string, user_name: string, adder_id: string, adder_name: string) => {
+  return new Promise<boolean>((resolve, reject) => {
+    fb_db.ref.child("members").child(chat_id).orderByKey().equalTo(user_id).once("value", snapshot =>{
+      
+      if (snapshot.exists()) {
+        resolve(false)
+      } else {
+        let new_key = fb_db.ref.child("messages").push().key;
+        let updates = {};
+        let message = {
+          _id: new_key,
+          text: `User ${user_name} was added by ${adder_name}`,
+          createdAt: new Date(),
+          system: true,
+        };
+        updates[`/members/${chat_id}/${user_id}/member`] = true;
+        updates[`/members/${chat_id}/${user_id}/added`] = new_key;
+        updates[`/chats/${chat_id}/lastMessage/`] = message.text;
+        updates[`/messages/${chat_id}/${new_key}/`] = message;
+        fb_db.ref.update(updates);
+        resolve(true);
+      }
+    });
+  });
 };
 
 export interface ChatMessage {
