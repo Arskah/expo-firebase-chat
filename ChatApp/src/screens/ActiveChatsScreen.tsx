@@ -130,19 +130,21 @@ const DEVICE_HEIGHT = Layout.window.height;
 const styles = StyleSheet.create({
   chatButton: {
     padding: 8,
-    fontSize: 18,
+    fontSize: 14,
     height: 60,
-    width: DEVICE_WIDTH - 50,
+    width: DEVICE_WIDTH,
     alignItems: "flex-start",
-    borderWidth: 1,
+    backgroundColor: "#00000022",
     borderColor: "black",
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
   },
   container: {
     top: 30,
-    width: DEVICE_WIDTH,
     padding: 20,
     justifyContent: "space-between",
     alignItems: "center",
+    height: DEVICE_HEIGHT - 30,
     flex: 3,
   },
   titleText: {
