@@ -41,6 +41,23 @@ Cd to ChatApp directory and Install dependencies.
 cd ChatApp && npm install
 ```
 
+Download google-services.json file from Firebase and place it in ChatApp.
+
+Check that app.json file has it included.
+
+```json
+"googleServicesFile": "./google-services.json",
+```
+
+In order for Expo to send notifications from our servers using your credentials, you'll need to upload your secret server key. You can find this key in the Firebase Console for your project:
+
+At the top of the sidebar, click the gear icon to the right of Project Overview to go to your project settings.
+Click on the Cloud Messaging tab in the Settings pane.
+
+Copy the token listed next to Server key.
+
+Run expo push:android:upload --api-key <your-token-here>, replacing <your-token-here> with the string you just copied. We'll store your token securely on our servers, where it will only be accessed when you send a push notification.
+
 ## Running the App
 
 ### Building the Android .apk-file
