@@ -245,24 +245,26 @@ export interface GalleryImage {
   label: string;
 }
 
+const get_image_label = async (key: string) => {
+  return firebase.database().ref(`/image_labels/${key}`).once("value");
+};
+
 export const get_gallery_images = async (chat_id: string, resolution: string) => {
   const image_messages = await chat_images(chat_id, resolution);
   // We basically change the array type here, removing all unneeded data.
-  await Promise.all(image_messages.map(async (elem) => {
+  const res_images = await image_messages.map(async(elem) => {
     const label_key = elem.image.slice(elem.image.indexOf("chat_pictures"), elem.image.indexOf("?alt"));
-    firebase.database().ref("/image_labels").child(label_key).once("value")
-      .then((snapshot) => {
-        const item: GalleryImage = {
-          image: elem.image,
-          created: elem.createdAt,
-          author: elem.user.name,
-          label: snapshot.val().description,
-        };
-        console.log(item);
-        return item;
-      });
-  }));
-  return image_messages;
+    const snapshot = await get_image_label(label_key);
+    const item: GalleryImage = {
+      image: elem.image,
+      created: elem.createdAt,
+      author: elem.user.name,
+      label: snapshot.val().description,
+    };
+    return item;
+  });
+  const res = await Promise.all(res_images);
+  return res;
 };
 
 // get image with given resolution

@@ -1,13 +1,15 @@
 import React, { Fragment } from "react";
-import { View, Text, StyleSheet, BackHandler, Image } from "react-native";
-import { ChatMessage, GalleryImage, chat_images, get_user_by_email, image_get_raw, get_gallery_images_recent } from "../Fire";
+import { View, Text, StyleSheet, BackHandler, Image, FlatList } from "react-native";
+import { GalleryImage, get_user_by_email, get_gallery_images } from "../Fire";
+import Colors from "../constants/Colors";
+import Layout from "../constants/Layout";
 import firebase from "firebase";
 
 export interface GalleryScreenProps {
   navigation: any;
 }
 export interface GalleryScreenState {
-  images: ChatMessage[];
+  images: GalleryImage[];
   resolution: "full" | "high" | "low",
   sort: "recent" | "label" | "author",
 }
@@ -55,28 +57,82 @@ export default class GalleryScreen extends React.Component<GalleryScreenProps, G
     BackHandler.removeEventListener("hardwareBackPress", () => { return; });
   }
 
+  renderItem({ item }) {
+    const image_source = item.image;
+    const text = item.text;
+    return (
+      <View style={styles.list_item}>
+        <Image source={{uri: image_source}} style={styles.image}></Image>
+        <Text style={styles.text}>{text}</Text>
+      </View>
+    );
+  }
+
   render() {
     const { images, resolution, sort } = this.state;
-    const image_paths = images.map(message => {
-      image_get_raw(message.image, resolution);
-    });
+    let image_text: Array<{
+      key: string,
+      image: string,
+      text: string,
+    }>;
+    if (sort === "label") {
+      image_text = images.map((elem, index) => {
+        return {
+          key: index.toString(),
+          image: elem.image,
+          text: elem.label,
+        };
+      });
+    } else if (sort === "author") {
+      image_text = images.map((elem, index) => {
+        return {
+          key: index.toString(),
+          image: elem.image,
+          text: elem.author,
+        };
+      });
+    } else {
+      image_text = images.map((elem, index) => {
+        return  {
+          key: index.toString(),
+          image: elem.image,
+          text: elem.created,
+        };
+      });
+    }
     return (
-      <View style={styles.container}>
-      {images.map((message: ChatMessage) => (
-        <Fragment>
-          <Image source={message.image} />
-          <Text>{message.user.name}</Text>
-        </Fragment>
-      ))}
-      </View>
+      <FlatList
+        contentContainerStyle={styles.list}
+        data={image_text}
+        renderItem={this.renderItem}
+      />
     );
   }
 }
 
+const DEVICE_WIDTH = Layout.window.width;
+// const DEVICE_HEIGHT = Layout.window.height;
+
 const styles = StyleSheet.create({
-  container: {
+  list_item: {
     flex: 1,
+    margin: 5,
+    minWidth: 170,
+    maxWidth: 223,
+    height: 304,
+    maxHeight: 304,
+  },
+  list: {
     justifyContent: "center",
-    alignItems: "center",
+    flexDirection: "row",
+    // flexWrap: "wrap",
+  },
+  image: {
+    width: 170,
+    height: 304,
+  },
+  text: {
+    padding: 20,
+    color: Colors.black,
   },
 });
