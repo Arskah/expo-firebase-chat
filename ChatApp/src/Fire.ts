@@ -64,6 +64,7 @@ export const chat_create = (name: string, uid: string) => {
   // Add
   updates[`/chats/${new_key}/`] = postData;
   updates[`/members/${new_key}/${uid}/member`] = true;
+  updates[`/members/${new_key}/${uid}/added`] = fb_db.ref.child("messages").push().key;
   console.log(updates);
   return [fb_db.ref.update(updates), updates];
 };
@@ -145,42 +146,61 @@ export const chat_leave = (chat_id: string, user_id: string, user_name: string) 
   return fb_db.ref.update(updates);
 };
 
-export const get_old_chat_messages = async (chat_id: string, resolution: string) => {
+export const get_old_chat_messages = async (chat_id: string, resolution: string, uid: string) => {
   return new Promise<any[]>((resolve, reject) => {
-    fb_db.ref.child("messages").child(chat_id).once("value", (snapshot) => {
-      let messages = [];
-      /* tslint:disable:no-string-literal */
+    console.log("User id: ",uid)
+    fb_db.ref.child("members").child(chat_id).orderByKey().equalTo(uid).once("value", snapshot =>{
+
       if (!snapshot) {
         resolve(undefined);
       }
-      let promises = [];
-      snapshot.forEach( child => {
-        if (child && child.val() && child.val()["_id"]) {
-          let message: ChatMessage;
-          let systemMessage: SystemMessage;
+      console.log("Snapshot: ",snapshot);
 
-          if (child.val().system) {
-            systemMessage = child.val();
-            messages.push(systemMessage);
-          } else {
-            message = child.val();
-            if (!message.image) {
-              messages.push(message);
-            } else {
-              let promise = image_get_raw(message.image, resolution)
-              .then(image => {
-                message.image = image;
-                messages.push(message);
-              });
-              promises.push(promise);
-            }
-          }
+      snapshot.forEach( child => {
+        let start_key;
+        if(child && child.val() && child.val().added){
+          start_key = child.val().added;
+
+        } else {
+          start_key = fb_db.ref.child("messages").push().key;
         }
-        /* tslint:enable:no-string-literal */
-      });
-      Promise.all(promises)
-      .then(() => {
-        resolve(messages);
+
+        fb_db.ref.child("messages").child(chat_id).orderByKey().startAt(start_key).once("value", (snapshot) => {
+          let messages = [];
+          /* tslint:disable:no-string-literal */
+          if (!snapshot) {
+            resolve(undefined);
+          }
+          let promises = [];
+          snapshot.forEach( child => {
+            if (child && child.val() && child.val()["_id"]) {
+              let message: ChatMessage;
+              let systemMessage: SystemMessage;
+
+              if (child.val().system) {
+                systemMessage = child.val();
+                messages.push(systemMessage);
+              } else {
+                message = child.val();
+                if (!message.image) {
+                  messages.push(message);
+                } else {
+                  let promise = image_get_raw(message.image, resolution)
+                  .then(image => {
+                    message.image = image;
+                    messages.push(message);
+                  });
+                  promises.push(promise);
+                }
+              }
+            }
+            /* tslint:enable:no-string-literal */
+          });
+          Promise.all(promises)
+          .then(() => {
+            resolve(messages);
+          });
+        });
       });
     });
   });
@@ -230,8 +250,8 @@ export const get_new_chat_messages = (chat_id: string, resolution: string) => {
 };
 
 // retrieve list of 'ChatMessage's of all messages with image
-export const chat_images = async (chat_id: string, resolution: string) => {
-  const all_messages = await get_old_chat_messages(chat_id, resolution);
+export const chat_images = async (chat_id: string, resolution: string, uid: string) => {
+  const all_messages = await get_old_chat_messages(chat_id, resolution, uid);
   const images = await all_messages.filter((element: ChatMessage) => {
     return element.image;
   });
@@ -249,8 +269,8 @@ const get_image_label = async (key: string) => {
   return firebase.database().ref(`/image_labels/${key}`).once("value");
 };
 
-export const get_gallery_images = async (chat_id: string, resolution: string) => {
-  const image_messages = await chat_images(chat_id, resolution);
+export const get_gallery_images = async (chat_id: string, resolution: string, uid: string) => {
+  const image_messages = await chat_images(chat_id, resolution, uid);
   // We basically change the array type here, removing all unneeded data.
   const res_images = await image_messages.map(async(elem) => {
     const label_key = elem.image.slice(elem.image.indexOf("chat_pictures"), elem.image.indexOf("?alt"));
