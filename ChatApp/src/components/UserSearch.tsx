@@ -82,6 +82,8 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
               </TouchableOpacity>
             }
           />
+      { this.state.selectedUser && 
+      <View>
       <Text>Add {this.state.selectedUser ? this.state.selectedUser.displayName: "None"} to Group</Text>
       <FlatList
             data = {this.state.availableChats}
@@ -97,6 +99,8 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
               </TouchableOpacity>
             }
           />
+      </View>
+      }
       </View>
       
     );
