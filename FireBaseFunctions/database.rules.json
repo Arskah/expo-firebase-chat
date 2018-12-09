@@ -1,9 +1,39 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true,
     "users": {
-      ".indexOn": "displayName",
+      ".read": true,
+      "$uid": {
+        ".write": "!data.exists() || $uid === auth.uid",
+        ".indexOn": "displayName",
+      }
+    },
+    "push_keys": {
+      "$uid": {
+        ".read": "!data.exists() || auth.uid === $uid",
+        ".write": "!data.exists() || auth.uid === $uid",
+      }
+    },
+    "messages": {
+      "$chat": {
+        ".read": "auth.uid != null && root.child('members').child($chat).child(auth.uid).child('member').val() === true",
+        ".write": "auth.uid != null && !data.exists() && root.child('members').child($chat).child(auth.uid).child('member').val() === true"
+      }
+    },
+    "members": {
+      "$chat": {
+        ".read": "auth.uid != null",
+        ".write": "auth.uid != null && (!data.exists() || root.child('members').child($chat).child(auth.uid).child('member').val() === true)"
+      }
+    },
+    "image_labels": {
+      ".read": "auth.uid != null",
+      ".write": false
+    },
+    "chats": {
+      "$chat": {
+        ".read": "auth.uid != null && (!data.exists() || root.child('members').child($chat).child(auth.uid).child('member').val() === true)",
+        ".write": "auth.uid != null && (!data.exists() || root.child('members').child($chat).child(auth.uid).child('member').val() === true)"
+      }
     }
   }
 }
