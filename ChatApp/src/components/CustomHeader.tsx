@@ -8,6 +8,7 @@ import HeaderHome from "../components/HeaderHome";
 
 export interface CustomHeaderProps {
   text: string,
+  navigation: any,
 }
 export interface CustomHeaderState {
   fonts: boolean,
@@ -26,13 +27,17 @@ class CustomHeader extends React.Component<CustomHeaderProps, CustomHeaderState>
     this.setState({ fonts: true })
   }
 
+  handleHomePress = () => {
+    this.props.navigation.navigate("ActiveChatsScreen");
+  }
+
   render() {
     if (this.state.fonts) {
       return (
         <Header
           leftComponent={{ icon: 'menu', color: '#fff' }}
           centerComponent={{ text: this.props.text, style: { color: '#fff' } }}
-          rightComponent={<HeaderHome/>}
+          rightComponent={<HeaderHome handlePress={this.handleHomePress}/>}
         />
       );
     } else {

@@ -5,6 +5,7 @@ import SignupForm from "../components/SignupForm";
 import Wallpaper from "../components/Wallpaper";
 import { Font, AppLoading } from 'expo'
 import { MaterialIcons } from '@expo/vector-icons'
+import CustomHeader from "../components/CustomHeader";
 
 export interface SignupScreenProps {
   navigation: any
@@ -38,6 +39,7 @@ export default class SignupScreen extends Component<SignupScreenProps, SignupScr
   render() {
     return !this.state.fonts ? (<AppLoading/>) : (
       <Wallpaper>
+        <CustomHeader text={"Search users and add them to chats"} navigation={this.props.navigation} />
         <UserSearch />
         <View style={
           {

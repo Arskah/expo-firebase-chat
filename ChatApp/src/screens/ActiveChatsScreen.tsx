@@ -7,6 +7,7 @@ import { active_chats, get_chat_details } from "../Fire";
 import * as firebase from "firebase";
 import Wallpaper from "../components/Wallpaper";
 import DropdownMenu from "../components/DropdownMenu";
+import CustomHeader from "../components/CustomHeader";
 
 export interface ActiveChatsScreenProps {
   navigation: any;
@@ -103,6 +104,7 @@ export default class ActiveChatsScreen extends React.Component<ActiveChatsScreen
             flex: 1,
           }}
         >
+        <CustomHeader text={"Chat list"} navigation={this.props.navigation} />
         <View style = {styles.container}>
           <FlatList
             data = {this.state.titles_lastMessages}

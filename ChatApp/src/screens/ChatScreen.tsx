@@ -298,7 +298,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       return (
         <Wallpaper>
         <View style={{flex: 1}}>
-        <CustomHeader text={this.state.title} />
+        <CustomHeader text={this.state.title} navigation={this.props.navigation} />
           <GiftedChat
             messages={this.state.messages}
             onSend={messages => this.onSend(messages)}
