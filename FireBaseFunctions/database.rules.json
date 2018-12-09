@@ -1,5 +1,7 @@
 {
   "rules": {
+    ".write": true,
+    ".read": true,
     "users": {
       ".read": true,
       "$uid": {
