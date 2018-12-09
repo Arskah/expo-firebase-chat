@@ -68,7 +68,7 @@ class DropdownMenu extends React.Component<DropdownMenuProps, DropdownMenuState>
               <Text style={styles.menuContent}>Create Chat</Text>
             </MenuOption>
             <MenuOption value={"userSearch"}>
-              <Text style={styles.menuContent}>User Search!</Text>
+              <Text style={styles.menuContent}>User Search</Text>
             </MenuOption>
             <MenuOption value={"logout"}>
               <Text style={styles.menuContent}>Logout</Text>
