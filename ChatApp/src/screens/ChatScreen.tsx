@@ -307,6 +307,9 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
                 />}
             showUserAvatar = {true}
             imageStyle={undefined}
+            onPressAvatar={(user) => {
+              Alert.alert(`User: ${user.name}`)
+            }}
           />
           {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
         </View>
