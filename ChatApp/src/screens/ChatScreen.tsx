@@ -1,15 +1,15 @@
 import React from "react";
-import { View, Platform, Button, Alert, BackHandler, Image, Text} from "react-native";
-import {Header} from "react-native-elements";
+import { View, Platform, Alert, BackHandler, Image, Text} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
 import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key, fb_db, image_get_raw, update_expo_push_notification } from "../Fire";
 import { image_upload_chat, get_old_chat_messages, update_message_info, chat_leave, get_chat_details } from "../Fire";
 import firebase from "firebase";
-import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions, ImageManipulator, Font } from "expo";
 import ChatRenderAccessory from "../components/ChatRenderAccessory";
 import LoadingIcon from "../components/LoadingIcon";
+import CustomHeader from "../components/CustomHeader";
+
 let loading_image = require("../assets/icons/loading.gif");
 
 const HIGH_WIDTH = 1280;
@@ -32,7 +32,6 @@ export interface ChatScreenState {
   avatar: string,
   resolution: "full" | "high" | "low",
   loading: boolean,
-  fonts: boolean,
 }
 
 export default class ChatScreen extends React.Component<ChatScreenProps, ChatScreenState> {
@@ -54,13 +53,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
       avatar: undefined,
       resolution: undefined,
       loading: true,
-      fonts: false,
     };
-  }
-
-  async componentWillMount() {
-    await Font.loadAsync({'MaterialIcons': require('@expo/vector-icons/fonts/MaterialIcons.ttf')}) 
-    this.setState({ fonts: true })
   }
 
   componentDidMount() {
@@ -300,14 +293,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
   }
 
   render() {
-    if(!this.state.loading && this.state.fonts){
+    if(!this.state.loading){
       return (
         <View style={{flex: 1}}>
-        <Header
-          //leftComponent={{ icon: 'menu', color: '#fff' }}
-          centerComponent={{ text: this.state.title, style: { color: '#fff' } }}
-          //rightComponent={{ icon: 'home', color: '#fff' }}
-        />
+        <CustomHeader text={this.state.title} />
           <GiftedChat
             messages={this.state.messages}
             onSend={messages => this.onSend(messages)}
