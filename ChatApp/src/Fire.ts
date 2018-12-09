@@ -378,7 +378,7 @@ export const user_create = (username: string, email: string, password: string) =
               picture: defaultPicture,
             };
             // Also set user membership in all chats as false
-            let new_key = fb_db.ref.child("users").push().key;
+            let new_key = user.user.uid;
             let updates = {};
             updates[`/users/${new_key}`] = postData;
             // TODO: Not sure if .on() is the correct method...
@@ -499,8 +499,19 @@ export const get_chat_details = (chats_list: Array<string>) => {
 };
 
 // results
-export const user_search = async (search_term: string) => {
-  return;
+export const user_search = (search_term: string) => {
+  return new Promise((resolve, reject) => {
+    firebase.database().ref().child("users").orderByChild("displayName")
+      .startAt(search_term).endAt(search_term+"\uf8ff").on("value", (snapshot) => {
+        let users = [];
+        snapshot.forEach((data) => {
+          let user = data.val()
+          user.key = data.key
+          users.push(user);
+        });
+        resolve(users);
+    });
+  });
 };
 
 // value
