@@ -2,8 +2,8 @@ import React from "react";
 import { View, Platform, Button, Alert, BackHandler, Image, Text} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
-import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key, fb_db, image_get_raw } from "../Fire";
-import { image_upload_chat, get_old_chat_messages, get_new_chat_messages, chat_leave } from "../Fire";
+import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key, fb_db, image_get_raw, update_expo_push_notification } from "../Fire";
+import { image_upload_chat, get_old_chat_messages, update_message_info, chat_leave } from "../Fire";
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions, ImageManipulator } from "expo";
@@ -80,7 +80,10 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         get_old_chat_messages(this.state.chat_id, response.val().resolution, user.uid)
         .then(messages => {
           if (messages) {
-            this.setState({messages: messages.sort(this.sortByDate), loading:false});
+            var promises = messages.map(m => update_message_info(m,this.state.chat_id))
+            Promise.all(promises).then(results => {
+              this.setState({messages: results.filter(r => r).sort(this.sortByDate), loading:false});
+            });
           }
         });
 
@@ -92,22 +95,26 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           if(child && child.val()){
             let message_container = [];
             let new_message = child.val();
-            if (new_message.image) {
-              image_get_raw(new_message.image, this.state.resolution)
-              .then(image => {
-                console.log(image);
-                new_message.image = image;
+            update_message_info(new_message, this.state.chat_id)
+            .then(updated_message => {
+              console.log(updated_message);
+              if (updated_message.image) {
+                image_get_raw(updated_message.image, this.state.resolution)
+                .then(image => {
+                  console.log(image);
+                  updated_message.image = image;
+                  message_container.push(new_message);
+                  this.setState(previousState => ({
+                    messages: GiftedChat.append(previousState.messages, message_container).sort(this.sortByDate),
+                  }));
+                });
+              } else {
                 message_container.push(new_message);
                 this.setState(previousState => ({
                   messages: GiftedChat.append(previousState.messages, message_container).sort(this.sortByDate),
                 }));
-              });
-            } else {
-              message_container.push(new_message);
-              this.setState(previousState => ({
-                messages: GiftedChat.append(previousState.messages, message_container).sort(this.sortByDate),
-              }));
-            }
+              }
+            });
           }
         });
         

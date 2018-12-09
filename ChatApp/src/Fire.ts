@@ -206,8 +206,36 @@ export const get_old_chat_messages = async (chat_id: string, resolution: string,
   });
 };
 
-export const get_new_chat_messages = (chat_id: string, resolution: string) => {
-  return;
+export const update_message_info = async (msg: any, chat_id: string) => {
+  return new Promise<ChatMessage | SystemMessage>((resolve, reject) => {
+  if(msg.system){
+    resolve(msg);
+  } 
+
+  fb_db.ref.child("members").child(chat_id).orderByKey().equalTo(msg.user._id).once("value", snapshot =>{
+    if(!snapshot.exists()){
+      console.log("User doesn't belong to the chat");
+      resolve(undefined);
+    }
+  });
+
+  fb_db.ref.child("users").orderByKey().equalTo(msg.user._id).once("value", snapshot => {
+    if(!snapshot.exists()){
+      console.log("User doesn't exist");
+      resolve(undefined);
+    }
+    if(snapshot.val()){
+      let updated_message: ChatMessage;
+      updated_message = msg;
+      updated_message.user.name = snapshot.val()[msg.user._id].displayName;
+      console.log(snapshot.val()[msg.user._id].picture);
+      updated_message.user.avatar = snapshot.val()[msg.user._id].picture;
+      resolve(updated_message);
+    } else {
+      resolve(undefined);
+    }
+  });
+  });
 };
 
 // retrieve list of 'ChatMessage's of all messages with image
