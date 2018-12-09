@@ -33,7 +33,7 @@ import path from "react-native-path";
 */
 
 let fb_app: firebase.app.App;
-let fb_db: firebase.database.Reference;
+export let fb_db: firebase.database.Reference;
 let fb_storage: firebase.storage.Reference;
 
 // tslint:disable-next-line:max-line-length
@@ -207,46 +207,7 @@ export const get_old_chat_messages = async (chat_id: string, resolution: string,
 };
 
 export const get_new_chat_messages = (chat_id: string, resolution: string) => {
-  return new Promise<any[]>((resolve, reject) => {
-    let start_key = get_new_key("messages");
-    fb_db.ref.child("messages").child(chat_id).orderByKey().startAt(start_key).on("child_added", (child) => {
-      let messages = [];
-      /* tslint:disable:no-string-literal */
-
-      if (child && child.val() && child.val()["_id"]) {
-
-          let message: ChatMessage;
-          let systemMessage: SystemMessage;
-
-          if (child.val().system) {
-            systemMessage = child.val();
-            messages.push(systemMessage);
-            resolve(messages);
-          } else {
-            message = child.val();
-            messages.push(message);
-            get_user(message.user.name)
-            .then((response: firebase.database.DataSnapshot) => {
-              if (response && response.val()) {
-                message.user.avatar = response.val().picture;
-              }
-              if (message.image) {
-                image_get_raw(message.image, resolution)
-                .then(image => {
-                  message.image = image;
-                  messages.push(message);
-                });
-                messages.push(message);
-                resolve(messages);
-              } else {
-                messages.push(message);
-                resolve(messages);
-              }
-            });
-          }
-        }
-    });
-  });
+  return;
 };
 
 // retrieve list of 'ChatMessage's of all messages with image
@@ -289,6 +250,7 @@ export const get_gallery_images = async (chat_id: string, resolution: string, ui
 
 // get image with given resolution
 export const image_get_raw = async (image_path: string, resolution: string) => {
+  console.log("image get raw got a request");
   if (image_path.startsWith("chat_pictures")) {
     if (resolution === "full") {
       return firebase.storage().ref(image_path).getDownloadURL();
@@ -378,7 +340,7 @@ export const user_create = (username: string, email: string, password: string) =
               picture: defaultPicture,
             };
             // Also set user membership in all chats as false
-            let new_key = fb_db.ref.child("users").push().key;
+            let new_key = user.user.uid;
             let updates = {};
             updates[`/users/${new_key}`] = postData;
             // TODO: Not sure if .on() is the correct method...

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Platform, Button, Alert, BackHandler, Image, Text} from "react-native";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import { GiftedChat } from "react-native-gifted-chat";
-import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key } from "../Fire";
+import { chat_send, get_user, ChatMessage, UserChatMessage, get_new_key, fb_db, image_get_raw } from "../Fire";
 import { image_upload_chat, get_old_chat_messages, get_new_chat_messages, chat_leave } from "../Fire";
 import firebase from "firebase";
 import Dialog from "react-native-dialog";
@@ -85,18 +85,36 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
         });
 
       // Load only messages that have come after the creation of start_key
-        get_new_chat_messages(this.state.chat_id, response.val().resolution)
-        .then(new_messages => {
-          if (this.state.messages.findIndex(m => m._id === new_messages[0]._id) === -1) {
-            this.setState(previousState => ({
-              messages: GiftedChat.append(previousState.messages, new_messages).sort(this.sortByDate),
-            }));
+        let start_key = get_new_key("messages");
+        fb_db.ref.child("messages").child(this.state.chat_id).orderByKey().startAt(start_key).on("child_added", (child) => {
+          /* tslint:disable:no-string-literal */
+          //console.log("Message in new messages: ",child.val());
+          if(child && child.val()){
+            let message_container = [];
+            let new_message = child.val();
+            if (new_message.image) {
+              image_get_raw(new_message.image, this.state.resolution)
+              .then(image => {
+                console.log(image);
+                new_message.image = image;
+                message_container.push(new_message);
+                this.setState(previousState => ({
+                  messages: GiftedChat.append(previousState.messages, message_container).sort(this.sortByDate),
+                }));
+              });
+            } else {
+              message_container.push(new_message);
+              this.setState(previousState => ({
+                messages: GiftedChat.append(previousState.messages, message_container).sort(this.sortByDate),
+              }));
+            }
           }
         });
+        
       });
 
     } else {
-      this.props.navigation.navigate("LoginScreen");
+      this.props.navigation.navigate("LandingScreen");
     }
   }
 
