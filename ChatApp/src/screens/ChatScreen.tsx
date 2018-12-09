@@ -9,6 +9,7 @@ import Dialog from "react-native-dialog";
 import { ImagePicker, Permissions, ImageManipulator } from "expo";
 import ChatRenderAccessory from "../components/ChatRenderAccessory";
 import LoadingIcon from "../components/LoadingIcon";
+import Wallpaper from "../components/Wallpaper";
 let loading_image = require("../assets/icons/loading.gif");
 
 const HIGH_WIDTH = 1280;
@@ -292,6 +293,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
     if(!this.state.loading){
       console.log(this.state.loading);
       return (
+        <Wallpaper>
         <View style={{flex: 1}}>
           <GiftedChat
             messages={this.state.messages}
@@ -317,6 +319,7 @@ export default class ChatScreen extends React.Component<ChatScreenProps, ChatScr
           />
           {Platform.OS === "android" ? <KeyboardSpacer /> : undefined}
         </View>
+        </Wallpaper>
       );
     } else {
       return(<LoadingIcon image={loading_image}></LoadingIcon>)
