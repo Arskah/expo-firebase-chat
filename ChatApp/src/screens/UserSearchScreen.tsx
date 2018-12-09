@@ -4,7 +4,7 @@ import UserSearch from "../components/UserSearch";
 import SignupForm from "../components/SignupForm";
 import Wallpaper from "../components/Wallpaper";
 import { Font, AppLoading } from 'expo'
-import { MaterialIcons } from '@expo/vector-icons'
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'
 import CustomHeader from "../components/CustomHeader";
 
 export interface SignupScreenProps {
@@ -21,7 +21,7 @@ export default class SignupScreen extends Component<SignupScreenProps, SignupScr
     }
   }
   async componentWillMount() {
-    await Font.loadAsync({'MaterialIcons': require('@expo/vector-icons/fonts/MaterialIcons.ttf')}) 
+    await Font.loadAsync({"MaterialCommunityIcons": require('@expo/vector-icons/fonts/MaterialCommunityIcons.ttf')}, ) 
     this.setState({ fonts: true })
   }
 
