@@ -167,7 +167,6 @@ export const get_old_chat_messages = async (chat_id: string, resolution: string)
             if (!message.image) {
               messages.push(message);
             } else {
-              console.log("Should call?");
               let promise = image_get_raw(message.image, resolution)
               .then(image => {
                 message.image = image;
@@ -248,25 +247,26 @@ export interface GalleryImage {
 
 export const get_gallery_images = async (chat_id: string, resolution: string) => {
   const image_messages = await chat_images(chat_id, resolution);
-  // We basically change the array type here, removeing all unneeded data.
+  // We basically change the array type here, removing all unneeded data.
   await Promise.all(image_messages.map(async (elem) => {
-    const image_path = await image_get_raw(elem.image, resolution);
-    let label: string;
-    const item: GalleryImage = {
-      image: image_path,
-      created: elem.createdAt,
-      author: elem.author,
-      label: elem.label,
-    };
-    return item;
+    const label_key = elem.image.slice(elem.image.indexOf("chat_pictures"), elem.image.indexOf("?alt"));
+    firebase.database().ref("/image_labels").child(label_key).once("value")
+      .then((snapshot) => {
+        const item: GalleryImage = {
+          image: elem.image,
+          created: elem.createdAt,
+          author: elem.user.name,
+          label: snapshot.val().description,
+        };
+        console.log(item);
+        return item;
+      });
   }));
   return image_messages;
 };
 
 // get image with given resolution
 export const image_get_raw = async (image_path: string, resolution: string) => {
-
-  console.log("Image get ", image_path, " ", resolution);
   if (image_path.startsWith("chat_pictures")) {
     if (resolution === "full") {
       return firebase.storage().ref(image_path).getDownloadURL();

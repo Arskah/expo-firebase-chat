@@ -37,8 +37,7 @@ export default class GalleryScreen extends React.Component<GalleryScreenProps, G
           return response.val().resolution;
         })
         .then((resolution) => {
-          console.log(resolution);
-          get_gallery_images_recent(this.chat_id, resolution)
+          get_gallery_images(this.chat_id, resolution)
           .then((images) => {
             this.setState({
               resolution: resolution,
