@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import { BackHandler, FlatList, TouchableOpacity } from "react-native";
 import { SearchBar } from 'react-native-elements';
 import Colors from "../constants/Colors";
@@ -34,7 +34,6 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
       let chats = snapshots.map((snapshot)=>{
         let chat = snapshot.val()
         chat.key = snapshot.key
-        console.log(chat);
         return chat;
       })
       this_.setState({availableChats: chats});
@@ -43,7 +42,6 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
   searchUsers = () => {
     if (this.state.searchText.length>1){
       user_search(this.state.searchText).then((users)=>{
-        console.log(users);
         this.setState({
           users: users,
         })
@@ -93,6 +91,7 @@ class UserSearch extends React.Component<UserSearchProps, UserSearchState> {
                 onPress={() => {
                   if (firebase.auth()){
                     chat_adduser(item.key, this.state.selectedUser.key, firebase.auth().currentUser.uid)};
+                    Alert.alert(`Added user ${this.state.selectedUser.displayName} to chat ${item.title}`)
                   }
                   }> 
                 <Text>{item.title} </Text>
