@@ -26,7 +26,7 @@ export default class SignupScreen extends Component<SignupScreenProps, SignupScr
 
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", () => {
-      this.props.navigation.navigate("LoginScreen");
+      this.props.navigation.navigate("ActiveChatsScreen");
       return true;
     });
   }
