@@ -164,7 +164,7 @@ exports.newMessage = functions.database.ref('messages/{chat_id}/{message_id}')
     const message = snapshot.val();
     // We have either text or images, so...
     const text = message.text ? message.text : "New image";
-    const sender_id = message.system ? undefined : message.user.auth_id;
+    const sender_id = message.system ? undefined : message.user._id;
     send_push_notification(text, sender_id, context.params.chat_id)
       .catch((err) => console.error(err));
     return true;
