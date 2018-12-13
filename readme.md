@@ -1,16 +1,6 @@
 # Real-time multimedia chat
 
-## Mobile Cloud Computing Project, Group 13
-
-### Group Members
-
-* Tommi Askola
-
-* Aarni Halinen 424974
-
-* Noah Nettey
-
-* Ilkka Oksanen
+## Aalto University Mobile Cloud Computing course project
 
 ## Description
 
@@ -92,11 +82,3 @@ Other scripts
   npm run clean             # Remove dist folder (compiled code)
   npm run plop              # Create new component from a template
 ```
-
-### Implemented features
-
-#### Frontend
-
-#### Backend
-
-## Installation
